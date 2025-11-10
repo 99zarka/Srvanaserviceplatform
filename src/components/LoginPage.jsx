@@ -13,7 +13,7 @@ export function LoginPage() {
   });
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     // Mock login - in real app would authenticate
     alert("Login successful! (Demo)");

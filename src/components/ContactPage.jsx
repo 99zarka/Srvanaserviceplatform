@@ -14,7 +14,7 @@ export function ContactPage() {
     message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission (mock for now)
     alert("Thank you for your message! We'll get back to you soon.");

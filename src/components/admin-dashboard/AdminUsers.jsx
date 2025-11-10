@@ -11,17 +11,17 @@ export function AdminUsers() {
     { id: 4, name: "Emma Davis", email: "emma@example.com", type: "Client", status: "Active", joinDate: "Nov 4, 2025" },
   ];
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; className: string }> = {
-      "Active": { variant: "default" as const, className: "bg-green-100 text-green-800" },
-      "Pending": { variant: "default" as const, className: "bg-yellow-100 text-yellow-800" },
-      "Inactive": { variant: "default" as const, className: "bg-gray-100 text-gray-800" },
+  const getStatusBadge = (status) => {
+    const variants = {
+      "Active": { variant: "default", className: "bg-green-100 text-green-800" },
+      "Pending": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
+      "Inactive": { variant: "default", className: "bg-gray-100 text-gray-800" },
     };
     const config = variants[status] || variants["Pending"];
     return <Badge variant={config.variant} className={config.className}>{status}</Badge>;
   };
 
-  const getTypeBadge = (type: string) => {
+  const getTypeBadge = (type) => {
     return (
       <Badge variant="outline" className={type === "Worker" ? "border-primary text-primary" : "border-secondary text-secondary"}>
         {type}

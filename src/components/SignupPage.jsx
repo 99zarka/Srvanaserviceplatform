@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Link, useNavigate } from "react-router-dom";
 
 export function SignupPage() {
-  const [userType, setUserType] = useState<"client" | "worker">("client");
+  const [userType, setUserType] = useState("client");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,7 +18,7 @@ export function SignupPage() {
   });
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords don't match!");
@@ -54,7 +54,7 @@ export function SignupPage() {
                 <Label className="mb-3 block">I am a:</Label>
                 <RadioGroup
                   value={userType}
-                  onValueChange={(value) => setUserType(value as "client" | "worker")}
+                  onValueChange={(value) => setUserType(value)}
                   className="flex gap-4"
                 >
                   <div className="flex-1">

@@ -19,11 +19,11 @@ export function WorkerOverview() {
     { id: 3, client: "Emma Davis", service: "Carpentry", location: "789 Maple Dr", date: "Nov 8, 2025", amount: "$580", status: "Scheduled" },
   ];
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; className: string }> = {
-      "Scheduled": { variant: "default" as const, className: "bg-blue-100 text-blue-800" },
-      "In Progress": { variant: "default" as const, className: "bg-yellow-100 text-yellow-800" },
-      "Completed": { variant: "default" as const, className: "bg-green-100 text-green-800" },
+  const getStatusBadge = (status) => {
+    const variants = {
+      "Scheduled": { variant: "default", className: "bg-blue-100 text-blue-800" },
+      "In Progress": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
+      "Completed": { variant: "default", className: "bg-green-100 text-green-800" },
     };
     const config = variants[status] || variants["Scheduled"];
     return <Badge variant={config.variant} className={config.className}>{status}</Badge>;

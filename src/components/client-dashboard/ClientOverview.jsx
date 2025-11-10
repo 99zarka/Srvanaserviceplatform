@@ -19,12 +19,12 @@ export function ClientOverview() {
     { id: 4, service: "Painting", worker: "Emily Davis", status: "Pending", date: "Oct 28, 2025", amount: "$380" },
   ];
 
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; className: string }> = {
-      "In Progress": { variant: "default" as const, className: "bg-blue-100 text-blue-800" },
-      "Completed": { variant: "default" as const, className: "bg-green-100 text-green-800" },
-      "Pending": { variant: "default" as const, className: "bg-yellow-100 text-yellow-800" },
-      "Cancelled": { variant: "default" as const, className: "bg-red-100 text-red-800" },
+  const getStatusBadge = (status) => {
+    const variants = {
+      "In Progress": { variant: "default", className: "bg-blue-100 text-blue-800" },
+      "Completed": { variant: "default", className: "bg-green-100 text-green-800" },
+      "Pending": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
+      "Cancelled": { variant: "default", className: "bg-red-100 text-red-800" },
     };
     const config = variants[status] || variants["Pending"];
     return <Badge variant={config.variant} className={config.className}>{status}</Badge>;

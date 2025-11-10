@@ -1,26 +1,14 @@
-import { ReactNode } from "react";
 import { LogOut, Menu } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-
-interface DashboardLayoutProps {
-  children: ReactNode;
-  sidebarItems: Array<{
-    icon: React.ComponentType<{ className?: string }>;
-    label: string;
-    path: string;
-  }>;
-  userName: string;
-  userRole: string;
-}
 
 export function DashboardLayout({
   children,
   sidebarItems,
   userName,
   userRole,
-}: DashboardLayoutProps) {
+}) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
