@@ -9,18 +9,18 @@ import { WorkerProfile } from "./worker-dashboard/WorkerProfile";
 
 export function WorkerDashboard() {
   const sidebarItems = [
-    { icon: Home, label: "Overview", path: "/worker-dashboard" },
-    { icon: Briefcase, label: "My Tasks", path: "/worker-dashboard/tasks" },
-    { icon: DollarSign, label: "Earnings", path: "/worker-dashboard/earnings" },
-    { icon: Star, label: "Reviews", path: "/worker-dashboard/reviews" },
-    { icon: User, label: "Profile", path: "/worker-dashboard/profile" },
+    { icon: Home, label: "نظرة عامة", path: "/worker-dashboard" },
+    { icon: Briefcase, label: "مهامي", path: "/worker-dashboard/tasks" },
+    { icon: DollarSign, label: "الأرباح", path: "/worker-dashboard/earnings" },
+    { icon: Star, label: "التقييمات", path: "/worker-dashboard/reviews" },
+    { icon: User, label: "الملف الشخصي", path: "/worker-dashboard/profile" },
   ];
 
   return (
     <DashboardLayout
       sidebarItems={sidebarItems}
-      userName="Alex Johnson"
-      userRole="Carpenter"
+      userName="أليكس جونسون"
+      userRole="نجار"
     >
       <Routes>
         <Route index element={<WorkerOverview />} />

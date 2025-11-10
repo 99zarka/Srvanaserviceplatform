@@ -23,7 +23,7 @@ export default function App() {
   ].includes(location.pathname);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col" dir="rtl">
       {showHeaderFooter && <Header />}
       <div className="flex-1">
         <Routes>

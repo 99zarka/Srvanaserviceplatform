@@ -16,7 +16,7 @@ export function LoginPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Mock login - in real app would authenticate
-    alert("Login successful! (Demo)");
+    alert("تم تسجيل الدخول بنجاح! (تجريبي)");
     navigate("/client-dashboard");
   };
 
@@ -27,21 +27,21 @@ export function LoginPage() {
           <div className="bg-primary rounded-lg px-4 py-2 inline-block mb-4">
             <span className="text-primary-foreground">Srvana</span>
           </div>
-          <h1 className="mb-2">Welcome Back</h1>
-          <p className="text-muted-foreground">Sign in to your account to continue</p>
+          <h1 className="mb-2">مرحبًا بعودتك</h1>
+          <p className="text-muted-foreground">سجل الدخول إلى حسابك للمتابعة</p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Sign In</CardTitle>
+            <CardTitle>تسجيل الدخول</CardTitle>
             <CardDescription>
-              Enter your email and password to access your account
+              أدخل بريدك الإلكتروني وكلمة المرور للوصول إلى حسابك
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">البريد الإلكتروني</Label>
                 <Input
                   id="email"
                   type="email"
@@ -49,19 +49,19 @@ export function LoginPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  placeholder="your.email@example.com"
+                  placeholder="بريدك.الإلكتروني@مثال.كوم"
                   required
                   className="bg-input-background"
                 />
               </div>
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">كلمة المرور</Label>
                   <Link
                     to="/forgot-password" // Assuming a forgot password route
                     className="text-primary hover:underline"
                   >
-                    Forgot?
+                    نسيت؟
                   </Link>
                 </div>
                 <Input
@@ -81,7 +81,7 @@ export function LoginPage() {
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 size="lg"
               >
-                Sign In
+                تسجيل الدخول
               </Button>
             </form>
 
@@ -89,12 +89,12 @@ export function LoginPage() {
               <Separator />
               <div className="text-center mt-6">
                 <p className="text-muted-foreground">
-                  Don't have an account?{" "}
+                  ليس لديك حساب؟{" "}
                   <Link
                     to="/signup"
                     className="text-primary hover:underline"
                   >
-                    Sign up
+                    إنشاء حساب
                   </Link>
                 </p>
               </div>
@@ -106,21 +106,21 @@ export function LoginPage() {
               className="w-full"
               asChild
             >
-              <Link to="/client-dashboard">Demo: Client Dashboard</Link>
+              <Link to="/client-dashboard">تجريبي: لوحة تحكم العميل</Link>
             </Button>
             <Button
               variant="outline"
               className="w-full"
               asChild
             >
-              <Link to="/worker-dashboard">Demo: Worker Dashboard</Link>
+              <Link to="/worker-dashboard">تجريبي: لوحة تحكم العامل</Link>
             </Button>
             <Button
               variant="outline"
               className="w-full"
               asChild
             >
-              <Link to="/admin-dashboard">Demo: Admin Dashboard</Link>
+              <Link to="/admin-dashboard">تجريبي: لوحة تحكم المسؤول</Link>
             </Button>
           </CardFooter>
         </Card>
@@ -130,7 +130,7 @@ export function LoginPage() {
             to="/"
             className="text-muted-foreground hover:text-primary"
           >
-            ← Back to Home
+            ← العودة إلى الرئيسية
           </Link>
         </div>
       </div>

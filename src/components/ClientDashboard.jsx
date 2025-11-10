@@ -9,18 +9,18 @@ import { ClientProfile } from "./client-dashboard/ClientProfile";
 
 export function ClientDashboard() {
   const sidebarItems = [
-    { icon: Home, label: "Overview", path: "/client-dashboard" },
-    { icon: FileText, label: "My Requests", path: "/client-dashboard/requests" },
-    { icon: CreditCard, label: "Payments", path: "/client-dashboard/payments" },
-    { icon: MessageSquare, label: "Messages", path: "/client-dashboard/messages" },
-    { icon: User, label: "Profile", path: "/client-dashboard/profile" },
+    { icon: Home, label: "نظرة عامة", path: "/client-dashboard" },
+    { icon: FileText, label: "طلباتي", path: "/client-dashboard/requests" },
+    { icon: CreditCard, label: "المدفوعات", path: "/client-dashboard/payments" },
+    { icon: MessageSquare, label: "الرسائل", path: "/client-dashboard/messages" },
+    { icon: User, label: "الملف الشخصي", path: "/client-dashboard/profile" },
   ];
 
   return (
     <DashboardLayout
       sidebarItems={sidebarItems}
-      userName="John Doe"
-      userRole="Client"
+      userName="جون دو"
+      userRole="عميل"
     >
       <Routes>
         <Route index element={<ClientOverview />} />

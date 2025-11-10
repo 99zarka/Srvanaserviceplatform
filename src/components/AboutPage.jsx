@@ -3,26 +3,26 @@ import { Card, CardContent } from "./ui/card";
 
 export function AboutPage() {
   const stats = [
-    { label: "Active Users", value: "10,000+", icon: Users },
-    { label: "Services Completed", value: "50,000+", icon: CheckCircle },
-    { label: "Verified Workers", value: "2,500+", icon: Shield },
-    { label: "Customer Satisfaction", value: "98%", icon: Award },
+    { label: "المستخدمون النشطون", value: "10,000+", icon: Users },
+    { label: "الخدمات المكتملة", value: "50,000+", icon: CheckCircle },
+    { label: "العمال الموثقون", value: "2,500+", icon: Shield },
+    { label: "رضا العملاء", value: "98%", icon: Award },
   ];
 
   const values = [
     {
-      title: "Trust & Reliability",
-      description: "All workers are verified and reviewed to ensure quality service",
+      title: "الثقة والموثوقية",
+      description: "يتم التحقق من جميع العمال ومراجعتهم لضمان جودة الخدمة",
       icon: Shield,
     },
     {
-      title: "Quality Craftsmanship",
-      description: "Connect with skilled professionals who take pride in their work",
+      title: "جودة الحرفية",
+      description: "تواصل مع المهنيين المهرة الذين يفخرون بعملهم",
       icon: Award,
     },
     {
-      title: "Easy Connection",
-      description: "Simple platform to find and hire the right professional for your needs",
+      title: "سهولة الاتصال",
+      description: "منصة بسيطة للعثور على المحترف المناسب لاحتياجاتك وتوظيفه",
       icon: Users,
     },
   ];
@@ -32,11 +32,10 @@ export function AboutPage() {
       {/* Hero Section */}
       <section className="bg-secondary text-secondary-foreground py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="mb-6">About Srvana</h1>
+          <h1 className="mb-6">عن سرفانا</h1>
           <p className="max-w-3xl mx-auto text-secondary-foreground/90">
-            We're on a mission to bridge the gap between skilled workers and clients 
-            who need quality home services. Srvana is more than a platform—it's a 
-            community built on trust, quality, and mutual respect.
+            نحن في مهمة لسد الفجوة بين العمال المهرة والعملاء الذين يحتاجون إلى خدمات منزلية عالية الجودة.
+            سرفانا هي أكثر من مجرد منصة - إنها مجتمع مبني على الثقة والجودة والاحترام المتبادل.
           </p>
         </div>
       </section>
@@ -63,22 +62,21 @@ export function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="mb-6">Our Mission</h2>
+              <h2 className="mb-6">مهمتنا</h2>
               <p className="text-muted-foreground mb-4">
-                At Srvana, we believe that finding reliable home service professionals 
-                shouldn't be difficult or uncertain. Our platform connects homeowners and 
-                businesses with skilled craftspeople who are passionate about their work.
+                في سرفانا، نؤمن بأن العثور على محترفين موثوقين للخدمات المنزلية
+                يجب ألا يكون صعبًا أو غير مؤكد. منصتنا تربط أصحاب المنازل
+                والشركات بالحرفيين المهرة الذين لديهم شغف بعملهم.
               </p>
               <p className="text-muted-foreground mb-4">
-                We carefully verify each worker on our platform, ensuring they have the 
-                skills, experience, and professionalism that our clients deserve. Whether 
-                you need a carpenter, plumber, electrician, or painter, Srvana makes it 
-                easy to find the right person for the job.
+                نتحقق بعناية من كل عامل على منصتنا، لضمان امتلاكهم للمهارات،
+                الخبرة، والاحترافية التي يستحقها عملاؤنا. سواء كنت بحاجة إلى
+                نجار، سباك، كهربائي، أو رسام، سرفانا تجعل من السهل العثور على
+                الشخص المناسب للوظيفة.
               </p>
               <p className="text-muted-foreground">
-                For workers, we provide a platform to showcase their skills, build their 
-                reputation, and grow their business by connecting with clients who value 
-                quality craftsmanship.
+                بالنسبة للعمال، نوفر منصة لعرض مهاراتهم، بناء سمعتهم، وتنمية
+                أعمالهم من خلال التواصل مع العملاء الذين يقدرون الحرفية عالية الجودة.
               </p>
             </div>
             <div className="grid gap-6">
@@ -105,15 +103,14 @@ export function AboutPage() {
       {/* Vision Section */}
       <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="mb-6">Our Vision</h2>
+          <h2 className="mb-6">رؤيتنا</h2>
           <p className="text-muted-foreground mb-6">
-            We envision a world where quality home services are accessible to everyone, 
-            and skilled workers have the tools they need to succeed. By creating a 
-            transparent, trustworthy marketplace, we're building stronger communities 
-            where craftsmanship is valued and rewarded.
+            نتصور عالمًا تكون فيه الخدمات المنزلية عالية الجودة متاحة للجميع،
+            ويتمتع العمال المهرة بالأدوات التي يحتاجونها للنجاح. من خلال إنشاء
+            سوق شفاف وجدير بالثقة، نبني مجتمعات أقوى حيث يتم تقدير الحرفية ومكافأتها.
           </p>
           <p className="text-muted-foreground">
-            Join us in our mission to elevate the home services industry—one project at a time.
+            انضم إلينا في مهمتنا للارتقاء بصناعة الخدمات المنزلية - مشروع واحد في كل مرة.
           </p>
         </div>
       </section>

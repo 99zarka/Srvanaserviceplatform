@@ -7,33 +7,33 @@ import { Link } from "react-router-dom";
 
 export function WorkerOverview() {
   const stats = [
-    { label: "Active Tasks", value: "5", icon: Clock, color: "text-primary" },
-    { label: "Completed Tasks", value: "87", icon: CheckCircle, color: "text-green-600" },
-    { label: "Total Earnings", value: "$12,450", icon: DollarSign, color: "text-blue-600" },
-    { label: "Rating", value: "4.9/5", icon: Star, color: "text-yellow-600" },
+    { label: "المهام النشطة", value: "5", icon: Clock, color: "text-primary" },
+    { label: "المهام المكتملة", value: "87", icon: CheckCircle, color: "text-green-600" },
+    { label: "إجمالي الأرباح", value: "$12,450", icon: DollarSign, color: "text-blue-600" },
+    { label: "التقييم", value: "4.9/5", icon: Star, color: "text-yellow-600" },
   ];
 
   const activeTasks = [
-    { id: 1, client: "Sarah Williams", service: "Carpentry", location: "123 Oak St", date: "Nov 6, 2025", amount: "$450", status: "Scheduled" },
-    { id: 2, client: "Michael Brown", service: "Carpentry", location: "456 Pine Ave", date: "Nov 7, 2025", amount: "$320", status: "In Progress" },
-    { id: 3, client: "Emma Davis", service: "Carpentry", location: "789 Maple Dr", date: "Nov 8, 2025", amount: "$580", status: "Scheduled" },
+    { id: 1, client: "سارة ويليامز", service: "النجارة", location: "123 شارع البلوط", date: "6 نوفمبر 2025", amount: "$450", status: "مجدولة" },
+    { id: 2, client: "مايكل براون", service: "النجارة", location: "456 شارع الصنوبر", date: "7 نوفمبر 2025", amount: "$320", status: "قيد التنفيذ" },
+    { id: 3, client: "إيما ديفيس", service: "النجارة", location: "789 طريق القيقب", date: "8 نوفمبر 2025", amount: "$580", status: "مجدولة" },
   ];
 
   const getStatusBadge = (status) => {
     const variants = {
-      "Scheduled": { variant: "default", className: "bg-blue-100 text-blue-800" },
-      "In Progress": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
-      "Completed": { variant: "default", className: "bg-green-100 text-green-800" },
+      "مجدولة": { variant: "default", className: "bg-blue-100 text-blue-800" },
+      "قيد التنفيذ": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
+      "مكتملة": { variant: "default", className: "bg-green-100 text-green-800" },
     };
-    const config = variants[status] || variants["Scheduled"];
+    const config = variants[status] || variants["مجدولة"];
     return <Badge variant={config.variant} className={config.className}>{status}</Badge>;
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="mb-2">Worker Dashboard</h1>
-        <p className="text-muted-foreground">Track your tasks, earnings, and performance</p>
+        <h1 className="mb-2">لوحة تحكم العامل</h1>
+        <p className="text-muted-foreground">تتبع مهامك، أرباحك، وأدائك</p>
       </div>
 
       {/* Stats */}
@@ -57,9 +57,9 @@ export function WorkerOverview() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Active Tasks</CardTitle>
+            <CardTitle>المهام النشطة</CardTitle>
             <Button variant="outline" asChild>
-              <Link to="/worker-dashboard/tasks">View All</Link>
+              <Link to="/worker-dashboard/tasks">عرض الكل</Link>
             </Button>
           </div>
         </CardHeader>
@@ -67,12 +67,12 @@ export function WorkerOverview() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Client</TableHead>
-                <TableHead>Service</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Amount</TableHead>
+                <TableHead>العميل</TableHead>
+                <TableHead>الخدمة</TableHead>
+                <TableHead>الموقع</TableHead>
+                <TableHead>التاريخ</TableHead>
+                <TableHead>الحالة</TableHead>
+                <TableHead>المبلغ</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -95,20 +95,20 @@ export function WorkerOverview() {
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>This Month</CardTitle>
+            <CardTitle>هذا الشهر</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Completed Tasks</span>
+                <span className="text-muted-foreground">المهام المكتملة</span>
                 <span>14</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Earnings</span>
+                <span className="text-muted-foreground">الأرباح</span>
                 <span className="text-green-600">$3,420</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Avg. Rating</span>
+                <span className="text-muted-foreground">متوسط التقييم</span>
                 <span className="text-yellow-600">4.9 ⭐</span>
               </div>
             </div>
@@ -117,18 +117,18 @@ export function WorkerOverview() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle>إجراءات سريعة</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-                Update Availability
+                تحديث التوفر
               </Button>
               <Button variant="outline" className="w-full">
-                View Payment History
+                عرض سجل الدفعات
               </Button>
               <Button variant="outline" className="w-full">
-                Edit Profile
+                تعديل الملف الشخصي
               </Button>
             </div>
           </CardContent>

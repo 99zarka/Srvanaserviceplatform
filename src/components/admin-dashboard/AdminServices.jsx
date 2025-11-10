@@ -4,13 +4,13 @@ export function AdminServices() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="mb-2">Service Management</h1>
-        <p className="text-muted-foreground">Manage service categories and listings</p>
+        <h1 className="mb-2">إدارة الخدمات</h1>
+        <p className="text-muted-foreground">إدارة فئات الخدمات والقوائم</p>
       </div>
       <Card>
         <CardContent className="pt-6">
           <p className="text-muted-foreground text-center py-8">
-            Service management interface coming soon
+            واجهة إدارة الخدمات قريباً
           </p>
         </CardContent>
       </Card>

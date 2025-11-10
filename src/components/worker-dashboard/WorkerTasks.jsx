@@ -5,39 +5,39 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 
 export function WorkerTasks() {
   const activeTasks = [
-    { id: 1, client: "Sarah Williams", service: "Carpentry", location: "123 Oak St", date: "Nov 6, 2025", amount: "$450", status: "Scheduled" },
-    { id: 2, client: "Michael Brown", service: "Carpentry", location: "456 Pine Ave", date: "Nov 7, 2025", amount: "$320", status: "In Progress" },
-    { id: 3, client: "Emma Davis", service: "Carpentry", location: "789 Maple Dr", date: "Nov 8, 2025", amount: "$580", status: "Scheduled" },
+    { id: 1, client: "سارة ويليامز", service: "النجارة", location: "123 شارع البلوط", date: "6 نوفمبر 2025", amount: "$450", status: "مجدولة" },
+    { id: 2, client: "مايكل براون", service: "النجارة", location: "456 شارع الصنوبر", date: "7 نوفمبر 2025", amount: "$320", status: "قيد التنفيذ" },
+    { id: 3, client: "إيما ديفيس", service: "النجارة", location: "789 طريق القيقب", date: "8 نوفمبر 2025", amount: "$580", status: "مجدولة" },
   ];
 
   const getStatusBadge = (status) => {
     const variants = {
-      "Scheduled": { variant: "default", className: "bg-blue-100 text-blue-800" },
-      "In Progress": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
-      "Completed": { variant: "default", className: "bg-green-100 text-green-800" },
+      "مجدولة": { variant: "default", className: "bg-blue-100 text-blue-800" },
+      "قيد التنفيذ": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
+      "مكتملة": { variant: "default", className: "bg-green-100 text-green-800" },
     };
-    const config = variants[status] || variants["Scheduled"];
+    const config = variants[status] || variants["مجدولة"];
     return <Badge variant={config.variant} className={config.className}>{status}</Badge>;
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="mb-2">My Tasks</h1>
-        <p className="text-muted-foreground">Manage your scheduled and active tasks</p>
+        <h1 className="mb-2">مهامي</h1>
+        <p className="text-muted-foreground">إدارة مهامك المجدولة والنشطة</p>
       </div>
       <Card>
         <CardContent className="pt-6">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Client</TableHead>
-                <TableHead>Service</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>العميل</TableHead>
+                <TableHead>الخدمة</TableHead>
+                <TableHead>الموقع</TableHead>
+                <TableHead>التاريخ</TableHead>
+                <TableHead>الحالة</TableHead>
+                <TableHead>المبلغ</TableHead>
+                <TableHead>الإجراءات</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -50,7 +50,7 @@ export function WorkerTasks() {
                   <TableCell>{getStatusBadge(task.status)}</TableCell>
                   <TableCell>{task.amount}</TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm">View Details</Button>
+                    <Button variant="ghost" size="sm">عرض التفاصيل</Button>
                   </TableCell>
                 </TableRow>
               ))}

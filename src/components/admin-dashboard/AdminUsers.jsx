@@ -5,25 +5,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 
 export function AdminUsers() {
   const recentUsers = [
-    { id: 1, name: "John Smith", email: "john@example.com", type: "Worker", status: "Active", joinDate: "Nov 5, 2025" },
-    { id: 2, name: "Sarah Wilson", email: "sarah@example.com", type: "Client", status: "Active", joinDate: "Nov 5, 2025" },
-    { id: 3, name: "Mike Johnson", email: "mike@example.com", type: "Worker", status: "Pending", joinDate: "Nov 4, 2025" },
-    { id: 4, name: "Emma Davis", email: "emma@example.com", type: "Client", status: "Active", joinDate: "Nov 4, 2025" },
+    { id: 1, name: "جون سميث", email: "john@example.com", type: "عامل", status: "نشط", joinDate: "5 نوفمبر 2025" },
+    { id: 2, name: "سارة ويلسون", email: "sarah@example.com", type: "عميل", status: "نشط", joinDate: "5 نوفمبر 2025" },
+    { id: 3, name: "مايك جونسون", email: "mike@example.com", type: "عامل", status: "معلق", joinDate: "4 نوفمبر 2025" },
+    { id: 4, name: "إيما ديفيس", email: "emma@example.com", type: "عميل", status: "نشط", joinDate: "4 نوفمبر 2025" },
   ];
 
   const getStatusBadge = (status) => {
     const variants = {
-      "Active": { variant: "default", className: "bg-green-100 text-green-800" },
-      "Pending": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
-      "Inactive": { variant: "default", className: "bg-gray-100 text-gray-800" },
+      "نشط": { variant: "default", className: "bg-green-100 text-green-800" },
+      "معلق": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
+      "غير نشط": { variant: "default", className: "bg-gray-100 text-gray-800" },
     };
-    const config = variants[status] || variants["Pending"];
+    const config = variants[status] || variants["معلق"];
     return <Badge variant={config.variant} className={config.className}>{status}</Badge>;
   };
 
   const getTypeBadge = (type) => {
     return (
-      <Badge variant="outline" className={type === "Worker" ? "border-primary text-primary" : "border-secondary text-secondary"}>
+      <Badge variant="outline" className={type === "عامل" ? "border-primary text-primary" : "border-secondary text-secondary"}>
         {type}
       </Badge>
     );
@@ -33,11 +33,11 @@ export function AdminUsers() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="mb-2">User Management</h1>
-          <p className="text-muted-foreground">Manage all platform users</p>
+          <h1 className="mb-2">إدارة المستخدمين</h1>
+          <p className="text-muted-foreground">إدارة جميع مستخدمي المنصة</p>
         </div>
         <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-          Add New User
+          إضافة مستخدم جديد
         </Button>
       </div>
       <Card>
@@ -45,12 +45,12 @@ export function AdminUsers() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Join Date</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>الاسم</TableHead>
+                <TableHead>البريد الإلكتروني</TableHead>
+                <TableHead>النوع</TableHead>
+                <TableHead>الحالة</TableHead>
+                <TableHead>تاريخ الانضمام</TableHead>
+                <TableHead>الإجراءات</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -62,7 +62,7 @@ export function AdminUsers() {
                   <TableCell>{getStatusBadge(user.status)}</TableCell>
                   <TableCell>{user.joinDate}</TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm">Edit</Button>
+                    <Button variant="ghost" size="sm">تعديل</Button>
                   </TableCell>
                 </TableRow>
               ))}

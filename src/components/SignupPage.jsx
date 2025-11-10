@@ -21,11 +21,11 @@ export function SignupPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
+    alert("كلمات المرور غير متطابقة!");
       return;
     }
     // Mock signup
-    alert(`Account created successfully as ${userType}! (Demo)`);
+    alert(`تم إنشاء الحساب بنجاح كـ ${userType === "client" ? "عميل" : "عامل"}! (تجريبي)`);
     navigate(userType === "client" ? "/client-dashboard" : "/worker-dashboard");
   };
 
@@ -36,22 +36,22 @@ export function SignupPage() {
           <div className="bg-primary rounded-lg px-4 py-2 inline-block mb-4">
             <span className="text-primary-foreground">Srvana</span>
           </div>
-          <h1 className="mb-2">Create an Account</h1>
-          <p className="text-muted-foreground">Join our community today</p>
+          <h1 className="mb-2">إنشاء حساب</h1>
+          <p className="text-muted-foreground">انضم إلى مجتمعنا اليوم</p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Sign Up</CardTitle>
+            <CardTitle>إنشاء حساب</CardTitle>
             <CardDescription>
-              Choose your account type and fill in your details
+              اختر نوع حسابك واملأ التفاصيل الخاصة بك
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Account Type */}
               <div>
-                <Label className="mb-3 block">I am a:</Label>
+                <Label className="mb-3 block">أنا:</Label>
                 <RadioGroup
                   value={userType}
                   onValueChange={(value) => setUserType(value)}
@@ -67,9 +67,9 @@ export function SignupPage() {
                       <Label htmlFor="client" className="cursor-pointer block">
                         <div className="text-center">
                           <div className="mb-2">👤</div>
-                          <div>Client</div>
+                          <div>عميل</div>
                           <p className="text-muted-foreground mt-1">
-                            I need services
+                            أحتاج إلى خدمات
                           </p>
                         </div>
                       </Label>
@@ -85,9 +85,9 @@ export function SignupPage() {
                       <Label htmlFor="worker" className="cursor-pointer block">
                         <div className="text-center">
                           <div className="mb-2">🔧</div>
-                          <div>Worker</div>
+                          <div>عامل</div>
                           <p className="text-muted-foreground mt-1">
-                            I offer services
+                            أقدم خدمات
                           </p>
                         </div>
                       </Label>
@@ -100,20 +100,20 @@ export function SignupPage() {
 
               {/* Form Fields */}
               <div>
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name">الاسم الكامل</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  placeholder="John Doe"
+                  placeholder="جون دو"
                   required
                   className="bg-input-background"
                 />
               </div>
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">البريد الإلكتروني</Label>
                 <Input
                   id="email"
                   type="email"
@@ -121,13 +121,13 @@ export function SignupPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  placeholder="your.email@example.com"
+                  placeholder="بريدك.الإلكتروني@مثال.كوم"
                   required
                   className="bg-input-background"
                 />
               </div>
               <div>
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label htmlFor="phone">رقم الهاتف</Label>
                 <Input
                   id="phone"
                   type="tel"
@@ -141,7 +141,7 @@ export function SignupPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">كلمة المرور</Label>
                 <Input
                   id="password"
                   type="password"
@@ -155,7 +155,7 @@ export function SignupPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
@@ -173,7 +173,7 @@ export function SignupPage() {
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 size="lg"
               >
-                Create Account
+                إنشاء حساب
               </Button>
             </form>
 
@@ -181,12 +181,12 @@ export function SignupPage() {
               <Separator />
               <div className="text-center mt-6">
                 <p className="text-muted-foreground">
-                  Already have an account?{" "}
+                  هل لديك حساب بالفعل؟{" "}
                   <Link
                     to="/login"
                     className="text-primary hover:underline"
                   >
-                    Sign in
+                    تسجيل الدخول
                   </Link>
                 </p>
               </div>
@@ -199,7 +199,7 @@ export function SignupPage() {
             to="/"
             className="text-muted-foreground hover:text-primary"
           >
-            ← Back to Home
+            ← العودة إلى الرئيسية
           </Link>
         </div>
       </div>

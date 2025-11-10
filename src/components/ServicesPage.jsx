@@ -8,8 +8,8 @@ export function ServicesPage() {
   const services = [
     {
       id: 1,
-      title: "Carpentry",
-      description: "Custom furniture, repairs, door and window installation, cabinet making, and general woodworking services.",
+      title: "النجارة",
+      description: "أثاث مخصص، إصلاحات، تركيب أبواب ونوافذ، صناعة خزائن، وخدمات نجارة عامة.",
       icon: Hammer,
       workers: 450,
       avgRating: 4.8,
@@ -17,8 +17,8 @@ export function ServicesPage() {
     },
     {
       id: 2,
-      title: "Plumbing",
-      description: "Pipe repairs, installation, leak fixing, drain cleaning, bathroom and kitchen plumbing services.",
+      title: "السباكة",
+      description: "إصلاح الأنابيب، التركيب، إصلاح التسربات، تنظيف المصارف، خدمات سباكة الحمامات والمطابخ.",
       icon: Droplet,
       workers: 380,
       avgRating: 4.9,
@@ -26,8 +26,8 @@ export function ServicesPage() {
     },
     {
       id: 3,
-      title: "Electrical Work",
-      description: "Wiring, lighting installation, electrical repairs, circuit breaker services, and safety inspections.",
+      title: "الأعمال الكهربائية",
+      description: "الأسلاك، تركيب الإضاءة، الإصلاحات الكهربائية، خدمات قواطع الدائرة، وفحوصات السلامة.",
       icon: Zap,
       workers: 320,
       avgRating: 4.7,
@@ -35,8 +35,8 @@ export function ServicesPage() {
     },
     {
       id: 4,
-      title: "Painting",
-      description: "Interior and exterior painting, wall finishing, color consultation, and decorative painting services.",
+      title: "الدهانات",
+      description: "الدهان الداخلي والخارجي، تشطيب الجدران، استشارات الألوان، وخدمات الدهان الزخرفي.",
       icon: Paintbrush,
       workers: 520,
       avgRating: 4.8,
@@ -44,8 +44,8 @@ export function ServicesPage() {
     },
     {
       id: 5,
-      title: "General Handyman",
-      description: "Minor repairs, maintenance, assembly, mounting, and various odd jobs around the home.",
+      title: "عامل صيانة عام",
+      description: "إصلاحات بسيطة، صيانة، تجميع، تركيب، ومختلف الأعمال المنزلية المتفرقة.",
       icon: Wrench,
       workers: 680,
       avgRating: 4.6,
@@ -53,8 +53,8 @@ export function ServicesPage() {
     },
     {
       id: 6,
-      title: "Drilling & Installation",
-      description: "Wall drilling, mounting TVs and shelves, fixture installation, and precision drilling work.",
+      title: "الحفر والتركيب",
+      description: "حفر الجدران، تركيب أجهزة التلفزيون والأرفف، تركيب التجهيزات، وأعمال الحفر الدقيقة.",
       icon: Drill,
       workers: 290,
       avgRating: 4.7,
@@ -62,8 +62,8 @@ export function ServicesPage() {
     },
     {
       id: 7,
-      title: "Cleaning Services",
-      description: "Deep cleaning, regular maintenance cleaning, post-construction cleanup, and specialized cleaning.",
+      title: "خدمات التنظيف",
+      description: "تنظيف عميق، تنظيف صيانة دورية، تنظيف بعد البناء، وتنظيف متخصص.",
       icon: Sparkles,
       workers: 840,
       avgRating: 4.9,
@@ -71,8 +71,8 @@ export function ServicesPage() {
     },
     {
       id: 8,
-      title: "Home Renovation",
-      description: "Complete room makeovers, kitchen and bathroom remodeling, structural changes, and upgrades.",
+      title: "تجديد المنازل",
+      description: "تجديد الغرف بالكامل، إعادة تصميم المطابخ والحمامات، التغييرات الهيكلية، والترقيات.",
       icon: Home,
       workers: 210,
       avgRating: 4.8,
@@ -85,10 +85,10 @@ export function ServicesPage() {
       {/* Hero Section */}
       <section className="bg-secondary text-secondary-foreground py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="mb-6">Our Services</h1>
+          <h1 className="mb-6">خدماتنا</h1>
           <p className="max-w-3xl mx-auto text-secondary-foreground/90">
-            Browse our wide range of professional home services. All workers are verified, 
-            rated, and ready to help with your projects.
+            تصفح مجموعتنا الواسعة من الخدمات المنزلية الاحترافية. جميع العمال موثقون،
+            ومقيمون، ومستعدون للمساعدة في مشاريعك.
           </p>
         </div>
       </section>
@@ -112,13 +112,13 @@ export function ServicesPage() {
                   </p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     <Badge variant="secondary">
-                      {service.workers} Workers
+                      {service.workers} عمال
                     </Badge>
                     <Badge variant="secondary">
                       ⭐ {service.avgRating}
                     </Badge>
                     <Badge className="bg-accent text-accent-foreground hover:bg-accent">
-                      From {service.startingPrice}
+                      تبدأ من {service.startingPrice}
                     </Badge>
                   </div>
                 </CardContent>
@@ -127,7 +127,7 @@ export function ServicesPage() {
                     className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                     asChild
                   >
-                    <Link to="/signup">Request Service</Link>
+                    <Link to="/signup">طلب خدمة</Link>
                   </Button>
                 </CardFooter>
               </Card>
@@ -139,16 +139,16 @@ export function ServicesPage() {
       {/* CTA Section */}
       <section className="py-20 bg-muted">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="mb-4">Can't Find What You Need?</h2>
+          <h2 className="mb-4">ألا تجد ما تحتاجه؟</h2>
           <p className="text-muted-foreground mb-8">
-            Get in touch with us and we'll help you find the right professional for your specific needs.
+            تواصل معنا وسنساعدك في العثور على المحترف المناسب لاحتياجاتك الخاصة.
           </p>
           <Button 
             size="lg"
             asChild
             className="bg-secondary hover:bg-secondary/90 text-secondary-foreground"
           >
-            <Link to="/contact">Contact Us</Link>
+            <Link to="/contact">اتصل بنا</Link>
           </Button>
         </div>
       </section>

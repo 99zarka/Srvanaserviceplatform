@@ -8,23 +8,23 @@ import { Link } from "react-router-dom";
 export function HomePage() {
   const services = [
     {
-      title: "Carpentry",
-      description: "Expert woodworking and furniture services",
+      title: "النجارة",
+      description: "خدمات النجارة والأثاث الاحترافية",
       image: "https://images.unsplash.com/photo-1626081063434-79a2169791b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJwZW50ZXIlMjB3b29kJTIwd29ya2luZ3xlbnwxfHx8fDE3NjI0MzA2MDN8MA&ixlib=rb-4.1.0&q=80&w=1080",
     },
     {
-      title: "Plumbing",
-      description: "Professional plumbing repairs and installation",
+      title: "السباكة",
+      description: "إصلاحات وتركيبات السباكة الاحترافية",
       image: "https://images.unsplash.com/photo-1563197906-c1466d8e2edd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwbHVtYmVyJTIwZml4aW5nJTIwcGlwZXN8ZW58MXx8fHwxNzYyMzU5MDQ2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     },
     {
-      title: "Electrical",
-      description: "Certified electrical work and maintenance",
+      title: "الكهرباء",
+      description: "أعمال وصيانة كهربائية معتمدة",
       image: "https://images.unsplash.com/photo-1744113511604-235e7010981f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGVjdHJpY2lhbiUyMGVsZWN0cmljYWwlMjB3b3JrfGVufDF8fHx8MTc2MjQzMDYwNHww&ixlib=rb-4.1.0&q=80&w=1080",
     },
     {
-      title: "Painting",
-      description: "Quality painting and finishing services",
+      title: "الدهانات",
+      description: "خدمات دهان وتشطيب عالية الجودة",
       image: "https://images.unsplash.com/photo-1629941633816-a1d688cb2d1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWludGVyJTIwcGFpbnRpbmclMjB3YWxsfGVufDF8fHx8MTc2MjQxNDMzOHww&ixlib=rb-4.1.0&q=80&w=1080",
     },
   ];
@@ -32,38 +32,38 @@ export function HomePage() {
   const howItWorks = [
     {
       step: "1",
-      title: "Choose a Service",
-      description: "Select from our wide range of professional services",
+      title: "اختر خدمة",
+      description: "اختر من مجموعتنا الواسعة من الخدمات الاحترافية",
     },
     {
       step: "2",
-      title: "Find a Worker",
-      description: "Browse verified professionals and check their ratings",
+      title: "ابحث عن عامل",
+      description: "تصفح المهنيين المعتمدين وتحقق من تقييماتهم",
     },
     {
       step: "3",
-      title: "Get it Done",
-      description: "Schedule the service and get quality work delivered",
+      title: "أنجز العمل",
+      description: "حدد موعد الخدمة واحصل على عمل عالي الجودة",
     },
   ];
 
   const testimonials = [
     {
-      name: "Sarah Johnson",
-      role: "Homeowner",
-      content: "Found an amazing carpenter through Srvana. The quality of work exceeded my expectations!",
+      name: "سارة جونسون",
+      role: "صاحبة منزل",
+      content: "وجدت نجارًا رائعًا من خلال سرفانا. جودة العمل فاقت توقعاتي!",
       rating: 5,
     },
     {
-      name: "Mike Chen",
-      role: "Property Manager",
-      content: "Srvana has become my go-to platform for all maintenance needs. Reliable and professional.",
+      name: "مايك تشن",
+      role: "مدير عقارات",
+      content: "أصبحت سرفانا منصتي المفضلة لجميع احتياجات الصيانة. موثوقة واحترافية.",
       rating: 5,
     },
     {
-      name: "Emily Rodriguez",
-      role: "Business Owner",
-      content: "The electricians I hired were prompt, skilled, and very reasonably priced. Highly recommend!",
+      name: "إميلي رودريغيز",
+      role: "صاحبة عمل",
+      content: "الكهربائيون الذين استأجرتهم كانوا سريعين، ماهرين، وبأسعار معقولة جدًا. أوصي بهم بشدة!",
       rating: 5,
     },
   ];
@@ -76,14 +76,14 @@ export function HomePage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <Badge className="mb-4 bg-primary text-primary-foreground hover:bg-primary/90">
-                Trusted by 10,000+ Users
+                موثوق به من قبل أكثر من 10,000 مستخدم
               </Badge>
               <h1 className="mb-6">
-                Connect with Skilled Professionals for Every Home Service
+                تواصل مع المهنيين المهرة لكل خدمة منزلية
               </h1>
               <p className="mb-8 text-secondary-foreground/90">
-                Srvana makes it easy to find reliable workers for carpentry, plumbing, 
-                electrical work, and more. Quality service, guaranteed.
+                سرفانا تجعل من السهل العثور على عمال موثوقين لأعمال النجارة، السباكة،
+                الأعمال الكهربائية، والمزيد. خدمة عالية الجودة، مضمونة.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
@@ -92,8 +92,8 @@ export function HomePage() {
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   <Link to="/services">
-                    Find a Service
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    ابحث عن خدمة
+                    <ArrowRight className="mr-2 h-5 w-5" />
                   </Link>
                 </Button>
                 <Button
@@ -102,7 +102,7 @@ export function HomePage() {
                   asChild
                   className="border-secondary-foreground/30 text-secondary-foreground hover:bg-secondary-foreground/10"
                 >
-                  <Link to="/signup">Join as a Worker</Link>
+                  <Link to="/signup">انضم كعامل</Link>
                 </Button>
               </div>
             </div>
@@ -121,9 +121,9 @@ export function HomePage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="mb-4">How It Works</h2>
+            <h2 className="mb-4">كيف تعمل</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Get started in three simple steps
+              ابدأ بثلاث خطوات بسيطة
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -146,9 +146,9 @@ export function HomePage() {
       <section className="py-20 bg-muted">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="mb-4">Featured Services</h2>
+            <h2 className="mb-4">خدمات مميزة</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Expert professionals ready to help with your home projects
+              مهنيون خبراء مستعدون للمساعدة في مشاريع منزلك
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -174,7 +174,7 @@ export function HomePage() {
                     asChild
                   >
                     <Link to="/services">
-                      Learn More <ArrowRight className="ml-1 h-4 w-4" />
+                      تعلم المزيد <ArrowRight className="mr-1 h-4 w-4" />
                     </Link>
                   </Button>
                 </CardContent>
@@ -188,9 +188,9 @@ export function HomePage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="mb-4">What Our Users Say</h2>
+            <h2 className="mb-4">ماذا يقول مستخدمونا</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Join thousands of satisfied clients and workers
+              انضم إلى آلاف العملاء والعمال الراضين
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -217,9 +217,9 @@ export function HomePage() {
       {/* CTA Section */}
       <section className="py-20 bg-secondary text-secondary-foreground">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="mb-4">Ready to Get Started?</h2>
+          <h2 className="mb-4">هل أنت مستعد للبدء؟</h2>
           <p className="mb-8 text-secondary-foreground/90">
-            Whether you need a service or want to offer your skills, Srvana is here for you
+            سواء كنت بحاجة إلى خدمة أو ترغب في تقديم مهاراتك، سرفانا هنا من أجلك
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
@@ -227,7 +227,7 @@ export function HomePage() {
               asChild
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              <Link to="/services">Browse Services</Link>
+              <Link to="/services">تصفح الخدمات</Link>
             </Button>
             <Button
               size="lg"
@@ -235,7 +235,7 @@ export function HomePage() {
               asChild
               className="border-secondary-foreground/30 text-secondary-foreground hover:bg-secondary-foreground/10"
             >
-              <Link to="/signup">Become a Worker</Link>
+              <Link to="/signup">كن عاملاً</Link>
             </Button>
           </div>
         </div>

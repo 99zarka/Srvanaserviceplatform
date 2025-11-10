@@ -12,7 +12,7 @@ export function Footer() {
               <span className="text-primary-foreground">Srvana</span>
             </div>
             <p className="text-secondary-foreground/80 mb-4">
-              Connecting clients with skilled professionals for all your home service needs.
+              ربط العملاء بالمهنيين المهرة لجميع احتياجات خدماتك المنزلية.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="hover:text-primary transition-colors">
@@ -29,14 +29,14 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="mb-4">Quick Links</h3>
+            <h3 className="mb-4">روابط سريعة</h3>
             <ul className="space-y-2">
               <li>
                 <Link
                   to="/"
                   className="text-secondary-foreground/80 hover:text-primary transition-colors"
                 >
-                  Home
+                  الرئيسية
                 </Link>
               </li>
               <li>
@@ -44,7 +44,7 @@ export function Footer() {
                   to="/about"
                   className="text-secondary-foreground/80 hover:text-primary transition-colors"
                 >
-                  About Us
+                  عنا
                 </Link>
               </li>
               <li>
@@ -52,7 +52,7 @@ export function Footer() {
                   to="/services"
                   className="text-secondary-foreground/80 hover:text-primary transition-colors"
                 >
-                  Services
+                  الخدمات
                 </Link>
               </li>
               <li>
@@ -60,7 +60,7 @@ export function Footer() {
                   to="/contact"
                   className="text-secondary-foreground/80 hover:text-primary transition-colors"
                 >
-                  Contact
+                  اتصل بنا
                 </Link>
               </li>
             </ul>
@@ -68,14 +68,14 @@ export function Footer() {
 
           {/* For Workers */}
           <div>
-            <h3 className="mb-4">For Workers</h3>
+            <h3 className="mb-4">للعمال</h3>
             <ul className="space-y-2">
               <li>
                 <Link
                   to="/signup"
                   className="text-secondary-foreground/80 hover:text-primary transition-colors"
                 >
-                  Join as Worker
+                  انضم كعامل
                 </Link>
               </li>
               <li>
@@ -83,7 +83,7 @@ export function Footer() {
                   to="/worker-dashboard"
                   className="text-secondary-foreground/80 hover:text-primary transition-colors"
                 >
-                  Worker Dashboard
+                  لوحة تحكم العمال
                 </Link>
               </li>
             </ul>
@@ -91,7 +91,7 @@ export function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h3 className="mb-4">Contact</h3>
+            <h3 className="mb-4">اتصل بنا</h3>
             <ul className="space-y-3">
               <li className="flex items-start space-x-2">
                 <Mail className="h-5 w-5 mt-0.5 flex-shrink-0" />
@@ -103,7 +103,7 @@ export function Footer() {
               </li>
               <li className="flex items-start space-x-2">
                 <MapPin className="h-5 w-5 mt-0.5 flex-shrink-0" />
-                <span className="text-secondary-foreground/80">123 Service St, City, State</span>
+                <span className="text-secondary-foreground/80">123 شارع الخدمات، المدينة، الولاية</span>
               </li>
             </ul>
           </div>
@@ -111,7 +111,7 @@ export function Footer() {
 
         <div className="border-t border-secondary-foreground/20 mt-8 pt-8 text-center">
           <p className="text-secondary-foreground/80">
-            © 2025 Srvana. All rights reserved.
+            © 2025 سرفانا. جميع الحقوق محفوظة.
           </p>
         </div>
       </div>

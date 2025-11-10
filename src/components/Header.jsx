@@ -8,10 +8,10 @@ export function Header() {
   const location = useLocation();
 
   const navItems = [
-    { name: "Home", path: "/" },
-    { name: "About", path: "/about" },
-    { name: "Services", path: "/services" },
-    { name: "Contact", path: "/contact" },
+    { name: "الرئيسية", path: "/" },
+    { name: "عنا", path: "/about" },
+    { name: "الخدمات", path: "/services" },
+    { name: "اتصل بنا", path: "/contact" },
   ];
 
   return (
@@ -49,13 +49,13 @@ export function Header() {
               variant="ghost"
               asChild
             >
-              <Link to="/login">Log In</Link>
+              <Link to="/login">تسجيل الدخول</Link>
             </Button>
             <Button
               asChild
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              <Link to="/signup">Sign Up</Link>
+              <Link to="/signup">إنشاء حساب</Link>
             </Button>
           </div>
 
@@ -81,7 +81,7 @@ export function Header() {
                   key={item.path}
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`text-left hover:text-primary transition-colors ${
+                  className={`text-start hover:text-primary transition-colors ${
                     location.pathname === item.path ? "text-primary" : "text-foreground"
                   }`}
                 >
@@ -93,13 +93,13 @@ export function Header() {
                   variant="ghost"
                   asChild
                 >
-                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Log In</Link>
+                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>تسجيل الدخول</Link>
                 </Button>
                 <Button
                   asChild
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
-                  <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>Sign Up</Link>
+                  <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>إنشاء حساب</Link>
                 </Button>
               </div>
             </nav>

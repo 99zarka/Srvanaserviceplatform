@@ -17,33 +17,33 @@ export function ContactPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission (mock for now)
-    alert("Thank you for your message! We'll get back to you soon.");
+    alert("شكرا لرسالتك! سنعود إليك قريبا.");
     setFormData({ name: "", email: "", subject: "", message: "" });
   };
 
   const contactInfo = [
     {
       icon: Mail,
-      title: "Email",
+      title: "البريد الإلكتروني",
       content: "info@srvana.com",
       link: "mailto:info@srvana.com",
     },
     {
       icon: Phone,
-      title: "Phone",
+      title: "الهاتف",
       content: "+1 (555) 123-4567",
       link: "tel:+15551234567",
     },
     {
       icon: MapPin,
-      title: "Address",
-      content: "123 Service Street, City, State 12345",
+      title: "العنوان",
+      content: "123 شارع الخدمات، المدينة، الولاية 12345",
       link: "#",
     },
     {
       icon: Clock,
-      title: "Business Hours",
-      content: "Mon - Fri: 9:00 AM - 6:00 PM",
+      title: "ساعات العمل",
+      content: "من الاثنين إلى الجمعة: 9:00 صباحًا - 6:00 مساءً",
       link: "#",
     },
   ];
@@ -53,10 +53,10 @@ export function ContactPage() {
       {/* Hero Section */}
       <section className="bg-secondary text-secondary-foreground py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="mb-6">Contact Us</h1>
+          <h1 className="mb-6">اتصل بنا</h1>
           <p className="max-w-3xl mx-auto text-secondary-foreground/90">
-            Have questions or need help? We're here for you. Reach out and our team 
-            will get back to you as soon as possible.
+            هل لديك أسئلة أو تحتاج إلى مساعدة؟ نحن هنا من أجلك. تواصل معنا وسيقوم فريقنا
+            بالرد عليك في أقرب وقت ممكن.
           </p>
         </div>
       </section>
@@ -67,23 +67,23 @@ export function ContactPage() {
           <div className="grid md:grid-cols-2 gap-12">
             {/* Contact Form */}
             <div>
-              <h2 className="mb-6">Send us a Message</h2>
+              <h2 className="mb-6">أرسل لنا رسالة</h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">الاسم</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    placeholder="Your name"
+                    placeholder="اسمك"
                     required
                     className="bg-input-background"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">البريد الإلكتروني</Label>
                   <Input
                     id="email"
                     type="email"
@@ -91,33 +91,33 @@ export function ContactPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
-                    placeholder="your.email@example.com"
+                    placeholder="بريدك.الإلكتروني@مثال.كوم"
                     required
                     className="bg-input-background"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="subject">Subject</Label>
+                  <Label htmlFor="subject">الموضوع</Label>
                   <Input
                     id="subject"
                     value={formData.subject}
                     onChange={(e) =>
                       setFormData({ ...formData, subject: e.target.value })
                     }
-                    placeholder="How can we help?"
+                    placeholder="كيف يمكننا المساعدة؟"
                     required
                     className="bg-input-background"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="message">Message</Label>
+                  <Label htmlFor="message">الرسالة</Label>
                   <Textarea
                     id="message"
                     value={formData.message}
                     onChange={(e) =>
                       setFormData({ ...formData, message: e.target.value })
                     }
-                    placeholder="Tell us more about your inquiry..."
+                    placeholder="أخبرنا المزيد عن استفسارك..."
                     rows={6}
                     required
                     className="bg-input-background resize-none"
@@ -128,17 +128,17 @@ export function ContactPage() {
                   size="lg"
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
-                  Send Message
+                  إرسال الرسالة
                 </Button>
               </form>
             </div>
 
             {/* Contact Information */}
             <div>
-              <h2 className="mb-6">Get in Touch</h2>
+              <h2 className="mb-6">تواصل معنا</h2>
               <p className="text-muted-foreground mb-8">
-                Whether you're a client looking for services or a worker wanting to join our platform, 
-                we'd love to hear from you.
+                سواء كنت عميلاً تبحث عن خدمات أو عاملاً يرغب في الانضمام إلى منصتنا،
+                نحن نحب أن نسمع منك.
               </p>
               <div className="space-y-6">
                 {contactInfo.map((info) => (
@@ -183,13 +183,13 @@ export function ContactPage() {
       {/* FAQ Teaser */}
       <section className="py-20 bg-muted">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="mb-4">Frequently Asked Questions</h2>
+          <h2 className="mb-4">الأسئلة الشائعة</h2>
           <p className="text-muted-foreground mb-8">
-            Looking for quick answers? Check out our FAQ section for common questions 
-            about using Srvana, pricing, and how our platform works.
+            هل تبحث عن إجابات سريعة؟ تحقق من قسم الأسئلة الشائعة لدينا للأسئلة الشائعة
+            حول استخدام سرفانا، التسعير، وكيف تعمل منصتنا.
           </p>
           <Button variant="outline" size="lg">
-            View FAQs
+            عرض الأسئلة الشائعة
           </Button>
         </div>
       </section>
