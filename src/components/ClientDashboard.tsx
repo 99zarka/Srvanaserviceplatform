@@ -5,20 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Link } from "react-router-dom";
 
-interface ClientDashboardProps {
-  onNavigate: (page: string) => void;
-}
-
-export function ClientDashboard({ onNavigate }: ClientDashboardProps) {
+export function ClientDashboard() {
   const [activeSection, setActiveSection] = useState("overview");
 
   const sidebarItems = [
-    { icon: Home, label: "Overview", active: activeSection === "overview", onClick: () => setActiveSection("overview") },
-    { icon: FileText, label: "My Requests", active: activeSection === "requests", onClick: () => setActiveSection("requests") },
-    { icon: CreditCard, label: "Payments", active: activeSection === "payments", onClick: () => setActiveSection("payments") },
-    { icon: MessageSquare, label: "Messages", active: activeSection === "messages", onClick: () => setActiveSection("messages") },
-    { icon: User, label: "Profile", active: activeSection === "profile", onClick: () => setActiveSection("profile") },
+    { icon: Home, label: "Overview", path: "/client-dashboard" },
+    { icon: FileText, label: "My Requests", path: "/client-dashboard/requests" },
+    { icon: CreditCard, label: "Payments", path: "/client-dashboard/payments" },
+    { icon: MessageSquare, label: "Messages", path: "/client-dashboard/messages" },
+    { icon: User, label: "Profile", path: "/client-dashboard/profile" },
   ];
 
   const stats = [
@@ -48,7 +45,6 @@ export function ClientDashboard({ onNavigate }: ClientDashboardProps) {
   return (
     <DashboardLayout
       sidebarItems={sidebarItems}
-      onNavigate={onNavigate}
       userName="John Doe"
       userRole="Client"
     >
@@ -81,8 +77,8 @@ export function ClientDashboard({ onNavigate }: ClientDashboardProps) {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Recent Service Requests</CardTitle>
-                <Button variant="outline" onClick={() => setActiveSection("requests")}>
-                  View All
+                <Button variant="outline" asChild>
+                  <Link to="/client-dashboard/requests">View All</Link>
                 </Button>
               </div>
             </CardHeader>
@@ -121,12 +117,12 @@ export function ClientDashboard({ onNavigate }: ClientDashboardProps) {
               <div className="grid md:grid-cols-2 gap-4">
                 <Button
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                  onClick={() => onNavigate("services")}
+                  asChild
                 >
-                  Request New Service
+                  <Link to="/services">Request New Service</Link>
                 </Button>
-                <Button variant="outline" onClick={() => setActiveSection("messages")}>
-                  View Messages
+                <Button variant="outline" asChild>
+                  <Link to="/client-dashboard/messages">View Messages</Link>
                 </Button>
               </div>
             </CardContent>

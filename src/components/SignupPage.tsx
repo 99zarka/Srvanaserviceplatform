@@ -5,12 +5,9 @@ import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Link, useNavigate } from "react-router-dom";
 
-interface SignupPageProps {
-  onNavigate: (page: string) => void;
-}
-
-export function SignupPage({ onNavigate }: SignupPageProps) {
+export function SignupPage() {
   const [userType, setUserType] = useState<"client" | "worker">("client");
   const [formData, setFormData] = useState({
     name: "",
@@ -19,6 +16,7 @@ export function SignupPage({ onNavigate }: SignupPageProps) {
     confirmPassword: "",
     phone: "",
   });
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +26,7 @@ export function SignupPage({ onNavigate }: SignupPageProps) {
     }
     // Mock signup
     alert(`Account created successfully as ${userType}! (Demo)`);
-    onNavigate(userType === "client" ? "client-dashboard" : "worker-dashboard");
+    navigate(userType === "client" ? "/client-dashboard" : "/worker-dashboard");
   };
 
   return (
@@ -184,12 +182,12 @@ export function SignupPage({ onNavigate }: SignupPageProps) {
               <div className="text-center mt-6">
                 <p className="text-muted-foreground">
                   Already have an account?{" "}
-                  <button
-                    onClick={() => onNavigate("login")}
+                  <Link
+                    to="/login"
                     className="text-primary hover:underline"
                   >
                     Sign in
-                  </button>
+                  </Link>
                 </p>
               </div>
             </div>
@@ -197,12 +195,12 @@ export function SignupPage({ onNavigate }: SignupPageProps) {
         </Card>
 
         <div className="mt-6 text-center">
-          <button
-            onClick={() => onNavigate("home")}
+          <Link
+            to="/"
             className="text-muted-foreground hover:text-primary"
           >
             ← Back to Home
-          </button>
+          </Link>
         </div>
       </div>
     </div>

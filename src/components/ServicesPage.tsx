@@ -2,12 +2,9 @@ import { Wrench, Droplet, Zap, Paintbrush, Hammer, Drill, Sparkles, Home } from 
 import { Card, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import { Link } from "react-router-dom";
 
-interface ServicesPageProps {
-  onNavigate: (page: string) => void;
-}
-
-export function ServicesPage({ onNavigate }: ServicesPageProps) {
+export function ServicesPage() {
   const services = [
     {
       id: 1,
@@ -128,9 +125,9 @@ export function ServicesPage({ onNavigate }: ServicesPageProps) {
                 <CardFooter>
                   <Button 
                     className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                    onClick={() => onNavigate("signup")}
+                    asChild
                   >
-                    Request Service
+                    <Link to="/signup">Request Service</Link>
                   </Button>
                 </CardFooter>
               </Card>
@@ -148,10 +145,10 @@ export function ServicesPage({ onNavigate }: ServicesPageProps) {
           </p>
           <Button 
             size="lg"
-            onClick={() => onNavigate("contact")}
+            asChild
             className="bg-secondary hover:bg-secondary/90 text-secondary-foreground"
           >
-            Contact Us
+            <Link to="/contact">Contact Us</Link>
           </Button>
         </div>
       </section>

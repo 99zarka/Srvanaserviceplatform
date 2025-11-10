@@ -1,20 +1,17 @@
 import { Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
-interface HeaderProps {
-  currentPage: string;
-  onNavigate: (page: string) => void;
-}
-
-export function Header({ currentPage, onNavigate }: HeaderProps) {
+export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   const navItems = [
-    { name: "Home", path: "home" },
-    { name: "About", path: "about" },
-    { name: "Services", path: "services" },
-    { name: "Contact", path: "contact" },
+    { name: "Home", path: "/" },
+    { name: "About", path: "/about" },
+    { name: "Services", path: "/services" },
+    { name: "Contact", path: "/contact" },
   ];
 
   return (
@@ -22,27 +19,27 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div 
+          <Link 
+            to="/"
             className="flex items-center cursor-pointer"
-            onClick={() => onNavigate("home")}
           >
             <div className="bg-primary rounded-lg px-3 py-1.5">
               <span className="text-primary-foreground">Srvana</span>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
-              <button
+              <Link
                 key={item.path}
-                onClick={() => onNavigate(item.path)}
+                to={item.path}
                 className={`hover:text-primary transition-colors ${
-                  currentPage === item.path ? "text-primary" : "text-foreground"
+                  location.pathname === item.path ? "text-primary" : "text-foreground"
                 }`}
               >
                 {item.name}
-              </button>
+              </Link>
             ))}
           </nav>
 
@@ -50,15 +47,15 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
           <div className="hidden md:flex items-center space-x-4">
             <Button
               variant="ghost"
-              onClick={() => onNavigate("login")}
+              asChild
             >
-              Log In
+              <Link to="/login">Log In</Link>
             </Button>
             <Button
-              onClick={() => onNavigate("signup")}
+              asChild
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              Sign Up
+              <Link to="/signup">Sign Up</Link>
             </Button>
           </div>
 
@@ -80,37 +77,29 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
           <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col space-y-4">
               {navItems.map((item) => (
-                <button
+                <Link
                   key={item.path}
-                  onClick={() => {
-                    onNavigate(item.path);
-                    setMobileMenuOpen(false);
-                  }}
+                  to={item.path}
+                  onClick={() => setMobileMenuOpen(false)}
                   className={`text-left hover:text-primary transition-colors ${
-                    currentPage === item.path ? "text-primary" : "text-foreground"
+                    location.pathname === item.path ? "text-primary" : "text-foreground"
                   }`}
                 >
                   {item.name}
-                </button>
+                </Link>
               ))}
               <div className="flex flex-col space-y-2 pt-4 border-t border-border">
                 <Button
                   variant="ghost"
-                  onClick={() => {
-                    onNavigate("login");
-                    setMobileMenuOpen(false);
-                  }}
+                  asChild
                 >
-                  Log In
+                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Log In</Link>
                 </Button>
                 <Button
-                  onClick={() => {
-                    onNavigate("signup");
-                    setMobileMenuOpen(false);
-                  }}
+                  asChild
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
-                  Sign Up
+                  <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>Sign Up</Link>
                 </Button>
               </div>
             </nav>

@@ -2,16 +2,15 @@ import { ReactNode } from "react";
 import { LogOut, Menu } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 interface DashboardLayoutProps {
   children: ReactNode;
   sidebarItems: Array<{
     icon: React.ComponentType<{ className?: string }>;
     label: string;
-    active?: boolean;
-    onClick: () => void;
+    path: string;
   }>;
-  onNavigate: (page: string) => void;
   userName: string;
   userRole: string;
 }
@@ -19,11 +18,11 @@ interface DashboardLayoutProps {
 export function DashboardLayout({
   children,
   sidebarItems,
-  onNavigate,
   userName,
   userRole,
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
 
   return (
     <div className="min-h-screen bg-muted">
@@ -75,17 +74,15 @@ export function DashboardLayout({
             {/* Navigation */}
             <nav className="flex-1 p-4 space-y-2">
               {sidebarItems.map((item, index) => (
-                <button
+                <Link
                   key={index}
-                  onClick={() => {
-                    item.onClick();
-                    setSidebarOpen(false);
-                  }}
+                  to={item.path}
+                  onClick={() => setSidebarOpen(false)}
                   className={`
                     w-full flex items-center space-x-3 px-4 py-3 rounded-lg
                     transition-colors
                     ${
-                      item.active
+                      location.pathname === item.path
                         ? "bg-sidebar-accent text-sidebar-accent-foreground"
                         : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                     }
@@ -93,7 +90,7 @@ export function DashboardLayout({
                 >
                   <item.icon className="h-5 w-5" />
                   <span>{item.label}</span>
-                </button>
+                </Link>
               ))}
             </nav>
 
@@ -102,10 +99,12 @@ export function DashboardLayout({
               <Button
                 variant="ghost"
                 className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
-                onClick={() => onNavigate("home")}
+                asChild
               >
-                <LogOut className="h-5 w-5 mr-3" />
-                Logout
+                <Link to="/">
+                  <LogOut className="h-5 w-5 mr-3" />
+                  Logout
+                </Link>
               </Button>
             </div>
           </div>

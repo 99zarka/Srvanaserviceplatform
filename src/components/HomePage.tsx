@@ -3,12 +3,9 @@ import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { Link } from "react-router-dom";
 
-interface HomePageProps {
-  onNavigate: (page: string) => void;
-}
-
-export function HomePage({ onNavigate }: HomePageProps) {
+export function HomePage() {
   const services = [
     {
       title: "Carpentry",
@@ -91,19 +88,21 @@ export function HomePage({ onNavigate }: HomePageProps) {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   size="lg"
-                  onClick={() => onNavigate("services")}
+                  asChild
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
-                  Find a Service
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <Link to="/services">
+                    Find a Service
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
-                  onClick={() => onNavigate("signup")}
+                  asChild
                   className="border-secondary-foreground/30 text-secondary-foreground hover:bg-secondary-foreground/10"
                 >
-                  Join as a Worker
+                  <Link to="/signup">Join as a Worker</Link>
                 </Button>
               </div>
             </div>
@@ -154,10 +153,10 @@ export function HomePage({ onNavigate }: HomePageProps) {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {services.map((service) => (
-              <Card 
+              <Link 
                 key={service.title} 
+                to="/services"
                 className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
-                onClick={() => onNavigate("services")}
               >
                 <div className="aspect-video overflow-hidden">
                   <ImageWithFallback
@@ -172,11 +171,14 @@ export function HomePage({ onNavigate }: HomePageProps) {
                   <Button 
                     variant="link" 
                     className="p-0 h-auto mt-2 text-primary"
+                    asChild
                   >
-                    Learn More <ArrowRight className="ml-1 h-4 w-4" />
+                    <Link to="/services">
+                      Learn More <ArrowRight className="ml-1 h-4 w-4" />
+                    </Link>
                   </Button>
                 </CardContent>
-              </Card>
+              </Link>
             ))}
           </div>
         </div>
@@ -222,18 +224,18 @@ export function HomePage({ onNavigate }: HomePageProps) {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               size="lg"
-              onClick={() => onNavigate("services")}
+              asChild
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              Browse Services
+              <Link to="/services">Browse Services</Link>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              onClick={() => onNavigate("signup")}
+              asChild
               className="border-secondary-foreground/30 text-secondary-foreground hover:bg-secondary-foreground/10"
             >
-              Become a Worker
+              <Link to="/signup">Become a Worker</Link>
             </Button>
           </div>
         </div>

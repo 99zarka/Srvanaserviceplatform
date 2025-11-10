@@ -5,20 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Link } from "react-router-dom";
 
-interface AdminDashboardProps {
-  onNavigate: (page: string) => void;
-}
-
-export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
+export function AdminDashboard() {
   const [activeSection, setActiveSection] = useState("overview");
 
   const sidebarItems = [
-    { icon: LayoutDashboard, label: "Overview", active: activeSection === "overview", onClick: () => setActiveSection("overview") },
-    { icon: Users, label: "Users", active: activeSection === "users", onClick: () => setActiveSection("users") },
-    { icon: Briefcase, label: "Services", active: activeSection === "services", onClick: () => setActiveSection("services") },
-    { icon: FileText, label: "Reports", active: activeSection === "reports", onClick: () => setActiveSection("reports") },
-    { icon: Settings, label: "Settings", active: activeSection === "settings", onClick: () => setActiveSection("settings") },
+    { icon: LayoutDashboard, label: "Overview", path: "/admin-dashboard" },
+    { icon: Users, label: "Users", path: "/admin-dashboard/users" },
+    { icon: Briefcase, label: "Services", path: "/admin-dashboard/services" },
+    { icon: FileText, label: "Reports", path: "/admin-dashboard/reports" },
+    { icon: Settings, label: "Settings", path: "/admin-dashboard/settings" },
   ];
 
   const platformStats = [
@@ -62,7 +59,6 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   return (
     <DashboardLayout
       sidebarItems={sidebarItems}
-      onNavigate={onNavigate}
       userName="Admin User"
       userRole="Administrator"
     >
@@ -99,8 +95,8 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                     {pendingApprovals.length}
                   </Badge>
                 </div>
-                <Button variant="outline" size="sm">
-                  View All
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/admin-dashboard/approvals">View All</Link>
                 </Button>
               </div>
             </CardHeader>
@@ -142,8 +138,8 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Recent User Registrations</CardTitle>
-                <Button variant="outline" onClick={() => setActiveSection("users")}>
-                  View All Users
+                <Button variant="outline" asChild>
+                  <Link to="/admin-dashboard/users">View All Users</Link>
                 </Button>
               </div>
             </CardHeader>

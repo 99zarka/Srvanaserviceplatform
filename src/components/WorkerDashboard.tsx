@@ -5,20 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Link } from "react-router-dom";
 
-interface WorkerDashboardProps {
-  onNavigate: (page: string) => void;
-}
-
-export function WorkerDashboard({ onNavigate }: WorkerDashboardProps) {
+export function WorkerDashboard() {
   const [activeSection, setActiveSection] = useState("overview");
 
   const sidebarItems = [
-    { icon: Home, label: "Overview", active: activeSection === "overview", onClick: () => setActiveSection("overview") },
-    { icon: Briefcase, label: "My Tasks", active: activeSection === "tasks", onClick: () => setActiveSection("tasks") },
-    { icon: DollarSign, label: "Earnings", active: activeSection === "earnings", onClick: () => setActiveSection("earnings") },
-    { icon: Star, label: "Reviews", active: activeSection === "reviews", onClick: () => setActiveSection("reviews") },
-    { icon: User, label: "Profile", active: activeSection === "profile", onClick: () => setActiveSection("profile") },
+    { icon: Home, label: "Overview", path: "/worker-dashboard" },
+    { icon: Briefcase, label: "My Tasks", path: "/worker-dashboard/tasks" },
+    { icon: DollarSign, label: "Earnings", path: "/worker-dashboard/earnings" },
+    { icon: Star, label: "Reviews", path: "/worker-dashboard/reviews" },
+    { icon: User, label: "Profile", path: "/worker-dashboard/profile" },
   ];
 
   const stats = [
@@ -47,7 +44,6 @@ export function WorkerDashboard({ onNavigate }: WorkerDashboardProps) {
   return (
     <DashboardLayout
       sidebarItems={sidebarItems}
-      onNavigate={onNavigate}
       userName="Alex Johnson"
       userRole="Carpenter"
     >
@@ -80,8 +76,8 @@ export function WorkerDashboard({ onNavigate }: WorkerDashboardProps) {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Active Tasks</CardTitle>
-                <Button variant="outline" onClick={() => setActiveSection("tasks")}>
-                  View All
+                <Button variant="outline" asChild>
+                  <Link to="/worker-dashboard/tasks">View All</Link>
                 </Button>
               </div>
             </CardHeader>

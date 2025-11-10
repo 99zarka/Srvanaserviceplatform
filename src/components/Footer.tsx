@@ -1,10 +1,7 @@
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react";
+import { Link } from "react-router-dom";
 
-interface FooterProps {
-  onNavigate: (page: string) => void;
-}
-
-export function Footer({ onNavigate }: FooterProps) {
+export function Footer() {
   return (
     <footer className="bg-secondary text-secondary-foreground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -35,36 +32,36 @@ export function Footer({ onNavigate }: FooterProps) {
             <h3 className="mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <button
-                  onClick={() => onNavigate("home")}
+                <Link
+                  to="/"
                   className="text-secondary-foreground/80 hover:text-primary transition-colors"
                 >
                   Home
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => onNavigate("about")}
+                <Link
+                  to="/about"
                   className="text-secondary-foreground/80 hover:text-primary transition-colors"
                 >
                   About Us
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => onNavigate("services")}
+                <Link
+                  to="/services"
                   className="text-secondary-foreground/80 hover:text-primary transition-colors"
                 >
                   Services
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => onNavigate("contact")}
+                <Link
+                  to="/contact"
                   className="text-secondary-foreground/80 hover:text-primary transition-colors"
                 >
                   Contact
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
@@ -74,20 +71,20 @@ export function Footer({ onNavigate }: FooterProps) {
             <h3 className="mb-4">For Workers</h3>
             <ul className="space-y-2">
               <li>
-                <button
-                  onClick={() => onNavigate("signup")}
+                <Link
+                  to="/signup"
                   className="text-secondary-foreground/80 hover:text-primary transition-colors"
                 >
                   Join as Worker
-                </button>
+                </Link>
               </li>
               <li>
-                <button
-                  onClick={() => onNavigate("worker-dashboard")}
+                <Link
+                  to="/worker-dashboard"
                   className="text-secondary-foreground/80 hover:text-primary transition-colors"
                 >
                   Worker Dashboard
-                </button>
+                </Link>
               </li>
             </ul>
           </div>

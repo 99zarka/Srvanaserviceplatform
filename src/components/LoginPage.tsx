@@ -4,22 +4,20 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
+import { Link, useNavigate } from "react-router-dom";
 
-interface LoginPageProps {
-  onNavigate: (page: string) => void;
-}
-
-export function LoginPage({ onNavigate }: LoginPageProps) {
+export function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Mock login - in real app would authenticate
     alert("Login successful! (Demo)");
-    onNavigate("client-dashboard");
+    navigate("/client-dashboard");
   };
 
   return (
@@ -59,12 +57,12 @@ export function LoginPage({ onNavigate }: LoginPageProps) {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <Label htmlFor="password">Password</Label>
-                  <button
-                    type="button"
+                  <Link
+                    to="/forgot-password" // Assuming a forgot password route
                     className="text-primary hover:underline"
                   >
                     Forgot?
-                  </button>
+                  </Link>
                 </div>
                 <Input
                   id="password"
@@ -92,12 +90,12 @@ export function LoginPage({ onNavigate }: LoginPageProps) {
               <div className="text-center mt-6">
                 <p className="text-muted-foreground">
                   Don't have an account?{" "}
-                  <button
-                    onClick={() => onNavigate("signup")}
+                  <Link
+                    to="/signup"
                     className="text-primary hover:underline"
                   >
                     Sign up
-                  </button>
+                  </Link>
                 </p>
               </div>
             </div>
@@ -106,34 +104,34 @@ export function LoginPage({ onNavigate }: LoginPageProps) {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => onNavigate("client-dashboard")}
+              asChild
             >
-              Demo: Client Dashboard
+              <Link to="/client-dashboard">Demo: Client Dashboard</Link>
             </Button>
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => onNavigate("worker-dashboard")}
+              asChild
             >
-              Demo: Worker Dashboard
+              <Link to="/worker-dashboard">Demo: Worker Dashboard</Link>
             </Button>
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => onNavigate("admin-dashboard")}
+              asChild
             >
-              Demo: Admin Dashboard
+              <Link to="/admin-dashboard">Demo: Admin Dashboard</Link>
             </Button>
           </CardFooter>
         </Card>
 
         <div className="mt-6 text-center">
-          <button
-            onClick={() => onNavigate("home")}
+          <Link
+            to="/"
             className="text-muted-foreground hover:text-primary"
           >
             ← Back to Home
-          </button>
+          </Link>
         </div>
       </div>
     </div>
