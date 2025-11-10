@@ -33,9 +33,9 @@ export default function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/client-dashboard" element={<ClientDashboard />} />
-          <Route path="/worker-dashboard" element={<WorkerDashboard />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/client-dashboard/*" element={<ClientDashboard />} />
+          <Route path="/worker-dashboard/*" element={<WorkerDashboard />} />
+          <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
           <Route path="*" element={<HomePage />} /> {/* Fallback route */}
         </Routes>
       </div>

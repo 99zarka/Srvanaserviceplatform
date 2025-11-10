@@ -1,15 +1,13 @@
-import { useState } from "react";
-import { Home, FileText, CreditCard, MessageSquare, User, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Home, FileText, CreditCard, MessageSquare, User } from "lucide-react";
 import { DashboardLayout } from "./DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { Link } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import { ClientOverview } from "./client-dashboard/ClientOverview";
+import { ClientRequests } from "./client-dashboard/ClientRequests";
+import { ClientPayments } from "./client-dashboard/ClientPayments";
+import { ClientMessages } from "./client-dashboard/ClientMessages";
+import { ClientProfile } from "./client-dashboard/ClientProfile";
 
 export function ClientDashboard() {
-  const [activeSection, setActiveSection] = useState("overview");
-
   const sidebarItems = [
     { icon: Home, label: "Overview", path: "/client-dashboard" },
     { icon: FileText, label: "My Requests", path: "/client-dashboard/requests" },
@@ -18,204 +16,19 @@ export function ClientDashboard() {
     { icon: User, label: "Profile", path: "/client-dashboard/profile" },
   ];
 
-  const stats = [
-    { label: "Active Requests", value: "3", icon: Clock, color: "text-primary" },
-    { label: "Completed", value: "12", icon: CheckCircle, color: "text-green-600" },
-    { label: "Total Spent", value: "$2,450", icon: CreditCard, color: "text-blue-600" },
-  ];
-
-  const recentRequests = [
-    { id: 1, service: "Carpentry", worker: "John Smith", status: "In Progress", date: "Nov 4, 2025", amount: "$450" },
-    { id: 2, service: "Plumbing", worker: "Sarah Johnson", status: "Completed", date: "Nov 1, 2025", amount: "$280" },
-    { id: 3, service: "Electrical", worker: "Mike Chen", status: "In Progress", date: "Oct 30, 2025", amount: "$520" },
-    { id: 4, service: "Painting", worker: "Emily Davis", status: "Pending", date: "Oct 28, 2025", amount: "$380" },
-  ];
-
-  const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: any; className: string }> = {
-      "In Progress": { variant: "default" as const, className: "bg-blue-100 text-blue-800" },
-      "Completed": { variant: "default" as const, className: "bg-green-100 text-green-800" },
-      "Pending": { variant: "default" as const, className: "bg-yellow-100 text-yellow-800" },
-      "Cancelled": { variant: "default" as const, className: "bg-red-100 text-red-800" },
-    };
-    const config = variants[status] || variants["Pending"];
-    return <Badge variant={config.variant} className={config.className}>{status}</Badge>;
-  };
-
   return (
     <DashboardLayout
       sidebarItems={sidebarItems}
       userName="John Doe"
       userRole="Client"
     >
-      {activeSection === "overview" && (
-        <div className="space-y-6">
-          <div>
-            <h1 className="mb-2">Dashboard Overview</h1>
-            <p className="text-muted-foreground">Welcome back! Here's what's happening with your requests.</p>
-          </div>
-
-          {/* Stats */}
-          <div className="grid md:grid-cols-3 gap-6">
-            {stats.map((stat) => (
-              <Card key={stat.label}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-muted-foreground mb-1">{stat.label}</p>
-                      <div className={stat.color}>{stat.value}</div>
-                    </div>
-                    <stat.icon className={`h-8 w-8 ${stat.color}`} />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Recent Requests */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Recent Service Requests</CardTitle>
-                <Button variant="outline" asChild>
-                  <Link to="/client-dashboard/requests">View All</Link>
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Service</TableHead>
-                    <TableHead>Worker</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Amount</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentRequests.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell>{request.service}</TableCell>
-                      <TableCell>{request.worker}</TableCell>
-                      <TableCell>{request.date}</TableCell>
-                      <TableCell>{getStatusBadge(request.status)}</TableCell>
-                      <TableCell>{request.amount}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-4">
-                <Button
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                  asChild
-                >
-                  <Link to="/services">Request New Service</Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link to="/client-dashboard/messages">View Messages</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {activeSection === "requests" && (
-        <div className="space-y-6">
-          <div>
-            <h1 className="mb-2">My Service Requests</h1>
-            <p className="text-muted-foreground">Track and manage all your service requests</p>
-          </div>
-          <Card>
-            <CardContent className="pt-6">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Service</TableHead>
-                    <TableHead>Worker</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentRequests.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell>{request.service}</TableCell>
-                      <TableCell>{request.worker}</TableCell>
-                      <TableCell>{request.date}</TableCell>
-                      <TableCell>{getStatusBadge(request.status)}</TableCell>
-                      <TableCell>{request.amount}</TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm">View Details</Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {activeSection === "payments" && (
-        <div className="space-y-6">
-          <div>
-            <h1 className="mb-2">Payment History</h1>
-            <p className="text-muted-foreground">View your payment transactions</p>
-          </div>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-muted-foreground text-center py-8">
-                Payment history and invoices will appear here
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {activeSection === "messages" && (
-        <div className="space-y-6">
-          <div>
-            <h1 className="mb-2">Messages</h1>
-            <p className="text-muted-foreground">Communicate with workers</p>
-          </div>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-muted-foreground text-center py-8">
-                No messages yet
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {activeSection === "profile" && (
-        <div className="space-y-6">
-          <div>
-            <h1 className="mb-2">Profile Settings</h1>
-            <p className="text-muted-foreground">Update your personal information</p>
-          </div>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-muted-foreground text-center py-8">
-                Profile settings coming soon
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      <Routes>
+        <Route index element={<ClientOverview />} />
+        <Route path="requests" element={<ClientRequests />} />
+        <Route path="payments" element={<ClientPayments />} />
+        <Route path="messages" element={<ClientMessages />} />
+        <Route path="profile" element={<ClientProfile />} />
+      </Routes>
     </DashboardLayout>
   );
 }
