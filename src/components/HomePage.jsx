@@ -100,7 +100,7 @@ export function HomePage() {
                   size="lg"
                   variant="outline"
                   asChild
-                  className="border-secondary-foreground/30 text-secondary-foreground hover:bg-secondary-foreground/10"
+                  className="border-secondary-foreground/30 hover:text-secondary-foreground hover:bg-secondary-foreground/10"
                 >
                   <Link to="/signup">انضم كعامل</Link>
                 </Button>
@@ -233,7 +233,7 @@ export function HomePage() {
               size="lg"
               variant="outline"
               asChild
-              className="border-secondary-foreground/30 text-secondary-foreground hover:bg-secondary-foreground/10"
+              className="border-secondary-foreground/30 hover:text-secondary-foreground hover:bg-secondary-foreground/10"
             >
               <Link to="/signup">كن عاملاً</Link>
             </Button>
