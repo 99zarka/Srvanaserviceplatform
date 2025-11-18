@@ -1,23 +1,75 @@
-import { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
 import { Link, useNavigate } from "react-router-dom";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import BASE_URL from "../config/api";
+
+const loginSchema = z.object({
+  email: z.string().email("صيغة البريد الإلكتروني غير صحيحة").min(1, "البريد الإلكتروني مطلوب"),
+  password: z.string().min(1, "كلمة المرور مطلوبة"),
+});
 
 export function LoginPage() {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
   const navigate = useNavigate();
+  const {
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { // Add default values to ensure fields are initialized
+        email: "",
+        password: "",
+    },
+  });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Mock login - in real app would authenticate
-    alert("تم تسجيل الدخول بنجاح! (تجريبي)");
-    navigate("/client-dashboard");
+  const onSubmit = async (data) => {
+    console.log("Login Payload:", JSON.stringify(data)); // Log payload for debugging
+    try {
+      const response = await fetch(`${BASE_URL}/login/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        // Handle specific API errors
+        if (response.status === 401) {
+          setError("email", { type: "manual", message: "بيانات الاعتماد غير صحيحة" });
+          setError("password", { type: "manual", message: "بيانات الاعتماد غير صحيحة" });
+        } else {
+          // General error handling for other API errors
+          setError("root.serverError", {
+            type: "manual",
+            message: responseData.detail || "حدث خطأ غير متوقع.",
+          });
+        }
+        return;
+      }
+
+      // Store tokens
+      localStorage.setItem("accessToken", responseData.access);
+      localStorage.setItem("refreshToken", responseData.refresh);
+
+      alert("تم تسجيل الدخول بنجاح!"); // Consider a more user-friendly notification
+      navigate("/client-dashboard"); // Navigate to a protected route
+    } catch (error) {
+      console.error("Login error:", error);
+      setError("root.serverError", {
+        type: "manual",
+        message: "خطأ في الشبكة أو تعذر الوصول إلى الخادم.",
+      });
+    }
   };
 
   return (
@@ -39,21 +91,28 @@ export function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
                 <Label htmlFor="email">البريد الإلكتروني</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  placeholder="your.email@example.com"
-                  required
-                  className="bg-input-background"
-                  dir="ltr"
+                <Controller
+                    name="email"
+                    control={control}
+                    render={({ field }) => (
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="your.email@example.com"
+                            className="bg-input-background"
+                            dir="ltr"
+                            {...field}
+                        />
+                    )}
                 />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -65,24 +124,37 @@ export function LoginPage() {
                     نسيت؟
                   </Link>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  placeholder="••••••••"
-                  required
-                  className="bg-input-background"
+                <Controller
+                    name="password"
+                    control={control}
+                    render={({ field }) => (
+                        <Input
+                            id="password"
+                            type="password"
+                            placeholder="••••••••"
+                            className="bg-input-background"
+                            {...field}
+                        />
+                    )}
                 />
+                {errors.password && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
+              {errors.root?.serverError && (
+                <p className="text-red-500 text-sm mt-1 text-center">
+                  {errors.root.serverError.message}
+                </p>
+              )}
               <Button
                 type="submit"
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 size="lg"
+                disabled={isSubmitting}
               >
-                تسجيل الدخول
+                {isSubmitting ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
               </Button>
             </form>
 
