@@ -49,9 +49,10 @@ export function LoginPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  placeholder="بريدك.الإلكتروني@مثال.كوم"
+                  placeholder="your.email@example.com"
                   required
                   className="bg-input-background"
+                  dir="ltr"
                 />
               </div>
               <div>

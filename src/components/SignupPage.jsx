@@ -113,7 +113,7 @@ export function SignupPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="email">البريد الإلكتروني</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -121,9 +121,10 @@ export function SignupPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  placeholder="بريدك.الإلكتروني@مثال.كوم"
+                  placeholder="your.email@example.com"
                   required
                   className="bg-input-background"
+                  dir="ltr"
                 />
               </div>
               <div>
