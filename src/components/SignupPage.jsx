@@ -9,6 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useEffect } from "react";
 import BASE_URL from "../config/api";
 
 const signupSchema = z
@@ -54,6 +55,54 @@ export function SignupPage() {
         password2: "",
     },
   });
+
+  useEffect(() => {
+    // Wait for Google Identity Services to load
+    window.google?.accounts?.id?.initialize({
+      client_id: '268062404120-nfkt7hf22qe38i8kerp11ju3s22ut4j1.apps.googleusercontent.com',
+      callback: handleGoogleSignIn
+    });
+
+    // Render the Google sign-in button
+    window.google?.accounts?.id?.renderButton(
+      document.getElementById('google-signup-button'),
+      { theme: 'outline', size: 'large' }
+    );
+  }, []);
+
+  const handleGoogleSignIn = async (response) => {
+    try {
+      const backendResponse = await fetch(`${BASE_URL}/google-login/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id_token: response.credential }),
+      });
+
+      const data = await backendResponse.json();
+
+      if (backendResponse.ok) {
+        // Store tokens
+        localStorage.setItem("accessToken", data.access);
+        localStorage.setItem("refreshToken", data.refresh);
+
+        alert("تم التسجيل بنجاح باستخدام Google!");
+        navigate("/login"); // Note: Since Google login typically logs in existing users, might want to redirect to dashboard if it auto-creates account
+      } else {
+        setError("root.serverError", {
+          type: "manual",
+          message: data.detail || "خطأ في التسجيل باستخدام Google.",
+        });
+      }
+    } catch (error) {
+      console.error("Google signup error:", error);
+      setError("root.serverError", {
+        type: "manual",
+        message: "خطأ في الشبكة أثناء التسجيل باستخدام Google.",
+      });
+    }
+  };
 
   const onSubmit = async (data) => {
     console.log("Signup Payload:", JSON.stringify(data)); // Log payload for debugging
@@ -322,16 +371,23 @@ export function SignupPage() {
 
             <div className="mt-6">
               <Separator />
-              <div className="text-center mt-6">
-                <p className="text-muted-foreground">
-                  هل لديك حساب بالفعل؟{" "}
-                  <Link
-                    to="/login"
-                    className="text-primary hover:underline"
-                  >
-                    تسجيل الدخول
-                  </Link>
-                </p>
+              <div className="text-center space-y-4">
+                <p className="text-muted-foreground">أو</p>
+                <div
+                  id="google-signup-button"
+                  className="flex justify-center"
+                ></div>
+                <div className="mt-6">
+                  <p className="text-muted-foreground">
+                    هل لديك حساب بالفعل؟{" "}
+                    <Link
+                      to="/login"
+                      className="text-primary hover:underline"
+                    >
+                      تسجيل الدخول
+                    </Link>
+                  </p>
+                </div>
               </div>
             </div>
           </CardContent>
