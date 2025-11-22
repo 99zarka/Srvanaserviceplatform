@@ -1,7 +1,8 @@
 {
-      "name": "Srvana Service Platform",
+      "name": "srvana-service-platform",
       "version": "0.1.0",
       "private": true,
+      "type": "module",
       "homepage": "https://99zarka.github.io/Srvanaserviceplatform",
       "dependencies": {
             "@hookform/resolvers": "^5.2.2",
@@ -31,6 +32,7 @@
             "@radix-ui/react-toggle": "^1.1.2",
             "@radix-ui/react-toggle-group": "^1.1.2",
             "@radix-ui/react-tooltip": "^1.1.8",
+            "@reduxjs/toolkit": "^2.10.1",
             "@types/react-router-dom": "^5.3.3",
             "class-variance-authority": "^0.7.1",
             "clsx": "*",
@@ -43,6 +45,7 @@
             "react-day-picker": "^8.10.1",
             "react-dom": "^18.3.1",
             "react-hook-form": "^7.66.1",
+            "react-redux": "^9.2.0",
             "react-resizable-panels": "^2.1.7",
             "react-router-dom": "^7.9.5",
             "recharts": "^2.15.2",

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -9,8 +9,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useEffect } from "react";
 import BASE_URL from "../config/api";
+import { useDispatch, useSelector } from "react-redux";
+import { register, clearError } from "../redux/authSlice";
 
 const signupSchema = z
   .object({
@@ -39,11 +40,14 @@ const signupSchema = z
 export function SignupPage() {
   const [userType, setUserType] = useState("client");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isLoading, error } = useSelector((state) => state.auth); // Get isLoading and error from Redux state
+
   const {
     control,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(signupSchema),
     defaultValues: { // Add default values to ensure fields are initialized
@@ -57,6 +61,9 @@ export function SignupPage() {
   });
 
   useEffect(() => {
+    // Clear any previous Redux errors when component mounts
+    dispatch(clearError());
+
     // Wait for Google Identity Services to load
     window.google?.accounts?.id?.initialize({
       client_id: '268062404120-nfkt7hf22qe38i8kerp11ju3s22ut4j1.apps.googleusercontent.com',
@@ -68,7 +75,7 @@ export function SignupPage() {
       document.getElementById('google-signup-button'),
       { theme: 'outline', size: 'large' }
     );
-  }, []);
+  }, [dispatch]);
 
   const handleGoogleSignIn = async (response) => {
     try {
@@ -106,54 +113,34 @@ export function SignupPage() {
 
   const onSubmit = async (data) => {
     console.log("Signup Payload:", JSON.stringify(data)); // Log payload for debugging
-    try {
-      const { password2, ...formDataToSend } = data; // Exclude confirmPassword
-      const payload = {
-        ...formDataToSend,
-        password2: password2, // Add password2 back with the correct name for the API
-        // Potentially add user_type or other fields if the API expects it for registration
-      };
+    // Dispatch the register thunk
+    const resultAction = await dispatch(register({ ...data, user_type: userType }));
 
-      const response = await fetch(`${BASE_URL}/users/register/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        // Handle specific API errors
-        if (responseData.email) {
-          setError("email", { type: "manual", message: responseData.email[0] });
+    if (register.fulfilled.match(resultAction)) {
+      alert("تم التسجيل بنجاح! تم تسجيل الدخول تلقائيًا.");
+      navigate("/client-dashboard");
+    } else if (register.rejected.match(resultAction)) {
+      const payloadError = resultAction.payload;
+      if (payloadError) {
+        // Assuming the backend returns specific field errors
+        if (payloadError.email) {
+          setError("email", { type: "manual", message: payloadError.email[0] });
         }
-        if (responseData.password) {
-          setError("password", { type: "manual", message: responseData.password[0] });
+        if (payloadError.password) {
+          setError("password", { type: "manual", message: payloadError.password[0] });
         }
-        if (responseData.password2) {
-            setError("password2", { type: "manual", message: responseData.password2[0] });
+        if (payloadError.password2) {
+          setError("password2", { type: "manual", message: payloadError.password2[0] });
         }
-        if (responseData.non_field_errors) {
-            setError("root.serverError", { type: "manual", message: responseData.non_field_errors[0] });
+        if (payloadError.non_field_errors) {
+          setError("root.serverError", { type: "manual", message: payloadError.non_field_errors[0] });
+        } else if (typeof payloadError === 'string') {
+          // Generic error message if payload is a string
+          setError("root.serverError", { type: "manual", message: payloadError });
         }
-        // General error handling for other API errors
-        setError("root.serverError", {
-          type: "manual",
-          message: responseData.detail || "حدث خطأ غير متوقع أثناء التسجيل.",
-        });
-        return;
+      } else {
+        setError("root.serverError", { type: "manual", message: "حدث خطأ غير متوقع أثناء التسجيل." });
       }
-
-      alert("تم التسجيل بنجاح! يرجى تسجيل الدخول."); // Consider a more user-friendly notification
-      navigate("/login"); // Redirect to login page after successful registration
-    } catch (error) {
-      console.error("Registration error:", error);
-      setError("root.serverError", {
-        type: "manual",
-        message: "خطأ في الشبكة أو تعذر الوصول إلى الخادم.",
-      });
     }
   };
 
@@ -187,8 +174,8 @@ export function SignupPage() {
                 >
                   <div className="flex-1">
                     <div className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                      userType === "client" 
-                        ? "border-primary bg-accent" 
+                      userType === "client"
+                        ? "border-primary bg-accent"
                         : "border-border hover:border-primary/50"
                     }`}>
                       <RadioGroupItem value="client" id="client" className="sr-only" />
@@ -205,8 +192,8 @@ export function SignupPage() {
                   </div>
                   <div className="flex-1">
                     <div className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                      userType === "worker" 
-                        ? "border-primary bg-accent" 
+                      userType === "worker"
+                        ? "border-primary bg-accent"
                         : "border-border hover:border-primary/50"
                     }`}>
                       <RadioGroupItem value="worker" id="worker" className="sr-only" />
@@ -354,18 +341,18 @@ export function SignupPage() {
                   </p>
                 )}
               </div>
-              {errors.root?.serverError && (
+              {error && ( // Display Redux error if present
                 <p className="text-red-500 text-sm mt-1 text-center">
-                  {errors.root.serverError.message}
+                  {error.detail || error.non_field_errors?.[0] || error.message || "حدث خطأ غير متوقع."}
                 </p>
               )}
               <Button
                 type="submit"
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 size="lg"
-                disabled={isSubmitting}
+                disabled={isLoading}
               >
-                {isSubmitting ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
+                {isLoading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
               </Button>
             </form>
 

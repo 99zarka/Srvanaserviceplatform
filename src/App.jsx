@@ -16,11 +16,11 @@ export default function App() {
 
   const showHeaderFooter = ![
     "/login",
-    "/signup",
-    "/client-dashboard",
-    "/worker-dashboard",
-    "/admin-dashboard",
-  ].includes(location.pathname);
+    "/signup"
+  ].includes(location.pathname) &&
+    !location.pathname.startsWith("/client-dashboard") &&
+    !location.pathname.startsWith("/worker-dashboard") &&
+    !location.pathname.startsWith("/admin-dashboard");
 
   return (
     <div className="min-h-screen flex flex-col" dir="rtl">

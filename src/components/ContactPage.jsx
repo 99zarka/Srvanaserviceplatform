@@ -145,7 +145,7 @@ export function ContactPage() {
                   <Card key={info.title}>
                     <CardContent className="pt-6">
                       <div className="flex items-start space-x-4">
-                        <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center flex-shrink-0">
+                        <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center shrink-0">
                           <info.icon className="h-6 w-6 text-primary" />
                         </div>
                         <div>

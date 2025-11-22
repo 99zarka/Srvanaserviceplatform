@@ -17,9 +17,11 @@ export function DashboardLayout({
       {/* Mobile header */}
       <div className="lg:hidden bg-sidebar text-sidebar-foreground p-4 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="bg-primary rounded-lg px-3 py-1.5">
-            <span className="text-primary-foreground">Srvana</span>
-          </div>
+          <Link to="/">
+            <div className="bg-primary rounded-lg px-3 py-1.5 cursor-pointer">
+              <span className="text-primary-foreground">Srvana</span>
+            </div>
+          </Link>
         </div>
         <button onClick={() => setSidebarOpen(!sidebarOpen)}>
           <Menu className="h-6 w-6" />
@@ -39,9 +41,11 @@ export function DashboardLayout({
           <div className="h-full flex flex-col">
             {/* Logo */}
             <div className="p-6 border-b border-sidebar-border hidden lg:block">
-              <div className="bg-primary rounded-lg px-3 py-1.5 inline-block">
-                <span className="text-primary-foreground">Srvana</span>
-              </div>
+              <Link to="/">
+                <div className="bg-primary rounded-lg px-3 py-1.5 inline-block cursor-pointer">
+                  <span className="text-primary-foreground">Srvana</span>
+                </div>
+              </Link>
             </div>
 
             {/* User Info */}

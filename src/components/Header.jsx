@@ -1,7 +1,9 @@
 import { Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/authSlice";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -44,20 +46,7 @@ export function Header() {
           </nav>
 
           {/* Desktop CTA Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              asChild
-            >
-              <Link to="/login">تسجيل الدخول</Link>
-            </Button>
-            <Button
-              asChild
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              <Link to="/signup">إنشاء حساب</Link>
-            </Button>
-          </div>
+          <AuthSection />
 
           {/* Mobile menu button */}
           <button
@@ -89,23 +78,65 @@ export function Header() {
                 </Link>
               ))}
               <div className="flex flex-col space-y-2 pt-4 border-t border-border">
-                <Button
-                  variant="ghost"
-                  asChild
-                >
-                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>تسجيل الدخول</Link>
-                </Button>
-                <Button
-                  asChild
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>إنشاء حساب</Link>
-                </Button>
+                <AuthSection isMobile={true} closeMenu={() => setMobileMenuOpen(false)} />
               </div>
             </nav>
           </div>
         )}
       </div>
     </header>
+  );
+}
+
+function AuthSection({ isMobile = false, closeMenu }) {
+  const authState = useSelector((state) => state.auth);
+  const { isAuthenticated, user } = authState;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // Debug: Log the current auth state
+  console.log('AuthSection - isAuthenticated:', isAuthenticated, 'user:', user);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    if (closeMenu) closeMenu();
+    navigate("/login");
+  };
+
+  if (isAuthenticated && user) {
+    return (
+      <div className={`${isMobile ? "flex flex-col space-y-2" : "hidden md:flex"} items-center space-x-4`}>
+        <span className="text-foreground">
+          مرحبًا, {user.first_name && user.last_name
+            ? `${user.first_name} ${user.last_name}`
+            : user.username || user.email || "مستخدم"}
+        </span>
+        <Button
+          variant="ghost"
+          onClick={handleLogout}
+        >
+          تسجيل الخروج
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${isMobile ? "flex flex-col space-y-2" : "hidden md:flex"} items-center space-x-4`}>
+      <Button
+        variant="ghost"
+        asChild
+        onClick={isMobile ? closeMenu : undefined}
+      >
+        <Link to="/login">تسجيل الدخول</Link>
+      </Button>
+      <Button
+        asChild
+        className="bg-primary hover:bg-primary/90 text-primary-foreground"
+        onClick={isMobile ? closeMenu : undefined}
+      >
+        <Link to="/signup">إنشاء حساب</Link>
+      </Button>
+    </div>
   );
 }

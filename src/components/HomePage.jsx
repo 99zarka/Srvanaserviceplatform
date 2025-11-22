@@ -15,7 +15,7 @@ export function HomePage() {
     {
       title: "السباكة",
       description: "إصلاحات وتركيبات السباكة الاحترافية",
-      image: "https://images.unsplash.com/photo-1563197906-c1466d8e2edd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwbHVtYmVyJTIwZml4aW5nJTIwcGlwZXN8ZW58MXx8fHwxNzYyMzU5MDQ2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      image: "https://images.unsplash.com/photo-1563197906-c1466d8e2edd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxwbHVtYmVyJTIwZml4aW5nJTIwcGlwZXN8ZW58MXx8fHwxNzYyMzU5MDQ2fDA&ixlib=rb-4.1.0&q=80&w=1080",
     },
     {
       title: "الكهرباء",
@@ -171,11 +171,8 @@ export function HomePage() {
                   <Button 
                     variant="link" 
                     className="p-0 h-auto mt-2 text-primary"
-                    asChild
                   >
-                    <Link to="/services">
-                      تعلم المزيد <ArrowRight className="mr-1 h-4 w-4" />
-                    </Link>
+                    تعلم المزيد <ArrowRight className="mr-1 h-4 w-4" />
                   </Button>
                 </CardContent>
               </Link>

@@ -9,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useEffect } from "react";
 import BASE_URL from "../config/api";
+import { useDispatch, useSelector } from "react-redux";
+import { login, clearError } from "../redux/authSlice";
 
 const loginSchema = z.object({
   email: z.string().email("صيغة البريد الإلكتروني غير صحيحة").min(1, "البريد الإلكتروني مطلوب"),
@@ -17,14 +19,17 @@ const loginSchema = z.object({
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isLoading, error, isAuthenticated } = useSelector((state) => state.auth);
+
   const {
     control,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(loginSchema),
-    defaultValues: { // Add default values to ensure fields are initialized
+    defaultValues: {
         email: "",
         password: "",
     },
@@ -80,44 +85,39 @@ export function LoginPage() {
 
   const onSubmit = async (data) => {
     console.log("Login Payload:", JSON.stringify(data)); // Log payload for debugging
-    try {
-      const response = await fetch(`${BASE_URL}/login/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
 
-      const responseData = await response.json();
+    // Clear any previous errors
+    dispatch(clearError());
 
-      if (!response.ok) {
+    // Dispatch the Redux login thunk
+    const resultAction = await dispatch(login(data));
+
+    if (login.fulfilled.match(resultAction)) {
+      console.log("Login successful!");
+      // Redux will handle updating the state and localStorage
+      // Navigate to dashboard
+      navigate("/client-dashboard");
+    } else if (login.rejected.match(resultAction)) {
+      console.log("Login failed:", resultAction.payload);
+
+      const payloadError = resultAction.payload;
+      if (payloadError) {
         // Handle specific API errors
-        if (response.status === 401) {
+        if (typeof payloadError === 'string') {
+          setError("root.serverError", {
+            type: "manual",
+            message: payloadError,
+          });
+        } else if (payloadError.detail && payloadError.detail.includes('credentials')) {
           setError("email", { type: "manual", message: "بيانات الاعتماد غير صحيحة" });
           setError("password", { type: "manual", message: "بيانات الاعتماد غير صحيحة" });
         } else {
-          // General error handling for other API errors
           setError("root.serverError", {
             type: "manual",
-            message: responseData.detail || "حدث خطأ غير متوقع.",
+            message: payloadError.detail || "حدث خطأ غير متوقع.",
           });
         }
-        return;
       }
-
-      // Store tokens
-      localStorage.setItem("accessToken", responseData.access);
-      localStorage.setItem("refreshToken", responseData.refresh);
-
-      alert("تم تسجيل الدخول بنجاح!"); // Consider a more user-friendly notification
-      navigate("/client-dashboard"); // Navigate to a protected route
-    } catch (error) {
-      console.error("Login error:", error);
-      setError("root.serverError", {
-        type: "manual",
-        message: "خطأ في الشبكة أو تعذر الوصول إلى الخادم.",
-      });
     }
   };
 
@@ -201,9 +201,9 @@ export function LoginPage() {
                 type="submit"
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 size="lg"
-                disabled={isSubmitting}
+                disabled={isLoading}
               >
-                {isSubmitting ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+                {isLoading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
               </Button>
             </form>
 
