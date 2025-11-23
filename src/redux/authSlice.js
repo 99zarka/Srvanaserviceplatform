@@ -14,6 +14,95 @@ const initialState = {
   isAuthenticated: !!localStorage.getItem('token'),
 };
 
+// Async thunk to fetch user profile
+export const fetchUserProfile = createAsyncThunk(
+  'auth/fetchUserProfile',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+      if (!token) {
+        return rejectWithValue('No authentication token found.');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/users/me/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data.detail || 'Failed to fetch user profile.');
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue('Network error fetching user profile.');
+    }
+  }
+);
+
+// Async thunk to update user profile
+export const updateUserProfile = createAsyncThunk(
+  'auth/updateUserProfile',
+  async ({ userData }, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+      if (!token) {
+        return rejectWithValue('No authentication token found.');
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+      };
+
+      let bodyContent;
+      let contentType;
+
+      // Check if userData contains a File object (for profile_photo)
+      if (userData.profile_photo instanceof File) {
+        const formData = new FormData();
+        for (const key in userData) {
+          if (userData[key] !== null && userData[key] !== undefined) {
+            formData.append(key, userData[key]);
+          }
+        }
+        bodyContent = formData;
+        // fetch will automatically set Content-Type to multipart/form-data with boundary
+        contentType = undefined; 
+      } else {
+        bodyContent = JSON.stringify(userData);
+        contentType = 'application/json';
+      }
+
+      if (contentType) {
+        headers['Content-Type'] = contentType;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/users/me/`, {
+        method: 'PATCH',
+        headers: headers,
+        body: bodyContent,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data || 'Failed to update user profile.');
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue('Network error updating user profile.');
+    }
+  }
+);
+
 // Async thunk for login
 export const login = createAsyncThunk(
   'auth/login',
@@ -63,7 +152,7 @@ export const login = createAsyncThunk(
 // Async thunk for registration
 export const register = createAsyncThunk(
   'auth/register',
-  async (userData, { rejectWithValue }) => {
+  async (userData, { rejectWithValue, dispatch }) => {
     console.log('Registration thunk called with:', userData);
 
     try {
@@ -123,14 +212,14 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.token = action.payload.access;
         state.refreshToken = action.payload.refresh;
-        state.user = action.payload.user || { email: action.meta.arg.email }; // Store complete user info
         state.isAuthenticated = true;
         state.error = null;
 
         // Store in localStorage
         localStorage.setItem('token', action.payload.access);
         localStorage.setItem('refreshToken', action.payload.refresh);
-        localStorage.setItem('user', JSON.stringify(state.user));
+        // Dispatch fetchUserProfile after successful login to get full user data
+        // The user object will be updated in fetchUserProfile.fulfilled
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
@@ -145,18 +234,48 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.token = action.payload.access;
         state.refreshToken = action.payload.refresh;
-        state.user = action.payload.user || { email: action.meta.arg.email };
         state.isAuthenticated = true;
         state.error = null;
 
         // Auto-login after registration - store in localStorage
         localStorage.setItem('token', action.payload.access);
         localStorage.setItem('refreshToken', action.payload.refresh);
-        localStorage.setItem('user', JSON.stringify(state.user));
+        // Dispatch fetchUserProfile after successful registration to get full user data
+        // The user object will be updated in fetchUserProfile.fulfilled
 
         console.log('Registration successful. User auto-logged in.');
       })
       .addCase(register.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Fetch user profile cases
+      .addCase(fetchUserProfile.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchUserProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = { ...state.user, ...action.payload }; // Merge fetched data
+        localStorage.setItem('user', JSON.stringify(state.user));
+        state.error = null;
+      })
+      .addCase(fetchUserProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Update user profile cases
+      .addCase(updateUserProfile.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = { ...state.user, ...action.payload }; // Merge updated data
+        localStorage.setItem('user', JSON.stringify(state.user));
+        state.error = null;
+      })
+      .addCase(updateUserProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
