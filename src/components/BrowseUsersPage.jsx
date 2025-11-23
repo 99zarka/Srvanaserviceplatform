@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button"; // Assuming a Button component exists for pagination
 import { toast } from "react-hot-toast";
+import { CircleUser } from "lucide-react";
 
 export function BrowseUsersPage() {
   const dispatch = useDispatch();
@@ -49,11 +50,15 @@ export function BrowseUsersPage() {
           <Card key={user.user_id} className="hover:shadow-lg transition-shadow duration-200">
             <CardContent className="pt-6 flex flex-col items-center text-center">
               <Link to={`/profile/${user.user_id}`} className="block">
-                <img
-                  src={user.profile_photo || "https://res.cloudinary.com/dtg0z654d/image/upload/v1700777777/default_profile_pic.png"}
-                  alt={`${user.first_name} ${user.last_name}`}
-                  className="w-24 h-24 rounded-full object-cover mb-4 border-2 border-gray-300"
-                />
+                {user.profile_photo ? (
+                  <img
+                    src={user.profile_photo}
+                    alt={`${user.first_name} ${user.last_name}`}
+                    className="w-24 h-24 rounded-full object-cover mb-4 border-2 border-gray-300"
+                  />
+                ) : (
+                  <CircleUser className="w-24 h-24 text-gray-400 mb-4 border-2 border-gray-300 rounded-full p-2" />
+                )}
                 <h2 className="text-xl font-semibold mb-1">{user.first_name} {user.last_name}</h2>
                 <p className="text-muted-foreground">{user.username}</p>
                 {user.bio && <p className="text-sm text-gray-600 mt-2 line-clamp-2">{user.bio}</p>}
