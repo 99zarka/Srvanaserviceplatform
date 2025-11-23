@@ -1,17 +1,30 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllUsers, clearError } from "../redux/authSlice";
+import { fetchPublicUsersPaginated, clearError } from "../redux/authSlice";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "./ui/card";
+import { Button } from "./ui/button"; // Assuming a Button component exists for pagination
 import { toast } from "react-hot-toast";
 
 export function BrowseUsersPage() {
   const dispatch = useDispatch();
-  const { users, isLoading, error } = useSelector((state) => state.auth);
+  const { users, isLoading, error, currentPage, totalPages } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    dispatch(fetchAllUsers());
-  }, [dispatch]);
+    dispatch(fetchPublicUsersPaginated({ page: currentPage }));
+  }, [dispatch, currentPage]);
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      dispatch(fetchPublicUsersPaginated({ page: currentPage - 1 }));
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      dispatch(fetchPublicUsersPaginated({ page: currentPage + 1 }));
+    }
+  };
 
   useEffect(() => {
     if (error) {
@@ -48,6 +61,17 @@ export function BrowseUsersPage() {
             </CardContent>
           </Card>
         ))}
+      </div>
+      <div className="flex justify-center items-center space-x-4 mt-8">
+        <Button onClick={handlePreviousPage} disabled={currentPage === 1}>
+          السابق
+        </Button>
+        <span>
+          صفحة {currentPage} من {totalPages}
+        </span>
+        <Button onClick={handleNextPage} disabled={currentPage === totalPages}>
+          التالي
+        </Button>
       </div>
     </div>
   );

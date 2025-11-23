@@ -13,6 +13,10 @@ const initialState = {
   isLoading: false,
   error: null,
   isAuthenticated: !!localStorage.getItem('token'),
+  currentPage: 1,
+  totalPages: 1,
+  totalUsers: 0,
+  page_size: 10, // Define default page size for frontend pagination calculation
 };
 
 // Async thunk to fetch current user profile
@@ -129,37 +133,62 @@ export const updateUserProfile = createAsyncThunk(
   }
 );
 
-// Async thunk to fetch all users
-export const fetchAllUsers = createAsyncThunk(
-  'auth/fetchAllUsers',
-  async (_, { getState, rejectWithValue }) => {
+// Async thunk to fetch all users with pagination
+export const fetchPublicUsersPaginated = createAsyncThunk(
+  'auth/fetchPublicUsersPaginated',
+  async ({ page = 1, pageSize = 10 }, { rejectWithValue }) => {
     try {
-      const { auth } = getState();
-      const token = auth.token;
-      if (!token) {
-        return rejectWithValue('No authentication token found. Must be authenticated to view all users.');
-      }
-
-      const response = await fetch(`${API_BASE_URL}/users/`, {
+      const response = await fetch(`${API_BASE_URL}/users/public/all/?page=${page}&page_size=${pageSize}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        return rejectWithValue(data.detail || 'Failed to fetch all users.');
+        return rejectWithValue(data.detail || 'Failed to fetch public users.');
       }
 
       return data;
     } catch (error) {
-      return rejectWithValue('Network error fetching all users.');
+      return rejectWithValue('Network error fetching public users.');
     }
   }
 );
+
+// This thunk is no longer needed as we are moving to a public paginated endpoint for browsing
+// export const fetchAllUsers = createAsyncThunk(
+//   'auth/fetchAllUsers',
+//   async (_, { getState, rejectWithValue }) => {
+//     try {
+//       const { auth } = getState();
+//       const token = auth.token;
+//       if (!token) {
+//         return rejectWithValue('No authentication token found. Must be authenticated to view all users.');
+//       }
+
+//       const response = await fetch(`${API_BASE_URL}/users/`, {
+//         method: 'GET',
+//         headers: {
+//           'Content-Type': 'application/json',
+//           'Authorization': `Bearer ${token}`,
+//         },
+//       });
+
+//       const data = await response.json();
+
+//       if (!response.ok) {
+//         return rejectWithValue(data.detail || 'Failed to fetch all users.');
+//       }
+
+//       return data;
+//     } catch (error) {
+//       return rejectWithValue('Network error fetching all users.');
+//     }
+//   }
+// );
 
 // Async thunk for login
 export const login = createAsyncThunk(
@@ -328,25 +357,22 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
-      // Fetch all users cases
-      .addCase(fetchAllUsers.pending, (state) => {
+      // Fetch public users paginated cases
+      .addCase(fetchPublicUsersPaginated.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchAllUsers.fulfilled, (state, action) => {
+      .addCase(fetchPublicUsersPaginated.fulfilled, (state, action) => {
         state.isLoading = false;
-        // Assume the payload might be an object with a 'users' key or 'data' key,
-        // or the payload itself is the array.
-        state.users = Array.isArray(action.payload)
-          ? action.payload
-          : (action.payload && Array.isArray(action.payload.users))
-            ? action.payload.users
-            : (action.payload && Array.isArray(action.payload.data))
-              ? action.payload.data
-              : []; // Default to empty array if not found or not an array
+        state.users = action.payload.results || [];
+        state.currentPage = action.meta.arg.page || 1;
+        const count = action.payload.count || 0;
+        const pageSize = action.meta.arg.pageSize || initialState.page_size;
+        state.totalPages = Math.ceil(count / pageSize) || 1;
+        state.totalUsers = count;
         state.error = null;
       })
-      .addCase(fetchAllUsers.rejected, (state, action) => {
+      .addCase(fetchPublicUsersPaginated.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })
