@@ -9,19 +9,27 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
 
+  const authState = useSelector((state) => state.auth); // Access authState here
+  const { isAuthenticated, user } = authState; // Destructure isAuthenticated and user
+
   const navItems = [
     { name: "الرئيسية", path: "/" },
-    { name: "عنا", path: "/about" },
+    { name: "تصفح المستخدمين", path: "/browse-users" }, // New link
     { name: "الخدمات", path: "/services" },
     { name: "اتصل بنا", path: "/contact" },
   ];
+
+  // Conditionally add "My Profile" link if authenticated
+  if (isAuthenticated && user) {
+    navItems.splice(2, 0, { name: "ملفي الشخصي", path: `/profile/${user.user_id}` });
+  }
 
   return (
     <header className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link 
+          <Link
             to="/"
             className="flex items-center cursor-pointer"
           >

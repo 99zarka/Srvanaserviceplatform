@@ -9,6 +9,8 @@ import { SignupPage } from "./components/SignupPage";
 import { ClientDashboard } from "./components/ClientDashboard";
 import { WorkerDashboard } from "./components/WorkerDashboard";
 import { AdminDashboard } from "./components/AdminDashboard";
+import { UserProfilePage } from "./components/UserProfilePage"; // Import UserProfilePage
+import { BrowseUsersPage } from "./components/BrowseUsersPage"; // Import BrowseUsersPage
 import { Routes, Route, useLocation } from "react-router-dom";
 
 export default function App() {
@@ -20,7 +22,7 @@ export default function App() {
   ].includes(location.pathname) &&
     !location.pathname.startsWith("/client-dashboard") &&
     !location.pathname.startsWith("/worker-dashboard") &&
-    !location.pathname.startsWith("/admin-dashboard");
+    !location.pathname.startsWith("/admin-dashboard"); // Exclude browse users page
 
   return (
     <div className="min-h-screen flex flex-col" dir="rtl">
@@ -33,6 +35,8 @@ export default function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/profile/:userId" element={<UserProfilePage />} /> {/* New route for user profiles */}
+          <Route path="/browse-users" element={<BrowseUsersPage />} /> {/* New route for browsing users */}
           <Route path="/client-dashboard/*" element={<ClientDashboard />} />
           <Route path="/worker-dashboard/*" element={<WorkerDashboard />} />
           <Route path="/admin-dashboard/*" element={<AdminDashboard />} />

@@ -9,12 +9,13 @@ const initialState = {
   token: localStorage.getItem('token') || null,
   refreshToken: localStorage.getItem('refreshToken') || null,
   user: JSON.parse(localStorage.getItem('user')) || null,
+  users: [], // New state to store all users
   isLoading: false,
   error: null,
   isAuthenticated: !!localStorage.getItem('token'),
 };
 
-// Async thunk to fetch user profile
+// Async thunk to fetch current user profile
 export const fetchUserProfile = createAsyncThunk(
   'auth/fetchUserProfile',
   async (_, { getState, rejectWithValue }) => {
@@ -42,6 +43,31 @@ export const fetchUserProfile = createAsyncThunk(
       return data;
     } catch (error) {
       return rejectWithValue('Network error fetching user profile.');
+    }
+  }
+);
+
+// Async thunk to fetch any public user profile
+export const fetchPublicUserProfile = createAsyncThunk(
+  'auth/fetchPublicUserProfile',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/public/${userId}/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data.detail || 'Failed to fetch public user profile.');
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue('Network error fetching public user profile.');
     }
   }
 );
@@ -103,6 +129,38 @@ export const updateUserProfile = createAsyncThunk(
   }
 );
 
+// Async thunk to fetch all users
+export const fetchAllUsers = createAsyncThunk(
+  'auth/fetchAllUsers',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+      if (!token) {
+        return rejectWithValue('No authentication token found. Must be authenticated to view all users.');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/users/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data.detail || 'Failed to fetch all users.');
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue('Network error fetching all users.');
+    }
+  }
+);
+
 // Async thunk for login
 export const login = createAsyncThunk(
   'auth/login',
@@ -130,17 +188,8 @@ export const login = createAsyncThunk(
 
       console.log('Login successful with data:', data);
 
-      // After successful login, fetch user data
-      // Try different endpoints that might be accessible to regular users
-      const userEndpointsToTry = [
-        // Try user's own profile by user_id (assuming user IDs are 1, 2, 3, etc. - this won't work)
-        // Since we don't know the user ID, let's try a fallback approach
-        // Try accessing user data through addresses endpoint (if it includes user info)
-      ];
-
-      // For now, let's assume the regular user cannot access /users/users/ list
-      // We'll store basic user info and can try to fetch more data later if needed
-      console.log('Login successful. Token received but user data fetch may be restricted by API permissions.');
+      // Dispatch fetchUserProfile after successful login to get full user data
+      await dispatch(fetchUserProfile());
 
       return data;
     } catch (error) {
@@ -261,6 +310,43 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchUserProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Fetch public user profile cases
+      .addCase(fetchPublicUserProfile.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchPublicUserProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // For public profile, we don't update the 'user' in state, but may store it separately
+        // For now, it will just return the data, and component will handle
+        state.error = null;
+      })
+      .addCase(fetchPublicUserProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Fetch all users cases
+      .addCase(fetchAllUsers.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllUsers.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // Assume the payload might be an object with a 'users' key or 'data' key,
+        // or the payload itself is the array.
+        state.users = Array.isArray(action.payload)
+          ? action.payload
+          : (action.payload && Array.isArray(action.payload.users))
+            ? action.payload.users
+            : (action.payload && Array.isArray(action.payload.data))
+              ? action.payload.data
+              : []; // Default to empty array if not found or not an array
+        state.error = null;
+      })
+      .addCase(fetchAllUsers.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })
