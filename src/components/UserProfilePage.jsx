@@ -8,6 +8,7 @@ import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { toast } from "react-hot-toast";
 import { useParams } from "react-router-dom"; // Import useParams
+import { CircleUser } from "lucide-react";
 
 export function UserProfilePage() {
   const { userId } = useParams(); // Get userId from URL params
@@ -156,12 +157,16 @@ export function UserProfilePage() {
           {isCurrentUser && isEditing ? (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="flex flex-col items-center space-y-5 mb-6">
-                <div className="relative w-36 h-36 rounded-full overflow-hidden border-4 border-primary-500 shadow-md">
-                  <img
-                    src={previewUrl || currentUserData?.profile_photo || "https://res.cloudinary.com/dtg0z654d/image/upload/v1700777777/default_profile_pic.png"}
-                    alt="صورة الملف الشخصي"
-                    className="w-full h-full object-cover"
-                  />
+                <div className="relative w-36 h-36 rounded-full overflow-hidden border-4 border-primary-500 shadow-md flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                  {previewUrl || currentUserData?.profile_photo ? (
+                    <img
+                      src={previewUrl || currentUserData?.profile_photo}
+                      alt="صورة الملف الشخصي"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <CircleUser className="w-full h-full text-gray-400 p-2" />
+                  )}
                 </div>
                 <div className="text-center">
                   <Label htmlFor="profile_photo_upload" className="cursor-pointer text-primary hover:underline text-base font-medium">
@@ -279,12 +284,16 @@ export function UserProfilePage() {
             // View Mode
             <div className="space-y-6">
               <div className="flex flex-col items-center space-y-5 mb-8">
-                <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-primary shadow-lg">
-                  <img
-                    src={currentUserData?.profile_photo || "https://res.cloudinary.com/dtg0z654d/image/upload/v1700777777/default_profile_pic.png"}
-                    alt="صورة الملف الشخصي"
-                    className="w-full h-full object-cover"
-                  />
+                <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-primary shadow-lg flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                  {currentUserData?.profile_photo ? (
+                    <img
+                      src={currentUserData?.profile_photo}
+                      alt="صورة الملف الشخصي"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <CircleUser className="w-full h-full text-gray-400 p-2" />
+                  )}
                 </div>
                 {currentUserData?.first_name && currentUserData?.last_name && (
                   <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mt-4">
