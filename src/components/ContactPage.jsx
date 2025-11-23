@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, PhoneCall, Send, HelpCircle } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -53,7 +53,10 @@ export function ContactPage() {
       {/* Hero Section */}
       <section className="bg-secondary text-secondary-foreground py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="mb-6">اتصل بنا</h1>
+          <h1 className="mb-6 flex items-center justify-center space-x-2">
+            <PhoneCall className="h-9 w-9" />
+            <span>اتصل بنا</span>
+          </h1>
           <p className="max-w-3xl mx-auto text-secondary-foreground/90">
             هل لديك أسئلة أو تحتاج إلى مساعدة؟ نحن هنا من أجلك. تواصل معنا وسيقوم فريقنا
             بالرد عليك في أقرب وقت ممكن.
@@ -67,7 +70,10 @@ export function ContactPage() {
           <div className="grid md:grid-cols-2 gap-12">
             {/* Contact Form */}
             <div>
-              <h2 className="mb-6">أرسل لنا رسالة</h2>
+              <h2 className="mb-6 flex items-center space-x-2">
+                <Send className="h-6 w-6" />
+                <span>أرسل لنا رسالة</span>
+              </h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <Label htmlFor="name">الاسم</Label>
@@ -126,9 +132,10 @@ export function ContactPage() {
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center space-x-2"
                 >
-                  إرسال الرسالة
+                  <Send className="h-5 w-5" />
+                  <span>إرسال الرسالة</span>
                 </Button>
               </form>
             </div>
@@ -183,13 +190,17 @@ export function ContactPage() {
       {/* FAQ Teaser */}
       <section className="py-20 bg-muted">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="mb-4">الأسئلة الشائعة</h2>
+          <h2 className="mb-4 flex items-center justify-center space-x-2">
+            <HelpCircle className="h-6 w-6" />
+            <span>الأسئلة الشائعة</span>
+          </h2>
           <p className="text-muted-foreground mb-8">
             هل تبحث عن إجابات سريعة؟ تحقق من قسم الأسئلة الشائعة لدينا للأسئلة الشائعة
             حول استخدام سرفانا، التسعير، وكيف تعمل منصتنا.
           </p>
-          <Button variant="outline" size="lg">
-            عرض الأسئلة الشائعة
+          <Button variant="outline" size="lg" className="flex items-center space-x-2">
+            <HelpCircle className="h-5 w-5" />
+            <span>عرض الأسئلة الشائعة</span>
           </Button>
         </div>
       </section>

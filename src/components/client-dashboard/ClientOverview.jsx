@@ -1,4 +1,4 @@
-import { Home, CreditCard, CheckCircle, Clock } from "lucide-react";
+import { Home, CreditCard, CheckCircle, Clock, LayoutDashboard, FileText, Eye, Zap, PlusCircle, MessageSquare } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -33,7 +33,10 @@ export function ClientOverview() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="mb-2">نظرة عامة على لوحة التحكم</h1>
+        <h1 className="mb-2 flex items-center space-x-2">
+          <LayoutDashboard className="h-7 w-7" />
+          <span>نظرة عامة على لوحة التحكم</span>
+        </h1>
         <p className="text-muted-foreground">مرحبًا بعودتك! إليك ما يحدث مع طلباتك.</p>
       </div>
 
@@ -58,9 +61,15 @@ export function ClientOverview() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>طلبات الخدمة الأخيرة</CardTitle>
-            <Button variant="outline" asChild>
-              <Link to="/client-dashboard/requests">عرض الكل</Link>
+            <CardTitle className="flex items-center space-x-2">
+              <FileText className="h-5 w-5" />
+              <span>طلبات الخدمة الأخيرة</span>
+            </CardTitle>
+            <Button variant="outline" asChild className="flex items-center space-x-2">
+              <Link to="/client-dashboard/requests">
+                <Eye className="h-4 w-4" />
+                <span>عرض الكل</span>
+              </Link>
             </Button>
           </div>
         </CardHeader>
@@ -93,18 +102,27 @@ export function ClientOverview() {
       {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>إجراءات سريعة</CardTitle>
+          <CardTitle className="flex items-center space-x-2">
+            <Zap className="h-5 w-5" />
+            <span>إجراءات سريعة</span>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-2 gap-4">
             <Button
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center space-x-2"
               asChild
             >
-              <Link to="/services">طلب خدمة جديدة</Link>
+              <Link to="/services">
+                <PlusCircle className="h-5 w-5" />
+                <span>طلب خدمة جديدة</span>
+              </Link>
             </Button>
-            <Button variant="outline" asChild>
-              <Link to="/client-dashboard/messages">عرض الرسائل</Link>
+            <Button variant="outline" asChild className="flex items-center space-x-2">
+              <Link to="/client-dashboard/messages">
+                <MessageSquare className="h-5 w-5" />
+                <span>عرض الرسائل</span>
+              </Link>
             </Button>
           </div>
         </CardContent>

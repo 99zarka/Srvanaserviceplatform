@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button"; // Assuming a Button component exists for pagination
 import { toast } from "react-hot-toast";
-import { CircleUser } from "lucide-react";
+import { CircleUser, ArrowLeft, ArrowRight } from "lucide-react";
 
 export function BrowseUsersPage() {
   const dispatch = useDispatch();
@@ -68,14 +68,16 @@ export function BrowseUsersPage() {
         ))}
       </div>
       <div className="flex justify-center items-center space-x-4 mt-8">
-        <Button onClick={handlePreviousPage} disabled={currentPage === 1}>
-          السابق
+        <Button onClick={handlePreviousPage} disabled={currentPage === 1} className="flex items-center space-x-2">
+          <ArrowRight className="h-4 w-4" />
+          <span>السابق</span>
         </Button>
         <span>
           صفحة {currentPage} من {totalPages}
         </span>
-        <Button onClick={handleNextPage} disabled={currentPage === totalPages}>
-          التالي
+        <Button onClick={handleNextPage} disabled={currentPage === totalPages} className="flex items-center space-x-2">
+          <span>التالي</span>
+          <ArrowLeft className="h-4 w-4" />
         </Button>
       </div>
     </div>

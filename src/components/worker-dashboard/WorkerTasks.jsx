@@ -2,6 +2,7 @@ import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { Briefcase, Eye } from "lucide-react";
 
 export function WorkerTasks() {
   const activeTasks = [
@@ -23,7 +24,10 @@ export function WorkerTasks() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="mb-2">مهامي</h1>
+        <h1 className="mb-2 flex items-center space-x-2">
+          <Briefcase className="h-7 w-7" />
+          <span>مهامي</span>
+        </h1>
         <p className="text-muted-foreground">إدارة مهامك المجدولة والنشطة</p>
       </div>
       <Card>
@@ -50,7 +54,10 @@ export function WorkerTasks() {
                   <TableCell>{getStatusBadge(task.status)}</TableCell>
                   <TableCell>{task.amount}</TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm">عرض التفاصيل</Button>
+                    <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                      <Eye className="h-4 w-4" />
+                      <span>عرض التفاصيل</span>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

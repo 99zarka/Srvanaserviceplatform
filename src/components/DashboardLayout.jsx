@@ -1,4 +1,4 @@
-import { LogOut, Menu } from "lucide-react";
+import { LogOut, Menu, CircleUser } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -52,9 +52,7 @@ export function DashboardLayout({
             <div className="p-6 border-b border-sidebar-border">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-primary-foreground">
-                    {userName.charAt(0).toUpperCase()}
-                  </span>
+                  <CircleUser className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <div>
                   <div className="text-sidebar-foreground">{userName}</div>
@@ -93,9 +91,9 @@ export function DashboardLayout({
                 className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
                 asChild
               >
-                <Link to="/">
-                  <LogOut className="h-5 w-5 mr-3" />
-                  Logout
+                <Link to="/" className="flex items-center">
+                  <LogOut className="h-5 w-5 ml-3" /> {/* Adjusted margin for RTL */}
+                  <span>Logout</span>
                 </Link>
               </Button>
             </div>

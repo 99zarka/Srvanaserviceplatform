@@ -1,5 +1,6 @@
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { LogIn, HelpCircle, UserPlus, LayoutDashboard, Users, Wrench, Shield, Home } from "lucide-react";
 import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
@@ -128,13 +129,19 @@ export function LoginPage() {
           <div className="bg-primary rounded-lg px-4 py-2 inline-block mb-4">
             <span className="text-primary-foreground">Srvana</span>
           </div>
-          <h1 className="mb-2">مرحبًا بعودتك</h1>
+          <h1 className="mb-2 flex items-center justify-center space-x-2">
+            <LogIn className="h-7 w-7" />
+            <span>مرحبًا بعودتك</span>
+          </h1>
           <p className="text-muted-foreground">سجل الدخول إلى حسابك للمتابعة</p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>تسجيل الدخول</CardTitle>
+            <CardTitle className="flex items-center space-x-2">
+              <LogIn className="h-6 w-6" />
+              <span>تسجيل الدخول</span>
+            </CardTitle>
             <CardDescription>
               أدخل بريدك الإلكتروني وكلمة المرور للوصول إلى حسابك
             </CardDescription>
@@ -168,9 +175,10 @@ export function LoginPage() {
                   <Label htmlFor="password">كلمة المرور</Label>
                   <Link
                     to="/forgot-password" // Assuming a forgot password route
-                    className="text-primary hover:underline"
+                    className="text-primary hover:underline flex items-center space-x-1"
                   >
-                    نسيت؟
+                    <HelpCircle className="h-4 w-4" />
+                    <span>نسيت؟</span>
                   </Link>
                 </div>
                 <Controller
@@ -199,11 +207,21 @@ export function LoginPage() {
               )}
               <Button
                 type="submit"
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center space-x-2"
                 size="lg"
                 disabled={isLoading}
               >
-                {isLoading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
+                {isLoading ? (
+                  <>
+                    <LogIn className="h-5 w-5 animate-pulse" />
+                    <span>جاري تسجيل الدخول...</span>
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="h-5 w-5" />
+                    <span>تسجيل الدخول</span>
+                  </>
+                )}
               </Button>
             </form>
 
@@ -220,9 +238,10 @@ export function LoginPage() {
                     ليس لديك حساب؟{" "}
                     <Link
                       to="/signup"
-                      className="text-primary hover:underline"
+                      className="text-primary hover:underline flex items-center space-x-1"
                     >
-                      إنشاء حساب
+                      <UserPlus className="h-4 w-4" />
+                      <span>إنشاء حساب</span>
                     </Link>
                   </p>
                 </div>
@@ -232,24 +251,33 @@ export function LoginPage() {
           <CardFooter className="flex flex-col space-y-2">
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full flex items-center space-x-2"
               asChild
             >
-              <Link to="/client-dashboard">تجريبي: لوحة تحكم العميل</Link>
+              <Link to="/client-dashboard">
+                <Users className="h-5 w-5" />
+                <span>تجريبي: لوحة تحكم العميل</span>
+              </Link>
             </Button>
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full flex items-center space-x-2"
               asChild
             >
-              <Link to="/worker-dashboard">تجريبي: لوحة تحكم العامل</Link>
+              <Link to="/worker-dashboard">
+                <Wrench className="h-5 w-5" />
+                <span>تجريبي: لوحة تحكم العامل</span>
+              </Link>
             </Button>
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full flex items-center space-x-2"
               asChild
             >
-              <Link to="/admin-dashboard">تجريبي: لوحة تحكم المسؤول</Link>
+              <Link to="/admin-dashboard">
+                <Shield className="h-5 w-5" />
+                <span>تجريبي: لوحة تحكم المسؤول</span>
+              </Link>
             </Button>
           </CardFooter>
         </Card>
@@ -257,9 +285,10 @@ export function LoginPage() {
         <div className="mt-6 text-center">
           <Link
             to="/"
-            className="text-muted-foreground hover:text-primary"
+            className="text-muted-foreground hover:text-primary flex items-center justify-center space-x-2"
           >
-            ← العودة إلى الرئيسية
+            <Home className="h-4 w-4" />
+            <span>العودة إلى الرئيسية</span>
           </Link>
         </div>
       </div>

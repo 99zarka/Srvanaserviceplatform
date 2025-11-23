@@ -1,4 +1,4 @@
-import { Home, Briefcase, DollarSign, Star, Clock, CheckCircle } from "lucide-react";
+import { Home, Briefcase, DollarSign, Star, Clock, CheckCircle, LayoutDashboard, Eye, CalendarCheck, Zap, CalendarPlus, CreditCard, Edit } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -32,7 +32,10 @@ export function WorkerOverview() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="mb-2">لوحة تحكم العامل</h1>
+        <h1 className="mb-2 flex items-center space-x-2">
+          <LayoutDashboard className="h-7 w-7" />
+          <span>لوحة تحكم العامل</span>
+        </h1>
         <p className="text-muted-foreground">تتبع مهامك، أرباحك، وأدائك</p>
       </div>
 
@@ -57,9 +60,15 @@ export function WorkerOverview() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>المهام النشطة</CardTitle>
-            <Button variant="outline" asChild>
-              <Link to="/worker-dashboard/tasks">عرض الكل</Link>
+            <CardTitle className="flex items-center space-x-2">
+              <Briefcase className="h-5 w-5" />
+              <span>المهام النشطة</span>
+            </CardTitle>
+            <Button variant="outline" asChild className="flex items-center space-x-2">
+              <Link to="/worker-dashboard/tasks">
+                <Eye className="h-4 w-4" />
+                <span>عرض الكل</span>
+              </Link>
             </Button>
           </div>
         </CardHeader>
@@ -95,7 +104,10 @@ export function WorkerOverview() {
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>هذا الشهر</CardTitle>
+            <CardTitle className="flex items-center space-x-2">
+              <CalendarCheck className="h-5 w-5" />
+              <span>هذا الشهر</span>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -117,18 +129,24 @@ export function WorkerOverview() {
 
         <Card>
           <CardHeader>
-            <CardTitle>إجراءات سريعة</CardTitle>
+            <CardTitle className="flex items-center space-x-2">
+              <Zap className="h-5 w-5" />
+              <span>إجراءات سريعة</span>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-                تحديث التوفر
+              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center space-x-2">
+                <CalendarPlus className="h-5 w-5" />
+                <span>تحديث التوفر</span>
               </Button>
-              <Button variant="outline" className="w-full">
-                عرض سجل الدفعات
+              <Button variant="outline" className="w-full flex items-center justify-center space-x-2">
+                <CreditCard className="h-5 w-5" />
+                <span>عرض سجل الدفعات</span>
               </Button>
-              <Button variant="outline" className="w-full">
-                تعديل الملف الشخصي
+              <Button variant="outline" className="w-full flex items-center justify-center space-x-2">
+                <Edit className="h-5 w-5" />
+                <span>تعديل الملف الشخصي</span>
               </Button>
             </div>
           </CardContent>

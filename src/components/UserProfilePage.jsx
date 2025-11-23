@@ -8,7 +8,7 @@ import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { toast } from "react-hot-toast";
 import { useParams } from "react-router-dom"; // Import useParams
-import { CircleUser } from "lucide-react";
+import { CircleUser, Edit, Save, X, Mail, Phone, MapPin, Info, User } from "lucide-react";
 
 export function UserProfilePage() {
   const { userId } = useParams(); // Get userId from URL params
@@ -145,9 +145,10 @@ export function UserProfilePage() {
         {isCurrentUser && !isEditing && (
           <Button
             onClick={() => setIsEditing(true)}
-            className="w-full sm:w-auto px-6 py-2 text-lg"
+            className="w-full sm:w-auto px-6 py-2 text-lg flex items-center space-x-2"
           >
-            تعديل الملف الشخصي
+            <Edit className="h-5 w-5" />
+            <span>تعديل الملف الشخصي</span>
           </Button>
         )}
       </div>
@@ -267,16 +268,27 @@ export function UserProfilePage() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                <Button type="submit" disabled={isLoading} className="w-full sm:w-auto px-6 py-2 text-lg">
-                  {isLoading ? "جاري الحفظ..." : "حفظ التغييرات"}
+                <Button type="submit" disabled={isLoading} className="w-full sm:w-auto px-6 py-2 text-lg flex items-center space-x-2">
+                  {isLoading ? (
+                    <>
+                      <Save className="h-5 w-5 animate-pulse" />
+                      <span>جاري الحفظ...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-5 w-5" />
+                      <span>حفظ التغييرات</span>
+                    </>
+                  )}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setIsEditing(false)}
-                  className="w-full sm:w-auto px-6 py-2 text-lg"
+                  className="w-full sm:w-auto px-6 py-2 text-lg flex items-center space-x-2"
                 >
-                  إلغاء
+                  <X className="h-5 w-5" />
+                  <span>إلغاء</span>
                 </Button>
               </div>
             </form>
@@ -309,35 +321,50 @@ export function UserProfilePage() {
 
               {isCurrentUser && currentUserData?.email && ( // Display email only for current user
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-muted-foreground">البريد الإلكتروني</p>
+                  <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
+                    <Mail className="h-4 w-4" />
+                    <span>البريد الإلكتروني</span>
+                  </p>
                   <p className="text-lg text-foreground font-medium">{currentUserData.email}</p>
                 </div>
               )}
 
               {isCurrentUser && currentUserData?.phone_number && ( // Display phone number only for current user
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-muted-foreground">رقم الهاتف</p>
+                  <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
+                    <Phone className="h-4 w-4" />
+                    <span>رقم الهاتف</span>
+                  </p>
                   <p className="text-lg text-foreground font-medium">{currentUserData.phone_number}</p>
                 </div>
               )}
 
               {currentUserData?.address && (
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-muted-foreground">العنوان</p>
+                  <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
+                    <MapPin className="h-4 w-4" />
+                    <span>العنوان</span>
+                  </p>
                   <p className="text-lg text-foreground font-medium">{currentUserData.address}</p>
                 </div>
               )}
 
               {currentUserData?.bio && (
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-muted-foreground">نبذة عني</p>
+                  <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
+                    <Info className="h-4 w-4" />
+                    <span>نبذة عني</span>
+                  </p>
                   <p className="text-lg text-foreground font-medium">{currentUserData.bio}</p>
                 </div>
               )}
 
               {currentUserData?.user_type && ( // Display user type
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-muted-foreground">نوع المستخدم</p>
+                  <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
+                    <User className="h-4 w-4" />
+                    <span>نوع المستخدم</span>
+                  </p>
                   <p className="text-lg text-foreground font-medium">
                     {currentUserData.user_type === 'client' ? 'عميل' : currentUserData.user_type === 'technician' ? 'فني' : currentUserData.user_type}
                   </p>

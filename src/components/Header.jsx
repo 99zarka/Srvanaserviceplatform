@@ -1,4 +1,4 @@
-import { Menu, X } from "lucide-react";
+import { Menu, X, Home, Users, Briefcase, Mail, CircleUser, LogOut, LogIn, UserPlus, Smile } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -13,15 +13,15 @@ export function Header() {
   const { isAuthenticated, user } = authState; // Destructure isAuthenticated and user
 
   const navItems = [
-    { name: "الرئيسية", path: "/" },
-    { name: "تصفح المستخدمين", path: "/browse-users" }, // New link
-    { name: "الخدمات", path: "/services" },
-    { name: "اتصل بنا", path: "/contact" },
+    { name: "الرئيسية", path: "/", icon: Home },
+    { name: "تصفح المستخدمين", path: "/browse-users", icon: Users }, // New link
+    { name: "الخدمات", path: "/services", icon: Briefcase },
+    { name: "اتصل بنا", path: "/contact", icon: Mail },
   ];
 
   // Conditionally add "My Profile" link if authenticated
   if (isAuthenticated && user) {
-    navItems.splice(2, 0, { name: "ملفي الشخصي", path: `/profile/${user.user_id}` });
+    navItems.splice(2, 0, { name: "ملفي الشخصي", path: `/profile/${user.user_id}`, icon: CircleUser });
   }
 
   return (
@@ -44,11 +44,12 @@ export function Header() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`hover:text-primary transition-colors ${
+                className={`hover:text-primary transition-colors flex items-center space-x-2 ${
                   location.pathname === item.path ? "text-primary" : "text-foreground"
                 }`}
               >
-                {item.name}
+                {item.icon && <item.icon className="h-5 w-5" />}
+                <span>{item.name}</span>
               </Link>
             ))}
           </nav>
@@ -78,11 +79,12 @@ export function Header() {
                   key={item.path}
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`text-start hover:text-primary transition-colors ${
+                  className={`text-start hover:text-primary transition-colors flex items-center space-x-2 ${
                     location.pathname === item.path ? "text-primary" : "text-foreground"
                   }`}
                 >
-                  {item.name}
+                  {item.icon && <item.icon className="h-5 w-5" />}
+                  <span>{item.name}</span>
                 </Link>
               ))}
               <div className="flex flex-col space-y-2 pt-4 border-t border-border">
@@ -114,16 +116,21 @@ function AuthSection({ isMobile = false, closeMenu }) {
   if (isAuthenticated && user) {
     return (
       <div className={`${isMobile ? "flex flex-col space-y-2" : "hidden md:flex"} items-center space-x-4`}>
-        <span className="text-foreground">
-          مرحبًا, {user.first_name && user.last_name
-            ? `${user.first_name} ${user.last_name}`
-            : user.username || user.email || "مستخدم"}
+        <span className="text-foreground flex items-center space-x-2">
+          <Smile className="h-5 w-5" />
+          <span>
+            مرحبًا, {user.first_name && user.last_name
+              ? `${user.first_name} ${user.last_name}`
+              : user.username || user.email || "مستخدم"}
+          </span>
         </span>
         <Button
           variant="ghost"
           onClick={handleLogout}
+          className="flex items-center space-x-2"
         >
-          تسجيل الخروج
+          <LogOut className="h-5 w-5" />
+          <span>تسجيل الخروج</span>
         </Button>
       </div>
     );
@@ -135,15 +142,22 @@ function AuthSection({ isMobile = false, closeMenu }) {
         variant="ghost"
         asChild
         onClick={isMobile ? closeMenu : undefined}
+        className="flex items-center space-x-2"
       >
-        <Link to="/login">تسجيل الدخول</Link>
+        <Link to="/login">
+          <LogIn className="h-5 w-5" />
+          <span>تسجيل الدخول</span>
+        </Link>
       </Button>
       <Button
         asChild
-        className="bg-primary hover:bg-primary/90 text-primary-foreground"
+        className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center space-x-2"
         onClick={isMobile ? closeMenu : undefined}
       >
-        <Link to="/signup">إنشاء حساب</Link>
+        <Link to="/signup">
+          <UserPlus className="h-5 w-5" />
+          <span>إنشاء حساب</span>
+        </Link>
       </Button>
     </div>
   );

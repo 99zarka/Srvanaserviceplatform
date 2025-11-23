@@ -1,10 +1,14 @@
 import { Card, CardContent } from "../ui/card";
+import { MessageSquare } from "lucide-react";
 
 export function ClientMessages() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="mb-2">الرسائل</h1>
+        <h1 className="mb-2 flex items-center space-x-2">
+          <MessageSquare className="h-7 w-7" />
+          <span>الرسائل</span>
+        </h1>
         <p className="text-muted-foreground">تواصل مع العمال</p>
       </div>
       <Card>

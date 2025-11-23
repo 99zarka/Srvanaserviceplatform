@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, Briefcase, FileText, Settings, TrendingUp, UserCheck, AlertCircle } from "lucide-react";
+import { LayoutDashboard, Users, Briefcase, FileText, Settings, TrendingUp, UserCheck, AlertCircle, Eye, Check, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -72,13 +72,19 @@ export function AdminOverview() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <CardTitle>Pending Worker Approvals</CardTitle>
+              <CardTitle className="flex items-center space-x-2">
+                <AlertCircle className="h-5 w-5 text-yellow-600" />
+                <span>Pending Worker Approvals</span>
+              </CardTitle>
               <Badge className="bg-yellow-100 text-yellow-800">
                 {pendingApprovals.length}
               </Badge>
             </div>
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/admin-dashboard/approvals">View All</Link>
+            <Button variant="outline" size="sm" asChild className="flex items-center space-x-2">
+              <Link to="/admin-dashboard/approvals">
+                <Eye className="h-4 w-4" />
+                <span>View All</span>
+              </Link>
             </Button>
           </div>
         </CardHeader>
@@ -100,11 +106,13 @@ export function AdminOverview() {
                   <TableCell>{approval.submitted}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
-                        Approve
+                      <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white flex items-center space-x-1">
+                        <Check className="h-4 w-4" />
+                        <span>Approve</span>
                       </Button>
-                      <Button size="sm" variant="outline">
-                        Review
+                      <Button size="sm" variant="outline" className="flex items-center space-x-1">
+                        <Search className="h-4 w-4" />
+                        <span>Review</span>
                       </Button>
                     </div>
                   </TableCell>
@@ -119,9 +127,15 @@ export function AdminOverview() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Recent User Registrations</CardTitle>
-            <Button variant="outline" asChild>
-              <Link to="/admin-dashboard/users">View All Users</Link>
+            <CardTitle className="flex items-center space-x-2">
+              <Users className="h-5 w-5 text-blue-600" />
+              <span>Recent User Registrations</span>
+            </CardTitle>
+            <Button variant="outline" asChild className="flex items-center space-x-2">
+              <Link to="/admin-dashboard/users">
+                <Users className="h-4 w-4" />
+                <span>View All Users</span>
+              </Link>
             </Button>
           </div>
         </CardHeader>

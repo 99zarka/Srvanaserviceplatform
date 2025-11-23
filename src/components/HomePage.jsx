@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle, Users, Wrench, Star } from "lucide-react";
+import { ArrowRight, CheckCircle, Users, Wrench, Star, Search, UserPlus, Zap, Sparkles, MessageSquareQuote, Rocket } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -34,16 +34,19 @@ export function HomePage() {
       step: "1",
       title: "اختر خدمة",
       description: "اختر من مجموعتنا الواسعة من الخدمات الاحترافية",
+      icon: Wrench,
     },
     {
       step: "2",
       title: "ابحث عن عامل",
       description: "تصفح المهنيين المعتمدين وتحقق من تقييماتهم",
+      icon: Search,
     },
     {
       step: "3",
       title: "أنجز العمل",
       description: "حدد موعد الخدمة واحصل على عمل عالي الجودة",
+      icon: CheckCircle,
     },
   ];
 
@@ -71,7 +74,7 @@ export function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-secondary to-secondary/90 text-secondary-foreground py-20 md:py-32">
+      <section className="bg-linear-to-br from-secondary to-secondary/90 text-secondary-foreground py-20 md:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
@@ -91,18 +94,21 @@ export function HomePage() {
                   asChild
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
-                  <Link to="/services">
-                    ابحث عن خدمة
-                    <ArrowRight className="mr-2 h-5 w-5" />
+                  <Link to="/services" className="flex items-center space-x-2">
+                    <span>ابحث عن خدمة</span>
+                    <Search className="h-5 w-5" />
                   </Link>
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   asChild
-                  className="border-secondary-foreground/30 hover:text-secondary-foreground hover:bg-secondary-foreground/10"
+                  className="border-secondary-foreground/30 hover:text-secondary-foreground hover:bg-secondary-foreground/10 flex items-center space-x-2"
                 >
-                  <Link to="/signup">انضم كعامل</Link>
+                  <Link to="/signup">
+                    <span>انضم كعامل</span>
+                    <UserPlus className="h-5 w-5" />
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -129,9 +135,9 @@ export function HomePage() {
           <div className="grid md:grid-cols-3 gap-8">
             {howItWorks.map((item) => (
               <Card key={item.step} className="border-2 hover:border-primary transition-colors">
-                <CardContent className="pt-6">
-                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-primary-foreground mb-4">
-                    <span>{item.step}</span>
+                <CardContent className="pt-6 text-center">
+                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-primary-foreground mb-4 mx-auto">
+                    {item.icon && <item.icon className="h-6 w-6" />}
                   </div>
                   <h3 className="mb-2">{item.title}</h3>
                   <p className="text-muted-foreground">{item.description}</p>
@@ -146,7 +152,10 @@ export function HomePage() {
       <section className="py-20 bg-muted">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="mb-4">خدمات مميزة</h2>
+            <h2 className="mb-4 flex items-center justify-center space-x-2">
+              <Sparkles className="h-7 w-7 text-primary" />
+              <span>خدمات مميزة</span>
+            </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               مهنيون خبراء مستعدون للمساعدة في مشاريع منزلك
             </p>
@@ -185,7 +194,10 @@ export function HomePage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="mb-4">ماذا يقول مستخدمونا</h2>
+            <h2 className="mb-4 flex items-center justify-center space-x-2">
+              <MessageSquareQuote className="h-7 w-7 text-primary" />
+              <span>ماذا يقول مستخدمونا</span>
+            </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               انضم إلى آلاف العملاء والعمال الراضين
             </p>
@@ -214,7 +226,10 @@ export function HomePage() {
       {/* CTA Section */}
       <section className="py-20 bg-secondary text-secondary-foreground">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="mb-4">هل أنت مستعد للبدء؟</h2>
+          <h2 className="mb-4 flex items-center justify-center space-x-2">
+            <Rocket className="h-7 w-7" />
+            <span>هل أنت مستعد للبدء؟</span>
+          </h2>
           <p className="mb-8 text-secondary-foreground/90">
             سواء كنت بحاجة إلى خدمة أو ترغب في تقديم مهاراتك، سرفانا هنا من أجلك
           </p>
@@ -222,17 +237,23 @@ export function HomePage() {
             <Button
               size="lg"
               asChild
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center space-x-2"
             >
-              <Link to="/services">تصفح الخدمات</Link>
+              <Link to="/services">
+                <span>تصفح الخدمات</span>
+                <Search className="h-5 w-5" />
+              </Link>
             </Button>
             <Button
               size="lg"
               variant="outline"
               asChild
-              className="border-secondary-foreground/30 hover:text-secondary-foreground hover:bg-secondary-foreground/10"
+              className="border-secondary-foreground/30 hover:text-secondary-foreground hover:bg-secondary-foreground/10 flex items-center space-x-2"
             >
-              <Link to="/signup">كن عاملاً</Link>
+              <Link to="/signup">
+                <span>كن عاملاً</span>
+                <UserPlus className="h-5 w-5" />
+              </Link>
             </Button>
           </div>
         </div>

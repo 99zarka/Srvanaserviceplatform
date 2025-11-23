@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { UserPlus, User, Wrench, LogIn, Home } from "lucide-react";
 import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
@@ -151,13 +152,19 @@ export function SignupPage() {
           <div className="bg-primary rounded-lg px-4 py-2 inline-block mb-4">
             <span className="text-primary-foreground">Srvana</span>
           </div>
-          <h1 className="mb-2">إنشاء حساب</h1>
+          <h1 className="mb-2 flex items-center justify-center space-x-2">
+            <UserPlus className="h-7 w-7" />
+            <span>إنشاء حساب</span>
+          </h1>
           <p className="text-muted-foreground">انضم إلى مجتمعنا اليوم</p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>إنشاء حساب</CardTitle>
+            <CardTitle className="flex items-center space-x-2">
+              <UserPlus className="h-6 w-6" />
+              <span>إنشاء حساب</span>
+            </CardTitle>
             <CardDescription>
               اختر نوع حسابك واملأ التفاصيل الخاصة بك
             </CardDescription>
@@ -181,7 +188,7 @@ export function SignupPage() {
                       <RadioGroupItem value="client" id="client" className="sr-only" />
                       <Label htmlFor="client" className="cursor-pointer block">
                         <div className="text-center">
-                          <div className="mb-2">👤</div>
+                          <User className="h-7 w-7 mx-auto mb-2" />
                           <div>عميل</div>
                           <p className="text-muted-foreground mt-1">
                             أحتاج إلى خدمات
@@ -199,7 +206,7 @@ export function SignupPage() {
                       <RadioGroupItem value="worker" id="worker" className="sr-only" />
                       <Label htmlFor="worker" className="cursor-pointer block">
                         <div className="text-center">
-                          <div className="mb-2">🔧</div>
+                          <Wrench className="h-7 w-7 mx-auto mb-2" />
                           <div>عامل</div>
                           <p className="text-muted-foreground mt-1">
                             أقدم خدمات
@@ -348,11 +355,21 @@ export function SignupPage() {
               )}
               <Button
                 type="submit"
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center space-x-2"
                 size="lg"
                 disabled={isLoading}
               >
-                {isLoading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
+                {isLoading ? (
+                  <>
+                    <UserPlus className="h-5 w-5 animate-pulse" />
+                    <span>جاري إنشاء الحساب...</span>
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-5 w-5" />
+                    <span>إنشاء حساب</span>
+                  </>
+                )}
               </Button>
             </form>
 
@@ -369,9 +386,10 @@ export function SignupPage() {
                     هل لديك حساب بالفعل؟{" "}
                     <Link
                       to="/login"
-                      className="text-primary hover:underline"
+                      className="text-primary hover:underline flex items-center space-x-1"
                     >
-                      تسجيل الدخول
+                      <LogIn className="h-4 w-4" />
+                      <span>تسجيل الدخول</span>
                     </Link>
                   </p>
                 </div>
@@ -383,9 +401,10 @@ export function SignupPage() {
         <div className="mt-6 text-center">
           <Link
             to="/"
-            className="text-muted-foreground hover:text-primary"
+            className="text-muted-foreground hover:text-primary flex items-center justify-center space-x-2"
           >
-            ← العودة إلى الرئيسية
+            <Home className="h-4 w-4" />
+            <span>العودة إلى الرئيسية</span>
           </Link>
         </div>
       </div>

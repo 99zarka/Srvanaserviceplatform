@@ -2,6 +2,7 @@ import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { Users, UserPlus, Edit } from "lucide-react";
 
 export function AdminUsers() {
   const recentUsers = [
@@ -33,11 +34,15 @@ export function AdminUsers() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="mb-2">إدارة المستخدمين</h1>
+          <h1 className="mb-2 flex items-center space-x-2">
+            <Users className="h-7 w-7" />
+            <span>إدارة المستخدمين</span>
+          </h1>
           <p className="text-muted-foreground">إدارة جميع مستخدمي المنصة</p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-          إضافة مستخدم جديد
+        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center space-x-2">
+          <UserPlus className="h-5 w-5" />
+          <span>إضافة مستخدم جديد</span>
         </Button>
       </div>
       <Card>
@@ -62,7 +67,10 @@ export function AdminUsers() {
                   <TableCell>{getStatusBadge(user.status)}</TableCell>
                   <TableCell>{user.joinDate}</TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm">تعديل</Button>
+                    <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                      <Edit className="h-4 w-4" />
+                      <span>تعديل</span>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

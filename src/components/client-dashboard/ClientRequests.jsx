@@ -2,6 +2,7 @@ import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { FileText, Eye } from "lucide-react";
 
 export function ClientRequests() {
   const recentRequests = [
@@ -25,7 +26,10 @@ export function ClientRequests() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="mb-2">طلبات خدمتي</h1>
+        <h1 className="mb-2 flex items-center space-x-2">
+          <FileText className="h-7 w-7" />
+          <span>طلبات خدمتي</span>
+        </h1>
         <p className="text-muted-foreground">تتبع وإدارة جميع طلبات خدمتك</p>
       </div>
       <Card>
@@ -50,7 +54,10 @@ export function ClientRequests() {
                   <TableCell>{getStatusBadge(request.status)}</TableCell>
                   <TableCell>{request.amount}</TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm">عرض التفاصيل</Button>
+                    <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                      <Eye className="h-4 w-4" />
+                      <span>عرض التفاصيل</span>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

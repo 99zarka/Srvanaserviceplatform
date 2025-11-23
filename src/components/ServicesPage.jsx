@@ -1,4 +1,4 @@
-import { Wrench, Droplet, Zap, Paintbrush, Hammer, Drill, Sparkles, Home } from "lucide-react";
+import { Wrench, Droplet, Zap, Paintbrush, Hammer, Drill, Sparkles, Home, ListFilter, PlusCircle, HelpCircle, Mail } from "lucide-react";
 import { Card, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -85,7 +85,10 @@ export function ServicesPage() {
       {/* Hero Section */}
       <section className="bg-secondary text-secondary-foreground py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="mb-6">خدماتنا</h1>
+          <h1 className="mb-6 flex items-center justify-center space-x-2">
+            <ListFilter className="h-9 w-9" />
+            <span>خدماتنا</span>
+          </h1>
           <p className="max-w-3xl mx-auto text-secondary-foreground/90">
             تصفح مجموعتنا الواسعة من الخدمات المنزلية الاحترافية. جميع العمال موثقون،
             ومقيمون، ومستعدون للمساعدة في مشاريعك.
@@ -123,11 +126,14 @@ export function ServicesPage() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button 
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  <Button
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center space-x-2"
                     asChild
                   >
-                    <Link to="/signup">طلب خدمة</Link>
+                    <Link to="/signup">
+                      <PlusCircle className="h-5 w-5" />
+                      <span>طلب خدمة</span>
+                    </Link>
                   </Button>
                 </CardFooter>
               </Card>
@@ -139,16 +145,22 @@ export function ServicesPage() {
       {/* CTA Section */}
       <section className="py-20 bg-muted">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="mb-4">ألا تجد ما تحتاجه؟</h2>
+          <h2 className="mb-4 flex items-center justify-center space-x-2">
+            <HelpCircle className="h-7 w-7" />
+            <span>ألا تجد ما تحتاجه؟</span>
+          </h2>
           <p className="text-muted-foreground mb-8">
             تواصل معنا وسنساعدك في العثور على المحترف المناسب لاحتياجاتك الخاصة.
           </p>
-          <Button 
+          <Button
             size="lg"
             asChild
-            className="bg-secondary hover:bg-secondary/90 text-secondary-foreground"
+            className="bg-secondary hover:bg-secondary/90 text-secondary-foreground flex items-center space-x-2"
           >
-            <Link to="/contact">اتصل بنا</Link>
+            <Link to="/contact">
+              <Mail className="h-5 w-5" />
+              <span>اتصل بنا</span>
+            </Link>
           </Button>
         </div>
       </section>
