@@ -1,13 +1,44 @@
+import React, { useEffect, useState } from "react";
 import { CheckCircle, Users, Shield, Award } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
+import api from "../utils/api"; // Import the API utility
 
 export function AboutPage() {
-  const stats = [
-    { label: "المستخدمون النشطون", value: "10,000+", icon: Users },
-    { label: "الخدمات المكتملة", value: "50,000+", icon: CheckCircle },
-    { label: "العمال الموثقون", value: "2,500+", icon: Shield },
-    { label: "رضا العملاء", value: "98%", icon: Award },
-  ];
+  const [stats, setStats] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAboutPageData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        // Assuming there's a /api/about-stats/ endpoint for dynamic stats
+        const response = await api.get("/api/about-stats/");
+        const fetchedStats = [
+          { label: "المستخدمون النشطون", value: `${response.active_users}+`, icon: Users },
+          { label: "الخدمات المكتملة", value: `${response.completed_services}+`, icon: CheckCircle },
+          { label: "العمال الموثقون", value: `${response.verified_workers}+`, icon: Shield },
+          { label: "رضا العملاء", value: `${response.customer_satisfaction}%`, icon: Award },
+        ];
+        setStats(fetchedStats);
+      } catch (err) {
+        console.error("Failed to fetch about page stats:", err);
+        setError("فشل في جلب الإحصائيات. الرجاء المحاولة لاحقًا.");
+        // Fallback to static data if API fails
+        setStats([
+          { label: "المستخدمون النشطون", value: "10,000+", icon: Users },
+          { label: "الخدمات المكتملة", value: "50,000+", icon: CheckCircle },
+          { label: "العمال الموثقون", value: "2,500+", icon: Shield },
+          { label: "رضا العملاء", value: "98%", icon: Award },
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAboutPageData();
+  }, []);
 
   const values = [
     {
@@ -43,17 +74,23 @@ export function AboutPage() {
       {/* Stats Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-accent rounded-full mb-4">
-                  <stat.icon className="h-8 w-8 text-primary" />
+          {isLoading ? (
+            <div className="text-center p-4">جاري تحميل الإحصائيات...</div>
+          ) : error ? (
+            <div className="text-center p-4 text-red-500">{error}</div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {stats.map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-accent rounded-full mb-4">
+                    <stat.icon className="h-8 w-8 text-primary" />
+                  </div>
+                  <div className="mb-2">{stat.value}</div>
+                  <p className="text-muted-foreground">{stat.label}</p>
                 </div>
-                <div className="mb-2">{stat.value}</div>
-                <p className="text-muted-foreground">{stat.label}</p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

@@ -1,10 +1,12 @@
-import { Mail, Phone, MapPin, Clock, PhoneCall, Send, HelpCircle } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Mail, Phone, MapPin, Clock, PhoneCall, Send, HelpCircle, Loader2 } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
-import { useState } from "react";
+import api from "../utils/api";
+import { toast } from "sonner";
 
 export function ContactPage() {
   const [formData, setFormData] = useState({
@@ -13,40 +15,110 @@ export function ContactPage() {
     subject: "",
     message: "",
   });
+  const [contactInfo, setContactInfo] = useState([]);
+  const [isLoadingInfo, setIsLoadingInfo] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [infoError, setInfoError] = useState(null);
+  const [submitError, setSubmitError] = useState(null);
+  // const { toast } = useToast(); // No longer needed
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission (mock for now)
-    alert("شكرا لرسالتك! سنعود إليك قريبا.");
-    setFormData({ name: "", email: "", subject: "", message: "" });
+  useEffect(() => {
+    const fetchContactInfo = async () => {
+      setIsLoadingInfo(true);
+      setInfoError(null);
+      try {
+        const response = await api.get("/api/contact-info/"); // Assuming this endpoint exists
+        // Map fetched data to the structure expected by the component
+        const mappedInfo = [
+          {
+            icon: Mail,
+            title: "البريد الإلكتروني",
+            content: response.contact_email || "info@srvana.com",
+            link: `mailto:${response.contact_email || "info@srvana.com"}`,
+          },
+          {
+            icon: Phone,
+            title: "الهاتف",
+            content: response.support_phone || "+1 (555) 123-4567",
+            link: `tel:${response.support_phone || "+15551234567"}`,
+          },
+          {
+            icon: MapPin,
+            title: "العنوان",
+            content: response.address || "123 شارع الخدمات، المدينة، الولاية 12345",
+            link: "#", // Could be a link to a map if coordinates are provided
+          },
+          {
+            icon: Clock,
+            title: "ساعات العمل",
+            content: response.working_hours || "من الاثنين إلى الجمعة: 9:00 صباحًا - 6:00 مساءً",
+            link: "#",
+          },
+        ];
+        setContactInfo(mappedInfo);
+      } catch (err) {
+        console.error("Failed to fetch contact info:", err);
+        setInfoError("فشل في جلب معلومات الاتصال.");
+        // Fallback to static data
+        setContactInfo([
+          {
+            icon: Mail,
+            title: "البريد الإلكتروني",
+            content: "info@srvana.com",
+            link: "mailto:info@srvana.com",
+          },
+          {
+            icon: Phone,
+            title: "الهاتف",
+            content: "+1 (555) 123-4567",
+            link: "tel:+15551234567",
+          },
+          {
+            icon: MapPin,
+            title: "العنوان",
+            content: "123 شارع الخدمات، المدينة، الولاية 12345",
+            link: "#",
+          },
+          {
+            icon: Clock,
+            title: "ساعات العمل",
+            content: "من الاثنين إلى الجمعة: 9:00 صباحًا - 6:00 مساءً",
+            link: "#",
+          },
+        ]);
+      } finally {
+        setIsLoadingInfo(false);
+      }
+    };
+
+    fetchContactInfo();
+  }, []);
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const contactInfo = [
-    {
-      icon: Mail,
-      title: "البريد الإلكتروني",
-      content: "info@srvana.com",
-      link: "mailto:info@srvana.com",
-    },
-    {
-      icon: Phone,
-      title: "الهاتف",
-      content: "+1 (555) 123-4567",
-      link: "tel:+15551234567",
-    },
-    {
-      icon: MapPin,
-      title: "العنوان",
-      content: "123 شارع الخدمات، المدينة، الولاية 12345",
-      link: "#",
-    },
-    {
-      icon: Clock,
-      title: "ساعات العمل",
-      content: "من الاثنين إلى الجمعة: 9:00 صباحًا - 6:00 مساءً",
-      link: "#",
-    },
-  ];
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      await api.post("/api/contact-submissions/", formData); // Assuming this endpoint exists
+        toast.success("نجاح", {
+          description: "شكرا لرسالتك! سنعود إليك قريبا.",
+        });
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (err) {
+      console.error("Failed to submit contact form:", err);
+      setSubmitError("فشل في إرسال رسالتك. الرجاء المحاولة لاحقًا.");
+      toast.error("خطأ", {
+        description: "فشل في إرسال رسالتك.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -80,9 +152,7 @@ export function ContactPage() {
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
+                    onChange={handleChange}
                     placeholder="اسمك"
                     required
                     className="bg-input-background"
@@ -94,9 +164,7 @@ export function ContactPage() {
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
+                    onChange={handleChange}
                     placeholder="بريدك.الإلكتروني@مثال.كوم"
                     required
                     className="bg-input-background"
@@ -107,9 +175,7 @@ export function ContactPage() {
                   <Input
                     id="subject"
                     value={formData.subject}
-                    onChange={(e) =>
-                      setFormData({ ...formData, subject: e.target.value })
-                    }
+                    onChange={handleChange}
                     placeholder="كيف يمكننا المساعدة؟"
                     required
                     className="bg-input-background"
@@ -120,9 +186,7 @@ export function ContactPage() {
                   <Textarea
                     id="message"
                     value={formData.message}
-                    onChange={(e) =>
-                      setFormData({ ...formData, message: e.target.value })
-                    }
+                    onChange={handleChange}
                     placeholder="أخبرنا المزيد عن استفسارك..."
                     rows={6}
                     required
@@ -133,10 +197,16 @@ export function ContactPage() {
                   type="submit"
                   size="lg"
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center space-x-2"
+                  disabled={isSubmitting}
                 >
-                  <Send className="h-5 w-5" />
+                  {isSubmitting ? (
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  ) : (
+                    <Send className="h-5 w-5" />
+                  )}
                   <span>إرسال الرسالة</span>
                 </Button>
+                {submitError && <p className="text-red-500 text-sm mt-2">{submitError}</p>}
               </form>
             </div>
 
@@ -147,32 +217,38 @@ export function ContactPage() {
                 سواء كنت عميلاً تبحث عن خدمات أو عاملاً يرغب في الانضمام إلى منصتنا،
                 نحن نحب أن نسمع منك.
               </p>
-              <div className="space-y-6">
-                {contactInfo.map((info) => (
-                  <Card key={info.title}>
-                    <CardContent className="pt-6">
-                      <div className="flex items-start space-x-4">
-                        <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center shrink-0">
-                          <info.icon className="h-6 w-6 text-primary" />
+              {isLoadingInfo ? (
+                <div className="text-center p-4">جاري تحميل معلومات الاتصال...</div>
+              ) : infoError ? (
+                <div className="text-center p-4 text-red-500">{infoError}</div>
+              ) : (
+                <div className="space-y-6">
+                  {contactInfo.map((info) => (
+                    <Card key={info.title}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-start space-x-4">
+                          <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center shrink-0">
+                            <info.icon className="h-6 w-6 text-primary" />
+                          </div>
+                          <div>
+                            <h4 className="mb-1">{info.title}</h4>
+                            {info.link !== "#" ? (
+                              <a
+                                href={info.link}
+                                className="text-muted-foreground hover:text-primary transition-colors"
+                              >
+                                {info.content}
+                              </a>
+                            ) : (
+                              <p className="text-muted-foreground">{info.content}</p>
+                            )}
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="mb-1">{info.title}</h4>
-                          {info.link !== "#" ? (
-                            <a
-                              href={info.link}
-                              className="text-muted-foreground hover:text-primary transition-colors"
-                            >
-                              {info.content}
-                            </a>
-                          ) : (
-                            <p className="text-muted-foreground">{info.content}</p>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
 
               {/* Map Placeholder */}
               <Card className="mt-6">
