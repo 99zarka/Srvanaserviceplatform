@@ -6,6 +6,7 @@ import { ServicesPage } from "./components/ServicesPage";
 import { ContactPage } from "./components/ContactPage";
 import { LoginPage } from "./components/LoginPage";
 import { SignupPage } from "./components/SignupPage";
+import { TechnicianVerificationPage } from "./components/TechnicianVerificationPage";
 import { ClientDashboard } from "./components/ClientDashboard";
 import { WorkerDashboard } from "./components/WorkerDashboard";
 import { AdminDashboard } from "./components/AdminDashboard";
@@ -18,7 +19,8 @@ export default function App() {
 
   const showHeaderFooter = ![
     "/login",
-    "/signup"
+    "/signup",
+    "/technician-verification"
   ].includes(location.pathname) &&
     !location.pathname.startsWith("/client-dashboard") &&
     !location.pathname.startsWith("/worker-dashboard") &&
@@ -35,6 +37,7 @@ export default function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/technician-verification" element={<TechnicianVerificationPage />} />
           <Route path="/profile/:userId" element={<UserProfilePage />} /> {/* New route for user profiles */}
           <Route path="/browse-users" element={<BrowseUsersPage />} /> {/* New route for browsing users */}
           <Route path="/client-dashboard/*" element={<ClientDashboard />} />

@@ -22,10 +22,12 @@ const initialState = {
 // Async thunk to fetch current user profile
 export const fetchUserProfile = createAsyncThunk(
   'auth/fetchUserProfile',
-  async (_, { getState, rejectWithValue }) => {
+  async (tokenOverride, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState();
-      const token = auth.token;
+      // Use provided token override (e.g. from login) or fallback to state token
+      const token = typeof tokenOverride === 'string' ? tokenOverride : auth.token;
+      
       if (!token) {
         return rejectWithValue('No authentication token found.');
       }
@@ -158,39 +160,7 @@ export const fetchPublicUsersPaginated = createAsyncThunk(
   }
 );
 
-// This thunk is no longer needed as we are moving to a public paginated endpoint for browsing
-// export const fetchAllUsers = createAsyncThunk(
-//   'auth/fetchAllUsers',
-//   async (_, { getState, rejectWithValue }) => {
-//     try {
-//       const { auth } = getState();
-//       const token = auth.token;
-//       if (!token) {
-//         return rejectWithValue('No authentication token found. Must be authenticated to view all users.');
-//       }
-
-//       const response = await fetch(`${API_BASE_URL}/users/`, {
-//         method: 'GET',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'Authorization': `Bearer ${token}`,
-//         },
-//       });
-
-//       const data = await response.json();
-
-//       if (!response.ok) {
-//         return rejectWithValue(data.detail || 'Failed to fetch all users.');
-//       }
-
-//       return data;
-//     } catch (error) {
-//       return rejectWithValue('Network error fetching all users.');
-//     }
-//   }
-// );
-
-// Async thunk for login
+// Async thunk for login - Fixed version
 export const login = createAsyncThunk(
   'auth/login',
   async ({ email, password }, { rejectWithValue, dispatch }) => {
@@ -217,9 +187,16 @@ export const login = createAsyncThunk(
 
       console.log('Login successful with data:', data);
 
-      // Dispatch fetchUserProfile after successful login to get full user data
-      await dispatch(fetchUserProfile());
+      // If user data is missing in response (fallback), fetch it
+      if (!data.user) {
+        try {
+          await dispatch(fetchUserProfile(data.access));
+        } catch (profileError) {
+          console.log('Failed to fetch user profile after login:', profileError);
+        }
+      }
 
+      // Return login response
       return data;
     } catch (error) {
       return rejectWithValue('Network error');
@@ -251,6 +228,19 @@ export const register = createAsyncThunk(
       }
 
       console.log('Registration successful with data:', data);
+
+      // If user data is missing in response (fallback), fetch it
+      if (!data.user) {
+        try {
+           // Use data.tokens.access for registration response structure
+           const accessToken = data.tokens?.access;
+           if (accessToken) {
+             await dispatch(fetchUserProfile(accessToken));
+           }
+        } catch (profileError) {
+          console.log('Failed to fetch user profile after registration:', profileError);
+        }
+      }
 
       return data;
     } catch (error) {
@@ -292,12 +282,21 @@ const authSlice = createSlice({
         state.refreshToken = action.payload.refresh;
         state.isAuthenticated = true;
         state.error = null;
+        
+        // Store user if provided in response
+        if (action.payload.user) {
+          state.user = action.payload.user;
+          localStorage.setItem('user', JSON.stringify(action.payload.user));
+        }
 
         // Store in localStorage
         localStorage.setItem('token', action.payload.access);
         localStorage.setItem('refreshToken', action.payload.refresh);
-        // Dispatch fetchUserProfile after successful login to get full user data
-        // The user object will be updated in fetchUserProfile.fulfilled
+        
+        console.log('Login successful, tokens stored:', {
+          token: action.payload.access ? 'present' : 'missing',
+          refreshToken: action.payload.refresh ? 'present' : 'missing'
+        });
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
@@ -310,18 +309,30 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.token = action.payload.access;
-        state.refreshToken = action.payload.refresh;
+        
+        // Handle registration response structure (tokens object)
+        const accessToken = action.payload.tokens?.access || action.payload.access;
+        const refreshToken = action.payload.tokens?.refresh || action.payload.refresh;
+        
+        state.token = accessToken;
+        state.refreshToken = refreshToken;
         state.isAuthenticated = true;
         state.error = null;
 
-        // Auto-login after registration - store in localStorage
-        localStorage.setItem('token', action.payload.access);
-        localStorage.setItem('refreshToken', action.payload.refresh);
-        // Dispatch fetchUserProfile after successful registration to get full user data
-        // The user object will be updated in fetchUserProfile.fulfilled
+        // Store user if provided in response
+        if (action.payload.user) {
+          state.user = action.payload.user;
+          localStorage.setItem('user', JSON.stringify(action.payload.user));
+        }
 
-        console.log('Registration successful. User auto-logged in.');
+        // Auto-login after registration - store in localStorage
+        if (accessToken) localStorage.setItem('token', accessToken);
+        if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
+
+        console.log('Registration successful, tokens stored:', {
+          token: accessToken ? 'present' : 'missing',
+          refreshToken: refreshToken ? 'present' : 'missing'
+        });
       })
       .addCase(register.rejected, (state, action) => {
         state.isLoading = false;
@@ -334,13 +345,16 @@ const authSlice = createSlice({
       })
       .addCase(fetchUserProfile.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = { ...state.user, ...action.payload }; // Merge fetched data
-        localStorage.setItem('user', JSON.stringify(state.user));
+        // Update user data
+        state.user = action.payload;
+        localStorage.setItem('user', JSON.stringify(action.payload));
+        console.log('User profile fetched and stored:', action.payload);
         state.error = null;
       })
       .addCase(fetchUserProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+        console.log('Failed to fetch user profile:', action.payload);
       })
       // Fetch public user profile cases
       .addCase(fetchPublicUserProfile.pending, (state) => {
