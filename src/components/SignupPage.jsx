@@ -91,12 +91,16 @@ export function SignupPage() {
       const data = await backendResponse.json();
 
       if (backendResponse.ok) {
-        // Store tokens
-        localStorage.setItem("accessToken", data.access);
-        localStorage.setItem("refreshToken", data.refresh);
+        // Dispatch the login thunk to handle storing tokens and user data
+        dispatch(login({ 
+          access: data.access, 
+          refresh: data.refresh, 
+          user: data.user 
+        }));
 
         alert("تم التسجيل بنجاح باستخدام Google!");
-        navigate("/login"); // Note: Since Google login typically logs in existing users, might want to redirect to dashboard if it auto-creates account
+        // The Google login flow should ideally redirect to the dashboard after successful login/signup
+        navigate("/client-dashboard"); 
       } else {
         setError("root.serverError", {
           type: "manual",

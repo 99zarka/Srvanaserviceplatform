@@ -63,9 +63,12 @@ export function LoginPage() {
       const data = await backendResponse.json();
 
       if (backendResponse.ok) {
-        // Store tokens
-        localStorage.setItem("accessToken", data.access);
-        localStorage.setItem("refreshToken", data.refresh);
+        // Dispatch the login thunk to handle storing tokens and user data
+        dispatch(login({ 
+          access: data.access, 
+          refresh: data.refresh, 
+          user: data.user 
+        }));
 
         alert("تم تسجيل الدخول بنجاح باستخدام Google!");
         navigate("/client-dashboard");
