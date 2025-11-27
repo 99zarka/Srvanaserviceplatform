@@ -11,7 +11,7 @@ import * as z from "zod";
 import { useEffect } from "react";
 import BASE_URL from "../config/api";
 import { useDispatch, useSelector } from "react-redux";
-import { login, clearError } from "../redux/authSlice";
+import { login, clearError, setSocialLoginData } from "../redux/authSlice";
 
 const loginSchema = z.object({
   email: z.string().email("صيغة البريد الإلكتروني غير صحيحة").min(1, "البريد الإلكتروني مطلوب"),
@@ -63,8 +63,8 @@ export function LoginPage() {
       const data = await backendResponse.json();
 
       if (backendResponse.ok) {
-        // Dispatch the login thunk to handle storing tokens and user data
-        dispatch(login({ 
+        // Dispatch the new social login action to handle storing tokens and user data
+        dispatch(setSocialLoginData({ 
           access: data.access, 
           refresh: data.refresh, 
           user: data.user 

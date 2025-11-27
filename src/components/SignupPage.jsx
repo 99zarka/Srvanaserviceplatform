@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import BASE_URL from "../config/api";
 import { useDispatch, useSelector } from "react-redux";
-import { register, clearError } from "../redux/authSlice";
+import { register, clearError, setSocialLoginData } from "../redux/authSlice";
 
 const signupSchema = z
   .object({
@@ -80,7 +80,7 @@ export function SignupPage() {
 
   const handleGoogleSignIn = async (response) => {
     try {
-      const backendResponse = await fetch(`${BASE_URL}/google-login/`, {
+      const backendResponse = await fetch(`${BASE_URL}/users/google-login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -91,8 +91,8 @@ export function SignupPage() {
       const data = await backendResponse.json();
 
       if (backendResponse.ok) {
-        // Dispatch the login thunk to handle storing tokens and user data
-        dispatch(login({ 
+        // Dispatch the new social login action to handle storing tokens and user data
+        dispatch(setSocialLoginData({ 
           access: data.access, 
           refresh: data.refresh, 
           user: data.user 
@@ -100,7 +100,7 @@ export function SignupPage() {
 
         alert("تم التسجيل بنجاح باستخدام Google!");
         // The Google login flow should ideally redirect to the dashboard after successful login/signup
-        navigate("/client-dashboard"); 
+        navigate("/client-dashboard");
       } else {
         setError("root.serverError", {
           type: "manual",

@@ -268,6 +268,16 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setSocialLoginData: (state, action) => {
+      state.token = action.payload.access;
+      state.refreshToken = action.payload.refresh;
+      state.user = action.payload.user;
+      state.isAuthenticated = true;
+      state.error = null;
+      localStorage.setItem('token', action.payload.access);
+      localStorage.setItem('refreshToken', action.payload.refresh);
+      localStorage.setItem('user', JSON.stringify(action.payload.user));
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -408,5 +418,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { logout, clearError, setSocialLoginData } = authSlice.actions;
 export default authSlice.reducer;
