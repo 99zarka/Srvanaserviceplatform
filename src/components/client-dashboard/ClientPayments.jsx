@@ -15,7 +15,7 @@ export function ClientPayments() {
   useEffect(() => {
     const fetchPayments = async () => {
       if (!token) {
-        setError("User not authenticated.");
+        setError("المستخدم غير مصادق عليه.");
         setLoading(false);
         return;
       }
@@ -32,7 +32,7 @@ export function ClientPayments() {
           date: new Date(payment.timestamp).toLocaleDateString("ar-EG"),
         })));
       } catch (err) {
-        setError(err.message || "Failed to fetch payment history.");
+        setError(err.message || "فشل في جلب سجل الدفعات.");
       } finally {
         setLoading(false);
       }
@@ -46,16 +46,31 @@ export function ClientPayments() {
       "completed": { variant: "default", className: "bg-green-100 text-green-800" },
       "pending": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
       "failed": { variant: "default", className: "bg-red-100 text-red-800" },
+      "مكتملة": { variant: "default", className: "bg-green-100 text-green-800" }, // For static data fallback
+      "معلقة": { variant: "default", className: "bg-yellow-100 text-yellow-800" }, // For static data fallback
+      "فاشلة": { variant: "default", className: "bg-red-100 text-red-800" }, // For static data fallback
     };
+    let translatedStatus = status;
+    switch (status) {
+      case "completed":
+        translatedStatus = "مكتملة";
+        break;
+      case "pending":
+        translatedStatus = "معلقة";
+        break;
+      case "failed":
+        translatedStatus = "فاشلة";
+        break;
+    }
     const config = variants[status] || { variant: "default", className: "bg-gray-100 text-gray-800" };
-    return <Badge variant={config.variant} className={config.className}>{status}</Badge>;
+    return <Badge variant={config.variant} className={config.className}>{translatedStatus}</Badge>;
   };
 
-  if (loading) return <div className="text-center p-8">جاري تحميل سجل الدفعات...</div>;
-  if (error) return <div className="text-center p-8 text-red-500">خطأ: {error}</div>;
+  if (loading) return <div className="text-center p-8" dir="rtl">جاري تحميل سجل الدفعات...</div>;
+  if (error) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ: {error}</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <div>
         <h1 className="mb-2 flex items-center space-x-2">
           <CreditCard className="h-7 w-7" />

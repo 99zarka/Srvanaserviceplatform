@@ -267,7 +267,7 @@ export function TechnicianVerificationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted py-8">
+    <div className="min-h-screen bg-muted py-8" dir="rtl">
       <div className="container mx-auto px-4 max-w-2xl">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">طلب التحقق من الهوية</h1>

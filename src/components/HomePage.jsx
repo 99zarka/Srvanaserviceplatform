@@ -10,7 +10,7 @@ export function HomePage() {
     {
       title: "النجارة",
       description: "خدمات النجارة والأثاث الاحترافية",
-      image: "https://images.unsplash.com/photo-1626081063434-79a2169791b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJwZW50ZXIlMjB3b29kJTIwd29ya2luZ3xlbnwxfHx8fDE3NjI0MzA2MDN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      image: "https://images.unsplash.com/photo-1626081063434-79a2169791b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxjYXJwZW50ZXIlMjB3b29kJTIwd29ya2luZ3xlbnwxfHx8fDE3NjI0MzA2MDN8MA&ixlib=rb-4.1.0&q=80&w=1080",
     },
     {
       title: "السباكة",
@@ -20,7 +20,7 @@ export function HomePage() {
     {
       title: "الكهرباء",
       description: "أعمال وصيانة كهربائية معتمدة",
-      image: "https://images.unsplash.com/photo-1744113511604-235e7010981f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGVjdHJpY2lhbiUyMGVsZWN0cmljYWwlMjB3b3JrfGVufDF8fHx8MTc2MjQzMDYwNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      image: "https://images.unsplash.com/photo-1744113511604-235e7010981f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxlbGVjdHJpY2lhbiUyMGVsZWN0cmljYWwlMjB3b3JrfGVufDF8fHx8MTc2MjQzMDYwNHww&ixlib=rb-4.1.0&q=80&w=1080",
     },
     {
       title: "الدهانات",
@@ -72,7 +72,7 @@ export function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" dir="rtl">
       {/* Hero Section */}
       <section className="bg-linear-to-br from-secondary to-secondary/90 text-secondary-foreground py-20 md:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

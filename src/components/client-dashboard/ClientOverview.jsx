@@ -18,7 +18,7 @@ export function ClientOverview() {
   useEffect(() => {
     const fetchClientDashboardData = async () => {
       if (!token) {
-        setError("User not authenticated.");
+        setError("المستخدم غير مصادق عليه.");
         setLoading(false);
         return;
       }
@@ -47,7 +47,7 @@ export function ClientOverview() {
           amount: `$${req.final_price || req.updated_price || 0}`,
         })));
       } catch (err) {
-        setError(err.message || "Failed to fetch dashboard data.");
+        setError(err.message || "فشل في جلب بيانات لوحة التحكم.");
       } finally {
         setLoading(false);
       }
@@ -72,11 +72,11 @@ export function ClientOverview() {
     return <Badge variant={config.variant} className={config.className}>{status}</Badge>;
   };
 
-  if (loading) return <div className="text-center py-20">Loading dashboard...</div>;
-  if (error) return <div className="text-center py-20 text-red-500">Error: {error}</div>;
+  if (loading) return <div className="text-center py-20" dir="rtl">جاري تحميل لوحة التحكم...</div>;
+  if (error) return <div className="text-center py-20 text-red-500" dir="rtl">خطأ: {error}</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <div>
         <h1 className="mb-2 flex items-center space-x-2">
           <LayoutDashboard className="h-7 w-7" />
@@ -134,7 +134,7 @@ export function ClientOverview() {
                 recentRequests.map((request) => (
                   <TableRow key={request.id}>
                     <TableCell>{request.service}</TableCell>
-                    <TableCell>{request.worker || "N/A"}</TableCell> {/* Handle cases where worker might not be assigned yet */}
+                    <TableCell>{request.worker || "غير متاح"}</TableCell> {/* Handle cases where worker might not be assigned yet */}
                     <TableCell>{request.date}</TableCell>
                     <TableCell>{getStatusBadge(request.status)}</TableCell>
                     <TableCell>{request.amount}</TableCell>

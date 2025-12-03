@@ -1,7 +1,7 @@
-import { Menu, X, Home, Users, Briefcase, Mail, CircleUser, LogOut, LogIn, UserPlus, Smile, Shield, Wrench, CheckCircle, Clock, XCircle, Bell } from "lucide-react";
+import { Menu, X, Home, Users, Briefcase, Mail, CircleUser, LogOut, LogIn, UserPlus, Smile, Shield, Wrench, CheckCircle, Clock, XCircle, Bell, Plus } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom"; // Import useNavigate here
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/authSlice";
 import { getVerificationStatus } from "../redux/verificationSlice";
@@ -33,6 +33,12 @@ export function Header() {
 
   // Conditionally add navigation items if authenticated
   if (isAuthenticated && user) {
+    // Add service ordering links
+    navItems.splice(2, 0, { name: "طلب خدمة", path: "/order/create", icon: Plus });
+    navItems.splice(2, 0, { name: "طلباتي", path: "/orders/dashboard", icon: Briefcase });
+    navItems.splice(2, 0, { name: "تصفح الفنيين", path: "/technicians/browse", icon: Wrench });
+    navItems.splice(2, 0, { name: "عروضي", path: "/client-offers", icon: Briefcase }); // Add client offers link for clients
+    
     // Add profile link
     navItems.splice(2, 0, { name: "ملفي الشخصي", path: `/profile/${user.user_id}`, icon: CircleUser });
     
@@ -44,7 +50,7 @@ export function Header() {
 
   return (
     <header className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" dir="rtl">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link
@@ -52,7 +58,7 @@ export function Header() {
             className="flex items-center cursor-pointer"
           >
             <div className="bg-primary rounded-lg px-3 py-1.5">
-              <span className="text-primary-foreground">Srvana</span>
+              <span className="text-primary-foreground">سرفانا</span>
             </div>
           </Link>
 
@@ -223,15 +229,35 @@ function AuthSection({ isMobile = false, closeMenu }) {
 function NotificationDropdown({ isMobile, closeMenu }) {
   const { notifications, unreadCount } = useSelector((state) => state.notifications);
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // Initialize useNavigate
   const [open, setOpen] = useState(false);
 
   const handleNotificationClick = (notification) => {
     if (!notification.is_read) {
       dispatch(markNotificationAsRead(notification.id));
     }
-    // Handle navigation based on notification type if needed
-    // setOpen(false); 
-    // if (isMobile && closeMenu) closeMenu();
+
+    setOpen(false); // Close dropdown after clicking a notification
+    if (isMobile && closeMenu) closeMenu();
+
+    // Handle navigation based on notification type and related entities
+    if (notification.related_order) {
+      // Example: Navigate to a client's order detail page
+      if (notification.notification_type === 'order_created' || notification.notification_type === 'offer_accepted' || notification.notification_type === 'client_offer_accepted') {
+        navigate(`/orders/dashboard/${notification.related_order}`);
+      } else {
+        // Default to worker task details if it's a technician related notification
+        navigate(`/worker-dashboard/tasks/${notification.related_order}`);
+      }
+    } else if (notification.related_offer) {
+      // Example: Navigate to a technician's offer response page or worker offers dashboard
+      if (notification.notification_type === 'new_offer' || notification.notification_type === 'offer_rejected') {
+        navigate(`/worker-dashboard/client-offers`);
+      } else if (notification.notification_type === 'new_direct_offer' || notification.notification_type === 'client_offer_rejected') {
+         navigate(`/worker-dashboard/client-offers`);
+      }
+    }
+    // Add more specific navigation logic as needed
   };
 
   const displayNotifications = notifications.slice(0, 10); // Show last 10 notifications
@@ -273,7 +299,7 @@ function NotificationDropdown({ isMobile, closeMenu }) {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
+      <DropdownMenuContent align="end" className="w-80" dir="rtl">
         <DropdownMenuLabel className="flex justify-between items-center">
           <span>الإشعارات</span>
           {unreadCount > 0 && <Badge variant="secondary">{unreadCount} غير مقروء</Badge>}

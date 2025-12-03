@@ -4,12 +4,12 @@ import { Link } from "react-router-dom";
 export function Footer() {
   return (
     <footer className="bg-secondary text-secondary-foreground">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12" dir="rtl">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1">
             <div className="bg-primary rounded-lg px-3 py-1.5 inline-block mb-4">
-              <span className="text-primary-foreground">Srvana</span>
+              <span className="text-primary-foreground">سرفانا</span>
             </div>
             <p className="text-secondary-foreground/80 mb-4">
               ربط العملاء بالمهنيين المهرة لجميع احتياجات خدماتك المنزلية.

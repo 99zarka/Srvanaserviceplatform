@@ -17,7 +17,7 @@ export function WorkerEarnings() {
   useEffect(() => {
     const fetchEarningsData = async () => {
       if (!token) {
-        setError("User not authenticated.");
+        setError("المستخدم غير مصادق عليه.");
         setLoading(false);
         return;
       }
@@ -32,7 +32,7 @@ export function WorkerEarnings() {
           pendingEarnings: data.pending_earnings,
         });
       } catch (err) {
-        setError(err.message || "Failed to fetch earnings data.");
+        setError(err.message || "فشل في جلب بيانات الأرباح.");
       } finally {
         setLoading(false);
       }
@@ -41,11 +41,11 @@ export function WorkerEarnings() {
     fetchEarningsData();
   }, [token]);
 
-  if (loading) return <div className="text-center p-8">جاري تحميل الأرباح...</div>;
-  if (error) return <div className="text-center p-8 text-red-500">خطأ: {error}</div>;
+  if (loading) return <div className="text-center p-8" dir="rtl">جاري تحميل الأرباح...</div>;
+  if (error) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ: {error}</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <div>
         <h1 className="mb-2 flex items-center space-x-2">
           <DollarSign className="h-7 w-7" />

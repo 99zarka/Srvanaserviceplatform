@@ -1,6 +1,4 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
 const API_URL = 'http://127.0.0.1:8000/api/notifications/notifications/';
 
 // Helper to get auth header
@@ -17,13 +15,17 @@ export const fetchNotifications = createAsyncThunk(
   'notifications/fetchNotifications',
   async (_, thunkAPI) => {
     try {
-      const config = {
-        headers: getAuthHeader(thunkAPI),
-      };
-      const response = await axios.get(API_URL, config);
-      return response.data;
+      const headers = getAuthHeader(thunkAPI);
+      const response = await fetch(API_URL, { headers });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        return thunkAPI.rejectWithValue(errorData.message || 'Failed to fetch notifications');
+      }
+      
+      return await response.json();
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch notifications');
+      return thunkAPI.rejectWithValue(error.message || 'Failed to fetch notifications');
     }
   }
 );
@@ -32,13 +34,24 @@ export const markNotificationAsRead = createAsyncThunk(
   'notifications/markAsRead',
   async (id, thunkAPI) => {
     try {
-      const config = {
-        headers: getAuthHeader(thunkAPI),
+      const headers = {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(thunkAPI),
       };
-      const response = await axios.patch(`${API_URL}${id}/`, { is_read: true }, config);
-      return response.data;
+      const response = await fetch(`${API_URL}${id}/`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ is_read: true }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return thunkAPI.rejectWithValue(errorData.message || 'Failed to mark notification as read');
+      }
+
+      return await response.json();
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to mark notification as read');
+      return thunkAPI.rejectWithValue(error.message || 'Failed to mark notification as read');
     }
   }
 );

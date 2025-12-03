@@ -1,5 +1,6 @@
 // API utility functions for making requests
-import BASE_URL from '../config/api.js';
+import BASE_URL from '../config/api.js'; // Import BASE_URL
+import { store } from '../redux/store'; // Import Redux store
 
 class ApiError extends Error {
   constructor(message, status, data) {
@@ -11,9 +12,27 @@ class ApiError extends Error {
 }
 
 const handleResponse = async (response) => {
-  const data = await response.json();
+  console.log("handleResponse: Raw Response Status:", response.status); // Debugging
+  console.log("handleResponse: Raw Response OK:", response.ok);     // Debugging
+
+  if (response.status === 204) {
+    return { success: true };
+  }
+
+  let data;
+  try {
+    data = await response.json();
+    console.log("handleResponse: Parsed JSON Data:", data); // Debugging
+  } catch (e) {
+    console.error("handleResponse: Error parsing JSON:", e); // Debugging
+    if (response.ok) {
+      return { success: true, message: 'No JSON content' };
+    }
+    throw new ApiError('Non-JSON response and not OK', response.status, null);
+  }
   
   if (!response.ok) {
+    console.error("handleResponse: Response not OK, throwing error.", data); // Debugging
     throw new ApiError(
       data.detail || data.message || 'An error occurred',
       response.status,
@@ -24,25 +43,21 @@ const handleResponse = async (response) => {
   return data;
 };
 
+// Use Redux store to get authentication token
 const getAuthToken = () => {
-  // Try to get token from localStorage first (if stored there)
-  const localToken = localStorage.getItem('access_token');
-  if (localToken) return localToken;
-  
-  // Try to get token from sessionStorage (more common for SPAs)
-  const sessionToken = sessionStorage.getItem('access_token');
-  if (sessionToken) return sessionToken;
-  
-  // Try to get token from cookie (fallback)
-  const cookies = document.cookie.split(';');
-  for (const cookie of cookies) {
-    const [name, value] = cookie.trim().split('=');
-    if (name === 'access_token') {
-      return decodeURIComponent(value);
+  try {
+    // Get token from Redux store
+    const state = store.getState();
+    const token = state.auth.token;
+    
+    if (token) {
+      return token;
     }
+  } catch (error) {
+    console.error('Error accessing Redux store for token:', error);
   }
   
-  return null;
+  return null; // Return null if no token found or error occurs
 };
 
 const api = {
@@ -136,6 +151,11 @@ const api = {
     };
     
     const response = await fetch(url, config);
+    
+    if (response.status === 204) {
+      return { success: true };
+    }
+    
     return handleResponse(response);
   },
 };

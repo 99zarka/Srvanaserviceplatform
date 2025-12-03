@@ -35,15 +35,15 @@ export function BrowseUsersPage() {
   }, [error, dispatch]);
 
   if (isLoading) {
-    return <div className="text-center p-8">جاري تحميل المستخدمين...</div>;
+    return <div className="text-center p-8" dir="rtl">جاري تحميل المستخدمين...</div>;
   }
 
   if (!users || users.length === 0) {
-    return <div className="text-center p-8">لا يوجد مستخدمين لعرضهم.</div>;
+    return <div className="text-center p-8" dir="rtl">لا يوجد مستخدمين لعرضهم.</div>;
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4" dir="rtl">
       <h1 className="text-3xl font-bold mb-6 text-center">تصفح المستخدمين</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {users.map((user) => (

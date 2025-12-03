@@ -48,13 +48,24 @@ export function AdminServices() {
     const variants = {
       "active": { variant: "default", className: "bg-green-100 text-green-800" },
       "inactive": { variant: "default", className: "bg-gray-100 text-gray-800" },
+      "نشط": { variant: "default", className: "bg-green-100 text-green-800" },
+      "غير نشط": { variant: "default", className: "bg-gray-100 text-gray-800" },
     };
+    let translatedStatus = status;
+    switch (status) {
+      case "active":
+        translatedStatus = "نشط";
+        break;
+      case "inactive":
+        translatedStatus = "غير نشط";
+        break;
+    }
     const config = variants[status] || variants["inactive"];
-    return <Badge variant={config.variant} className={config.className}>{status}</Badge>;
+    return <Badge variant={config.variant} className={config.className}>{translatedStatus}</Badge>;
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="mb-2 flex items-center space-x-2">
@@ -86,11 +97,11 @@ export function AdminServices() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {services.length > 0 ? (
-                    services.map((service) => (
+                  {(services || []).length > 0 ? (
+                    (services || []).map((service) => (
                       <TableRow key={service.id}>
                         <TableCell>{service.name}</TableCell>
-                        <TableCell>{service.description.substring(0, 70)}...</TableCell>
+                        <TableCell>{(service.description || '').substring(0, 70)}...</TableCell>
                         <TableCell>{getStatusBadge(service.is_active ? "active" : "inactive")}</TableCell>
                         <TableCell>
                           <Button variant="ghost" size="sm" className="flex items-center space-x-2">

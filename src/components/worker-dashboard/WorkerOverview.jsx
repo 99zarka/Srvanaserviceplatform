@@ -19,7 +19,7 @@ export function WorkerOverview() {
   useEffect(() => {
     const fetchWorkerDashboardData = async () => {
       if (!token) {
-        setError("User not authenticated.");
+        setError("المستخدم غير مصادق عليه.");
         setLoading(false);
         return;
       }
@@ -42,9 +42,9 @@ export function WorkerOverview() {
         }); // Adjust endpoint and query params
         setActiveTasks(tasksData.results.map(task => ({
           id: task.id,
-          client: task.client_name, // Assuming client_name is available
+          client: task.client_name || "غير متاح", // Assuming client_name is available
           service: task.service_name,
-          location: task.location, // Assuming location is available
+          location: task.location || "غير متاح", // Assuming location is available
           date: new Date(task.scheduled_date).toLocaleDateString("ar-EG"), // Assuming scheduled_date
           amount: `$${task.total_price || 0}`,
           status: task.status,
@@ -62,7 +62,7 @@ export function WorkerOverview() {
         });
 
       } catch (err) {
-        setError(err.message || "Failed to fetch dashboard data.");
+        setError(err.message || "فشل في جلب بيانات لوحة التحكم.");
       } finally {
         setLoading(false);
       }
@@ -81,15 +81,30 @@ export function WorkerOverview() {
       "قيد التنفيذ": { variant: "default", className: "bg-yellow-100 text-yellow-800" }, // For static data fallback
       "مكتملة": { variant: "default", className: "bg-green-100 text-green-800" }, // For static data fallback
     };
+    let translatedStatus = status;
+    switch (status) {
+      case "scheduled":
+        translatedStatus = "مجدولة";
+        break;
+      case "in_progress":
+        translatedStatus = "قيد التنفيذ";
+        break;
+      case "completed":
+        translatedStatus = "مكتملة";
+        break;
+      case "cancelled":
+        translatedStatus = "ملغاة";
+        break;
+    }
     const config = variants[status] || { variant: "default", className: "bg-gray-100 text-gray-800" };
-    return <Badge variant={config.variant} className={config.className}>{status}</Badge>;
+    return <Badge variant={config.variant} className={config.className}>{translatedStatus}</Badge>;
   };
 
-  if (loading) return <div className="text-center py-20">جاري تحميل لوحة التحكم...</div>;
-  if (error) return <div className="text-center py-20 text-red-500">خطأ: {error}</div>;
+  if (loading) return <div className="text-center py-20" dir="rtl">جاري تحميل لوحة التحكم...</div>;
+  if (error) return <div className="text-center py-20 text-red-500" dir="rtl">خطأ: {error}</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <div>
         <h1 className="mb-2 flex items-center space-x-2">
           <LayoutDashboard className="h-7 w-7" />
@@ -147,9 +162,9 @@ export function WorkerOverview() {
               {activeTasks.length > 0 ? (
                 activeTasks.map((task) => (
                   <TableRow key={task.id}>
-                    <TableCell>{task.client || "N/A"}</TableCell>
+                    <TableCell>{task.client}</TableCell>
                     <TableCell>{task.service}</TableCell>
-                    <TableCell>{task.location || "N/A"}</TableCell>
+                    <TableCell>{task.location}</TableCell>
                     <TableCell>{task.date}</TableCell>
                     <TableCell>{getStatusBadge(task.status)}</TableCell>
                     <TableCell>{task.amount}</TableCell>

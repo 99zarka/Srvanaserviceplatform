@@ -126,11 +126,11 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-muted flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="bg-primary rounded-lg px-4 py-2 inline-block mb-4">
-            <span className="text-primary-foreground">Srvana</span>
+            <span className="text-primary-foreground">سرفانا</span>
           </div>
           <h1 className="mb-2 flex items-center justify-center space-x-2">
             <LogIn className="h-7 w-7" />

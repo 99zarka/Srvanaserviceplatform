@@ -15,7 +15,7 @@ export function WorkerReviews() {
   useEffect(() => {
     const fetchWorkerReviews = async () => {
       if (!token) {
-        setError("User not authenticated.");
+        setError("المستخدم غير مصادق عليه.");
         setLoading(false);
         return;
       }
@@ -29,7 +29,7 @@ export function WorkerReviews() {
         setAverageRating(data.average_rating || 0);
         setTotalReviews(data.count || 0);
       } catch (err) {
-        setError(err.message || "Failed to fetch reviews.");
+        setError(err.message || "فشل في جلب التقييمات.");
       } finally {
         setLoading(false);
       }
@@ -47,11 +47,11 @@ export function WorkerReviews() {
     ));
   };
 
-  if (loading) return <div className="text-center p-8">جاري تحميل التقييمات...</div>;
-  if (error) return <div className="text-center p-8 text-red-500">خطأ: {error}</div>;
+  if (loading) return <div className="text-center p-8" dir="rtl">جاري تحميل التقييمات...</div>;
+  if (error) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ: {error}</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <div>
         <h1 className="mb-2 flex items-center space-x-2">
           <Star className="h-7 w-7 text-yellow-600" />

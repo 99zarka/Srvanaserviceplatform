@@ -13,6 +13,15 @@ import { AdminDashboard } from "./components/AdminDashboard";
 import { UserProfilePage } from "./components/UserProfilePage"; // Import UserProfilePage
 import { BrowseUsersPage } from "./components/BrowseUsersPage"; // Import BrowseUsersPage
 import { Routes, Route, useLocation } from "react-router-dom";
+import { Toaster } from "sonner"; // Import Toaster for sonner notifications
+
+// Import new service ordering components
+import OrderCreateForm from "./components/service-ordering/OrderCreateForm";
+import ClientOrdersDashboard from "./components/service-ordering/ClientOrdersDashboard";
+import TechnicianBrowse from "./components/service-ordering/TechnicianBrowse";
+import DirectOfferForm from "./components/service-ordering/DirectOfferForm"; // Import DirectOfferForm
+import { ClientOffersPage } from "./components/ClientOffersPage"; // Import ClientOffersPage
+import EditOfferForm from "./components/EditOfferForm"; // Import EditOfferForm
 
 export default function App() {
   const location = useLocation();
@@ -40,6 +49,16 @@ export default function App() {
           <Route path="/technician-verification" element={<TechnicianVerificationPage />} />
           <Route path="/profile/:userId" element={<UserProfilePage />} /> {/* New route for user profiles */}
           <Route path="/browse-users" element={<BrowseUsersPage />} /> {/* New route for browsing users */}
+          
+          {/* Service Ordering Routes */}
+          <Route path="/order/create" element={<OrderCreateForm />} />
+          <Route path="/orders/dashboard" element={<ClientOrdersDashboard />} />
+          <Route path="/technicians/browse" element={<TechnicianBrowse />} />
+          {/* DirectHirePage route removed as its functionality is integrated into UserProfilePage */}
+          <Route path="/offer/:technicianId" element={<DirectOfferForm />} /> {/* New route for direct offers */}
+          <Route path="/client-offers" element={<ClientOffersPage />} /> {/* New route for client offers */}
+          <Route path="/edit-offer/:orderId" element={<EditOfferForm />} /> {/* New route for editing offers */}
+          
           <Route path="/client-dashboard/*" element={<ClientDashboard />} />
           <Route path="/worker-dashboard/*" element={<WorkerDashboard />} />
           <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
@@ -47,6 +66,7 @@ export default function App() {
         </Routes>
       </div>
       {showHeaderFooter && <Footer />}
+      <Toaster />
     </div>
   );
 }

@@ -33,8 +33,20 @@ export function AdminUsers() {
       "معلق": { variant: "default", className: "bg-yellow-100 text-yellow-800" }, // For Arabic
       "غير نشط": { variant: "default", className: "bg-gray-100 text-gray-800" }, // For Arabic
     };
+    let translatedStatus = status;
+    switch (status) {
+      case "active":
+        translatedStatus = "نشط";
+        break;
+      case "pending":
+        translatedStatus = "معلق";
+        break;
+      case "inactive":
+        translatedStatus = "غير نشط";
+        break;
+    }
     const config = variants[status] || variants["pending"];
-    return <Badge variant={config.variant} className={config.className}>{status}</Badge>;
+    return <Badge variant={config.variant} className={config.className}>{translatedStatus}</Badge>;
   };
 
   const getTypeBadge = (type) => {
@@ -54,7 +66,7 @@ export function AdminUsers() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="mb-2 flex items-center space-x-2">
@@ -89,7 +101,7 @@ export function AdminUsers() {
                   {users.length > 0 ? (
                     users.map((user) => (
                       <TableRow key={user.id}>
-                        <TableCell>{user.full_name || user.username || "N/A"}</TableCell>
+                        <TableCell>{user.full_name || user.username || "غير متاح"}</TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{getTypeBadge(user.role)}</TableCell>
                         <TableCell>{getStatusBadge(user.is_active ? "active" : "inactive")}</TableCell>

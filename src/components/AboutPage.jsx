@@ -59,7 +59,7 @@ export function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" dir="rtl">
       {/* Hero Section */}
       <section className="bg-secondary text-secondary-foreground py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -121,7 +121,7 @@ export function AboutPage() {
                 <Card key={value.title}>
                   <CardContent className="pt-6">
                     <div className="flex items-start space-x-4">
-                      <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
+                      <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center shrink-0">
                         <value.icon className="h-6 w-6 text-primary-foreground" />
                       </div>
                       <div>

@@ -15,10 +15,14 @@ export function ServicesPage() {
     const fetchServices = async () => {
       try {
         setLoading(true);
-        const data = await api.get("/services/"); // Assuming "/services/" is your backend endpoint
-        setServices(data);
+        const data = await api.get("/services/services/"); // Backend endpoint
+        // Handle paginated response or direct array
+        const servicesData = data.results || data || [];
+        setServices(Array.isArray(servicesData) ? servicesData : []);
       } catch (err) {
+        console.error('Failed to fetch services:', err);
         setError(err);
+        setServices([]); // Set empty array on error
       } finally {
         setLoading(false);
       }
@@ -42,7 +46,7 @@ export function ServicesPage() {
   if (error) return <div className="text-center py-20 text-red-500">Error: {error.message}</div>;
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" dir="rtl">
       {/* Hero Section */}
       <section className="bg-secondary text-secondary-foreground py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -61,28 +65,28 @@ export function ServicesPage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service) => (
+            {(services || []).map((service) => (
               <Card
-                key={service.id}
+                key={service.service_id || service.id}
                 className="hover:shadow-lg transition-all hover:border-primary group"
               >
                 <CardContent className="pt-6">
                   <div className="w-16 h-16 bg-accent rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary transition-colors">
-                    {serviceIcons[service.title] && React.createElement(serviceIcons[service.title], { className: "h-8 w-8 text-primary group-hover:text-primary-foreground transition-colors" })}
+                    {serviceIcons[service.service_name] && React.createElement(serviceIcons[service.service_name], { className: "h-8 w-8 text-primary group-hover:text-primary-foreground transition-colors" })}
                   </div>
-                  <h3 className="mb-3">{service.title}</h3>
+                  <h3 className="mb-3">{service.service_name || service.title}</h3>
                   <p className="text-muted-foreground mb-4">
                     {service.description}
                   </p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     <Badge variant="secondary">
-                      {service.workers} عمال
+                      {service.workers || 0} عمال
                     </Badge>
                     <Badge variant="secondary">
-                      ⭐ {service.avgRating}
+                      ⭐ {service.avgRating || 0}
                     </Badge>
                     <Badge className="bg-accent text-accent-foreground hover:bg-accent">
-                      تبدأ من ${service.startingPrice}/hr
+                      تبدأ من ${service.startingPrice || service.base_inspection_fee || 0}/hr
                     </Badge>
                   </div>
                 </CardContent>

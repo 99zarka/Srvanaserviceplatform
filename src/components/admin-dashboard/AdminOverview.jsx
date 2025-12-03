@@ -19,7 +19,7 @@ export function AdminOverview() {
   useEffect(() => {
     const fetchAdminDashboardData = async () => {
       if (!token) {
-        setError("Admin not authenticated.");
+        setError("المسؤول غير مصادق عليه.");
         setLoading(false);
         return;
       }
@@ -63,7 +63,7 @@ export function AdminOverview() {
         })));
 
       } catch (err) {
-        setError(err.message || "Failed to fetch admin dashboard data.");
+        setError(err.message || "فشل في جلب بيانات لوحة تحكم المسؤول.");
       } finally {
         setLoading(false);
       }
@@ -99,11 +99,11 @@ export function AdminOverview() {
     return <Badge variant="outline" className={className}>{displayType}</Badge>;
   };
 
-  if (loading) return <div className="text-center py-20">جاري تحميل لوحة التحكم...</div>;
-  if (error) return <div className="text-center py-20 text-red-500">خطأ: {error}</div>;
+  if (loading) return <div className="text-center py-20" dir="rtl">جاري تحميل لوحة التحكم...</div>;
+  if (error) return <div className="text-center py-20 text-red-500" dir="rtl">خطأ: {error}</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <div>
         <h1 className="mb-2">لوحة تحكم المسؤول</h1>
         <p className="text-muted-foreground">مراقبة نشاط المنصة وإدارة العمليات</p>

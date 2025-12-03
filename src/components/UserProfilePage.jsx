@@ -7,8 +7,9 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { toast } from "react-hot-toast";
-import { useParams } from "react-router-dom"; // Import useParams
+import { Link, useParams } from "react-router-dom"; // Import useParams and Link
 import { CircleUser, Edit, Save, X, Mail, Phone, MapPin, Info, User } from "lucide-react";
+// Removed Dialog and DirectOfferForm imports as direct offer will now be a separate route
 
 export function UserProfilePage() {
   const { userId } = useParams(); // Get userId from URL params
@@ -17,6 +18,7 @@ export function UserProfilePage() {
   const [publicUserData, setPublicUserData] = useState(null); // State for public user data
   const isCurrentUser = user?.user_id === parseInt(userId) || userId === 'me'; // Determine if viewing own profile
   const [isEditing, setIsEditing] = useState(false); // State to control edit mode
+  // Removed isOfferModalOpen state
 
   const currentUserData = isCurrentUser ? user : publicUserData; // Data source for form and display
 
@@ -132,7 +134,7 @@ export function UserProfilePage() {
   };
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
+    <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl" dir="rtl">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
         <div>
           <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-2">
@@ -368,6 +370,17 @@ export function UserProfilePage() {
                   <p className="text-lg text-foreground font-medium">
                     {currentUserData.user_type === 'client' ? 'عميل' : currentUserData.user_type === 'technician' ? 'فني' : currentUserData.user_type}
                   </p>
+                </div>
+              )}
+
+              {/* Make Direct Offer Button and Modal */}
+              {user && currentUserData?.user_type === 'technician' && !isCurrentUser && (
+                <div className="mt-8">
+                  <Link to={`/offer/${userId}`}>
+                    <Button className="w-full px-6 py-3 text-lg">
+                      تقديم عرض مباشر
+                    </Button>
+                  </Link>
                 </div>
               )}
             </div>

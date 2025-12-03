@@ -4,12 +4,12 @@ import { Input } from "../ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Badge } from "../ui/badge";
-import { 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  Eye, 
-  FileText, 
+import {
+  CheckCircle,
+  XCircle,
+  Clock,
+  Eye,
+  FileText,
   Search,
   Filter,
   User,
@@ -28,10 +28,10 @@ export function AdminVerifications() {
   const [selectedVerification, setSelectedVerification] = useState(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [showRejectModal, setShowRejectModal] = useState(false);
-  
+
   const dispatch = useDispatch();
   const { pendingVerifications, isLoading } = useSelector((state) => state.admin);
-  
+
   useEffect(() => {
     dispatch(getPendingVerifications());
   }, [dispatch]);
@@ -62,7 +62,7 @@ export function AdminVerifications() {
         verificationId: selectedVerification.id,
         reason: rejectionReason
       }));
-      
+
       if (rejectVerification.fulfilled.match(result)) {
         alert("تم رفض طلب التحقق");
         setShowRejectModal(false);
@@ -125,19 +125,19 @@ export function AdminVerifications() {
 
   // Filter verifications based on search term and status
   const filteredVerifications = pendingVerifications.filter(verification => {
-    const matchesSearch = searchTerm === "" || 
+    const matchesSearch = searchTerm === "" ||
       verification.user?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       verification.user?.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       verification.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       verification.specialization?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesStatus = statusFilter === "all" || verification.verification_status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold">مراجعة طلبات التحقق</h1>
@@ -168,7 +168,7 @@ export function AdminVerifications() {
                 />
               </div>
             </div>
-            
+
             {/* Status Filter */}
             <div className="w-full sm:w-48">
               <select
@@ -213,7 +213,7 @@ export function AdminVerifications() {
                       </CardDescription>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <Badge className={getStatusColor(verification.verification_status)}>
                       <div className="flex items-center gap-1">
@@ -221,7 +221,7 @@ export function AdminVerifications() {
                         {getStatusText(verification.verification_status)}
                       </div>
                     </Badge>
-                    
+
                     {verification.verification_status === 'pending' && (
                       <div className="flex gap-2">
                         <Button
@@ -246,7 +246,7 @@ export function AdminVerifications() {
                   </div>
                 </div>
               </CardHeader>
-              
+
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Personal Information */}
@@ -255,20 +255,20 @@ export function AdminVerifications() {
                       <User className="h-4 w-4" />
                       المعلومات الشخصية
                     </h4>
-                    
+
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
                         <Wrench className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">التخصص:</span>
                         <span>{verification.specialization || "غير محدد"}</span>
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">سنوات الخبرة:</span>
                         <span>{verification.experience_years || "غير محدد"}</span>
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">العنوان:</span>
@@ -276,28 +276,28 @@ export function AdminVerifications() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Service Details */}
                   <div className="space-y-3">
                     <h4 className="font-semibold flex items-center gap-2">
                       <FileText className="h-4 w-4" />
                       تفاصيل الخدمات
                     </h4>
-                    
+
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center gap-2">
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">السعر/ساعة:</span>
                         <span>{verification.hourly_rate ? `${verification.hourly_rate} ريال` : "غير محدد"}</span>
                       </div>
-                      
+
                       <div>
                         <span className="font-medium">المهارات:</span>
                         <p className="text-muted-foreground mt-1">
                           {verification.skills || "غير محدد"}
                         </p>
                       </div>
-                      
+
                       <div>
                         <span className="font-medium">وصف الخدمات:</span>
                         <p className="text-muted-foreground mt-1 line-clamp-2">
@@ -306,21 +306,21 @@ export function AdminVerifications() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Documents and Timestamps */}
                   <div className="space-y-3">
                     <h4 className="font-semibold flex items-center gap-2">
                       <FileText className="h-4 w-4" />
                       المستندات والتوقيت
                     </h4>
-                    
+
                     <div className="space-y-2 text-sm">
                       {verification.id_document && (
                         <div>
                           <span className="font-medium">وثيقة الهوية:</span>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
+                          <Button
+                            size="sm"
+                            variant="outline"
                             className="ml-2"
                             onClick={() => window.open(verification.id_document, '_blank')}
                           >
@@ -329,13 +329,13 @@ export function AdminVerifications() {
                           </Button>
                         </div>
                       )}
-                      
+
                       {verification.certificate_document && (
                         <div>
                           <span className="font-medium">الشهادات:</span>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
+                          <Button
+                            size="sm"
+                            variant="outline"
                             className="ml-2"
                             onClick={() => window.open(verification.certificate_document, '_blank')}
                           >
@@ -344,13 +344,13 @@ export function AdminVerifications() {
                           </Button>
                         </div>
                       )}
-                      
+
                       {verification.portfolio_document && (
                         <div>
                           <span className="font-medium">معرض الأعمال:</span>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
+                          <Button
+                            size="sm"
+                            variant="outline"
                             className="ml-2"
                             onClick={() => window.open(verification.portfolio_document, '_blank')}
                           >
@@ -359,20 +359,20 @@ export function AdminVerifications() {
                           </Button>
                         </div>
                       )}
-                      
+
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">تاريخ التقديم:</span>
                         <span>
-                          {verification.submitted_at 
-                            ? new Date(verification.submitted_at).toLocaleDateString('en-GB')
+                          {verification.submitted_at
+                            ? new Date(verification.submitted_at).toLocaleDateString('ar-EG')
                             : "غير محدد"}
                         </span>
                       </div>
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Rejection Reason */}
                 {verification.verification_status === 'rejected' && verification.rejection_reason && (
                   <Alert className="mt-4 border-red-200 bg-red-50">
@@ -416,7 +416,7 @@ export function AdminVerifications() {
                   required
                 />
               </div>
-              
+
               <div className="flex gap-3">
                 <Button
                   variant="outline"

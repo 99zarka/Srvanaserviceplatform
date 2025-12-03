@@ -15,7 +15,7 @@ export function ClientMessages() {
   useEffect(() => {
     const fetchConversations = async () => {
       if (!token || !user) {
-        setError("User not authenticated.");
+        setError("المستخدم غير مصادق عليه.");
         setLoading(false);
         return;
       }
@@ -29,7 +29,7 @@ export function ClientMessages() {
         const data = response.results || response;
         setConversations(Array.isArray(data) ? data : []);
       } catch (err) {
-        setError(err.message || "Failed to fetch messages.");
+        setError(err.message || "فشل في جلب الرسائل.");
         setConversations([]);
       } finally {
         setLoading(false);
@@ -39,11 +39,11 @@ export function ClientMessages() {
     fetchConversations();
   }, [token, user]);
 
-  if (loading) return <div className="text-center p-8">جاري تحميل الرسائل...</div>;
-  if (error) return <div className="text-center p-8 text-red-500">خطأ: {error}</div>;
+  if (loading) return <div className="text-center p-8" dir="rtl">جاري تحميل الرسائل...</div>;
+  if (error) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ: {error}</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <div>
         <h1 className="mb-2 flex items-center space-x-2">
           <MessageSquare className="h-7 w-7" />
