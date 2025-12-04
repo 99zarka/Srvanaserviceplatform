@@ -1,6 +1,8 @@
 // API utility functions for making requests
 import BASE_URL from '../config/api.js'; // Import BASE_URL
 import { store } from '../redux/store'; // Import Redux store
+import { logout } from '../redux/authSlice'; // Import logout action
+import { addNotification } from '../redux/notificationSlice'; // Assuming this action exists
 
 class ApiError extends Error {
   constructor(message, status, data) {
@@ -25,19 +27,30 @@ const handleResponse = async (response) => {
     console.log("handleResponse: Parsed JSON Data:", data); // Debugging
   } catch (e) {
     console.error("handleResponse: Error parsing JSON:", e); // Debugging
-    if (response.ok) {
-      return { success: true, message: 'No JSON content' };
+    // If response is not OK and not JSON, it's still an error
+    if (!response.ok) {
+      const errorMsg = `Server error: ${response.statusText || 'Unknown error'}`;
+      store.dispatch(addNotification({ message: errorMsg, type: 'error' }));
+      throw new ApiError(errorMsg, response.status, null);
     }
-    throw new ApiError('Non-JSON response and not OK', response.status, null);
+    // If response is OK but no JSON content, it's not an error, just no content
+    return { success: true, message: 'No JSON content' };
   }
   
   if (!response.ok) {
     console.error("handleResponse: Response not OK, throwing error.", data); // Debugging
-    throw new ApiError(
-      data.detail || data.message || 'An error occurred',
-      response.status,
-      data
-    );
+    const errorMessage = data.detail || data.message || 'An error occurred';
+
+    // Global error handling:
+    store.dispatch(addNotification({ message: errorMessage, type: 'error' }));
+
+    // Specific handling for authentication errors
+    if (response.status === 401 || response.status === 403) {
+      store.dispatch(logout()); // Dispatch logout action
+      store.dispatch(addNotification({ message: 'Session expired or unauthorized. Please log in again.', type: 'warning' }));
+    }
+
+    throw new ApiError(errorMessage, response.status, data);
   }
   
   return data;

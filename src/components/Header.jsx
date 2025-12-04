@@ -24,6 +24,23 @@ export function Header() {
   const authState = useSelector((state) => state.auth); // Access authState here
   const { isAuthenticated, user } = authState; // Destructure isAuthenticated and user
 
+  let dashboardPath = "";
+  if (user) {
+    switch (user.user_type) {
+      case "client":
+        dashboardPath = "/client-dashboard";
+        break;
+      case "worker":
+        dashboardPath = "/worker-dashboard";
+        break;
+      case "admin":
+        dashboardPath = "/admin-dashboard";
+        break;
+      default:
+        dashboardPath = "/"; // Fallback
+    }
+  }
+
   const navItems = [
     { name: "الرئيسية", path: "/", icon: Home },
     { name: "تصفح المستخدمين", path: "/browse-users", icon: Users }, // New link
@@ -33,18 +50,52 @@ export function Header() {
 
   // Conditionally add navigation items if authenticated
   if (isAuthenticated && user) {
+    // Determine dashboard link based on user type
+    let userDashboardPath = "";
+    let dashboardLabel = "";
+    switch (user.user_type) {
+      case "client":
+        userDashboardPath = "/client-dashboard";
+        dashboardLabel = "لوحة تحكم العميل";
+        break;
+      case "worker":
+        userDashboardPath = "/worker-dashboard";
+        dashboardLabel = "لوحة تحكم الفني";
+        break;
+      case "admin":
+        userDashboardPath = "/admin-dashboard";
+        dashboardLabel = "لوحة تحكم المدير";
+        break;
+      default:
+        userDashboardPath = "/";
+        dashboardLabel = "لوحة التحكم";
+    }
+
+    // Add Dashboard dropdown/link
+    navItems.splice(1, 0, { 
+      name: dashboardLabel, 
+      path: userDashboardPath, 
+      icon: Wrench,
+      isDropdown: true, // Indicate this item should be a dropdown
+      dropdownItems: [
+        { name: "لوحة تحكم العميل", path: "/client-dashboard" },
+        { name: "لوحة تحكم الفني", path: "/worker-dashboard" },
+        { name: "لوحة تحكم المدير", path: "/admin-dashboard" },
+      ]
+    });
+
     // Add service ordering links
-    navItems.splice(2, 0, { name: "طلب خدمة", path: "/order/create", icon: Plus });
-    navItems.splice(2, 0, { name: "طلباتي", path: "/orders/dashboard", icon: Briefcase });
-    navItems.splice(2, 0, { name: "تصفح الفنيين", path: "/technicians/browse", icon: Wrench });
-    navItems.splice(2, 0, { name: "عروضي", path: "/client-offers", icon: Briefcase }); // Add client offers link for clients
+    navItems.splice(3, 0, { name: "طلب خدمة", path: "/order/create", icon: Plus });
+    navItems.splice(3, 0, { name: "طلباتي", path: "/orders/dashboard", icon: Briefcase });
+    navItems.splice(3, 0, { name: "تصفح الفنيين", path: "/technicians/browse", icon: Wrench });
+    navItems.splice(3, 0, { name: "عروضي", path: "/client-offers", icon: Briefcase }); // Add client offers link for clients
     
     // Add profile link
-    navItems.splice(2, 0, { name: "ملفي الشخصي", path: `/profile/${user.user_id}`, icon: CircleUser });
+    navItems.splice(3, 0, { name: "ملفي الشخصي", path: `/profile/${user.user_id}`, icon: CircleUser });
     
     // Add technician verification link for workers
-    if (user.user_type !== 'worker') {
-      navItems.splice(3, 0, { name: "تحقق الفنيين", path: "/technician-verification", icon: Shield });
+    if (user.user_type !== 'worker') { // Assuming 'worker' is the string for worker user type
+      navItems.splice(4, 0, { name: "تحقق الفنيين", path: "/technician-verification", icon: Shield });
     }
   }
 
@@ -65,16 +116,34 @@ export function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`hover:text-primary transition-colors flex items-center space-x-2 ${
-                  location.pathname === item.path ? "text-primary" : "text-foreground"
-                }`}
-              >
-                {item.icon && <item.icon className="h-5 w-5" />}
-                <span>{item.name}</span>
-              </Link>
+              item.isDropdown ? (
+                <DropdownMenu key={item.path}>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center space-x-2">
+                      {item.icon && <item.icon className="h-5 w-5" />}
+                      <span>{item.name}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" dir="rtl">
+                    {item.dropdownItems.map((dropdownItem) => (
+                      <DropdownMenuItem key={dropdownItem.path} asChild>
+                        <Link to={dropdownItem.path}>{dropdownItem.name}</Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`hover:text-primary transition-colors flex items-center space-x-2 ${
+                    location.pathname === item.path ? "text-primary" : "text-foreground"
+                  }`}
+                >
+                  {item.icon && <item.icon className="h-5 w-5" />}
+                  <span>{item.name}</span>
+                </Link>
+              )
             ))}
           </nav>
 

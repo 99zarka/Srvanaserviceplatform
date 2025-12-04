@@ -3,11 +3,15 @@ import { Button } from "./ui/button";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+
 export function DashboardLayout({
   children,
   sidebarItems,
   userName,
   userRole,
+  userProfileImage,
+  userId,
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
@@ -50,17 +54,19 @@ export function DashboardLayout({
 
             {/* User Info */}
             <div className="p-6 border-b border-sidebar-border">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                  <CircleUser className="h-6 w-6 text-primary-foreground" />
-                </div>
+              <Link to={`/profile/${userId}`} className="flex items-center space-x-3">
+                <Avatar className="w-10 h-10">
+                  <AvatarImage src={userProfileImage} alt="Profile" />
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    <CircleUser className="h-6 w-6" />
+                  </AvatarFallback>
+                </Avatar>
                 <div>
                   <div className="text-sidebar-foreground">{userName}</div>
                   <p className="text-sidebar-foreground/70">{userRole}</p>
                 </div>
-              </div>
+              </Link>
             </div>
-
             {/* Navigation */}
             <nav className="flex-1 p-4 space-y-2">
               {sidebarItems.map((item, index) => (
@@ -92,8 +98,8 @@ export function DashboardLayout({
                 asChild
               >
                 <Link to="/" className="flex items-center">
-                  <LogOut className="h-5 w-5 ml-3" /> {/* Adjusted margin for RTL */}
-                  <span>Logout</span>
+                  <LogOut className="h-5 w-5 mr-3" /> {/* Adjusted margin for RTL */}
+                  <span>تسجيل الخروج</span>
                 </Link>
               </Button>
             </div>

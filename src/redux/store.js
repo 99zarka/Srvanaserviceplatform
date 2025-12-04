@@ -4,6 +4,8 @@ import verificationReducer from './verificationSlice';
 import adminReducer from './adminSlice';
 import notificationReducer from './notificationSlice';
 import orderReducer from './orderSlice';
+import disputeReducer from './disputeSlice'; // Import new dispute reducer
+import transactionReducer from './transactionSlice'; // Import new transaction reducer
 import { api } from '../services/api';
 
 export const store = configureStore({
@@ -13,8 +15,10 @@ export const store = configureStore({
     admin: adminReducer,
     notifications: notificationReducer,
     orders: orderReducer,
-    [api.reducerPath]: api.reducer, // Add the api reducer
+    disputes: disputeReducer,
+    transactions: transactionReducer,
+    [api.reducerPath]: api.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(api.middleware), // Add the api middleware
+    getDefaultMiddleware().concat(api.middleware),
 });

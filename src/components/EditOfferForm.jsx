@@ -39,34 +39,19 @@ const EditOfferForm = () => {
 
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
-  const [order, setOrder] = useState(null);
+  const [order, setOrder] = useState(null); // Reintroduce order as a state variable
 
+  // Derive offerToEdit here to make it available for conditional rendering
+  const clientOffers = currentOrderOffers?.filter(offer => offer.offer_initiator === 'client') || [];
+  const offerToEdit = clientOffers?.[0];
 
-  // Initialize form data when order is available from offers
+  // Update form data and set order when currentOrderOffers changes
   useEffect(() => {
-    if (order && order.order_id) {
-      setFormData(prevData => ({
-        offered_price: prevData.offered_price || '', // Will be updated by currentOrderOffers effect
-        problem_description: order.problem_description || prevData.problem_description || '',
-        requested_location: order.requested_location || prevData.requested_location || '',
-        scheduled_date: order.scheduled_date ? new Date(order.scheduled_date) : prevData.scheduled_date || new Date(),
-        scheduled_time_start: order.scheduled_time_start || prevData.scheduled_time_start || '',
-        scheduled_time_end: order.scheduled_time_end || prevData.scheduled_time_end || '',
-        offer_description: prevData.offer_description || '', // Will be updated by currentOrderOffers effect
-      }));
-    }
-  }, [order]);
-
-  // Update form data when currentOrderOffers changes (after fetching specific order offers)
- useEffect(() => {
     if (currentOrderOffers && currentOrderOffers.length > 0) {
-      // Filter for client-initiated offers (offers made by the current user)
-      const clientOffers = currentOrderOffers.filter(offer => offer.offer_initiator === 'client');
-      const offerToEdit = clientOffers?.[0]; // Get the first client-initiated offer
       if (offerToEdit) {
         // Always set/update the order info from the offer data
         if (offerToEdit.order) {
-          setOrder(offerToEdit.order);
+          setOrder(offerToEdit.order); // Set order state
         }
         setFormData(prevData => ({
           ...prevData,
@@ -80,7 +65,7 @@ const EditOfferForm = () => {
         }));
       }
     }
-  }, [currentOrderOffers]);
+  }, [currentOrderOffers, offerToEdit]); // Depend on currentOrderOffers and offerToEdit
 
   // Fetch specific order offers to ensure we have the most up-to-date data
   useEffect(() => {
@@ -135,9 +120,7 @@ const EditOfferForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Find the client-initiated offer to update from the currentOrderOffers
-    const clientOffers = currentOrderOffers?.filter(offer => offer.offer_initiator === 'client') || [];
-    const offerToEdit = clientOffers?.[0]; // Get the first client-initiated offer
+    // offerToEdit is already derived at the top of the component
 
     if (!offerToEdit) {
       toast.error("لم يتم العثور على عرض صالح للتحديث.");
@@ -163,7 +146,8 @@ const EditOfferForm = () => {
     dispatch(updateClientOffer({ offerId: offerToEdit.offer_id, offerData }));
   };
 
-  if (!order && loading) {
+  // Primary loading state: show spinner while data is being fetched
+  if (loading) {
     return (
       <div className="flex items-center justify-center py-12" dir="rtl">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -172,21 +156,13 @@ const EditOfferForm = () => {
     );
   }
 
-   // If no order is found after loading completes, show an error message
-  if (!order && !loading) {
-    // Check if we got offers but they weren't client-initiated
-    const hasOffers = currentOrderOffers && currentOrderOffers.length > 0;
-    const hasClientOffers = currentOrderOffers && currentOrderOffers.some(offer => offer.offer_initiator === 'client');
-    
+  // If not loading, but no offerToEdit is found (meaning no client-initiated offer for this orderId)
+  if (!offerToEdit) {
     return (
       <div className="flex items-center justify-center py-12" dir="rtl">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          {hasOffers && !hasClientOffers ? (
-            <p className="text-gray-600">لم يتم العثور على عروض من العميل لتعديلها لهذا الطلب.</p>
-          ) : (
-            <p className="text-gray-600">لم يتم العثور على عروض لتعديلها.</p>
-          )}
+          <p className="text-gray-600">لم يتم العثور على عرض من العميل لتعديله لهذا الطلب.</p>
           <Button onClick={() => navigate('/client-offers')} className="mt-4">
             العودة إلى العروض
           </Button>
@@ -195,17 +171,28 @@ const EditOfferForm = () => {
     );
   }
 
-  // Check if order is pending or awaiting technician response to allow editing
-  if (order.order_status !== 'pending' && order.order_status !== 'awaiting_technician_response') {
+  // If offerToEdit exists but its status does not allow editing
+  if (offerToEdit.status !== 'pending') {
     return (
       <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl" dir="rtl">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
           <h1 className="text-2xl font-bold text-red-800 mb-2">لا يمكن تعديل العرض</h1>
-          <p className="text-red-600 mb-4">لا يمكن تعديل هذا العرض لأنه لم يعد في حالة الانتظار أو بانتظار الرد من الفني.</p>
+          <p className="text-red-600 mb-4">لا يمكن تعديل هذا العرض لأنه لم يعد في حالة الانتظار.</p>
           <Button onClick={() => navigate('/client-offers')}>
             العودة إلى العروض
           </Button>
         </div>
+      </div>
+    );
+  }
+
+  // Ensure 'order' is available before rendering the form itself, as it's used in the form's header and selects.
+  // This check should pass if offerToEdit exists and was properly loaded.
+  if (!order) {
+    return (
+      <div className="flex items-center justify-center py-12" dir="rtl">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <p className="ml-2 text-gray-600">جاري تحميل تفاصيل الطلب...</p>
       </div>
     );
   }
@@ -238,7 +225,7 @@ const EditOfferForm = () => {
               <SelectContent>
                 {services.map((service) => (
                   <SelectItem key={service.service_id} value={service.service_id.toString()}>
-                    {service.service_name}
+                    {service.arabic_name}
                   </SelectItem>
                 ))}
               </SelectContent>

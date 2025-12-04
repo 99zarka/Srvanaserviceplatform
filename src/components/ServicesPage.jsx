@@ -15,7 +15,7 @@ export function ServicesPage() {
     const fetchServices = async () => {
       try {
         setLoading(true);
-        const data = await api.get("/services/services/"); // Backend endpoint
+        const data = await api.get("/services/services/?page_size=50"); // Backend endpoint
         // Handle paginated response or direct array
         const servicesData = data.results || data || [];
         setServices(Array.isArray(servicesData) ? servicesData : []);
@@ -32,14 +32,32 @@ export function ServicesPage() {
   }, []);
 
   const serviceIcons = {
-    "النجارة": Hammer,
-    "السباكة": Droplet,
-    "الأعمال الكهربائية": Zap,
-    "الدهانات": Paintbrush,
-    "عامل صيانة عام": Wrench,
-    "الحفر والتركيب": Drill,
-    "خدمات التنظيف": Sparkles,
-    "تجديد المنازل": Home,
+    // Home Repair
+    "Plumbing Repair": Droplet,
+    "Electrical Services": Zap,
+    "HVAC Maintenance": Wrench,
+    "Appliance Repair": Home,
+    "Painting Services": Paintbrush,
+    "Carpentry": Hammer,
+    "Roofing Repair": Home,
+    "Gutter Cleaning": Sparkles,
+    // Automotive
+    "Oil Change": Droplet,
+    "Brake Inspection & Repair": Wrench,
+    "Tire Rotation & Balance": Drill,
+    "Battery Replacement": Zap,
+    "Diagnostic Services": HelpCircle,
+    // IT Services
+    "Computer Repair": HelpCircle,
+    "Network Setup": Zap,
+    "Data Recovery": Mail,
+    "Software Installation & Support": Mail,
+    // Cleaning Services
+    "Deep Cleaning": Sparkles,
+    "Carpet Cleaning": Sparkles,
+    // Gardening & Landscaping
+    "Lawn Mowing & Maintenance": Home,
+    "Tree Trimming": Paintbrush,
   };
 
   if (loading) return <div className="text-center py-20">Loading services...</div>;
@@ -74,7 +92,7 @@ export function ServicesPage() {
                   <div className="w-16 h-16 bg-accent rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary transition-colors">
                     {serviceIcons[service.service_name] && React.createElement(serviceIcons[service.service_name], { className: "h-8 w-8 text-primary group-hover:text-primary-foreground transition-colors" })}
                   </div>
-                  <h3 className="mb-3">{service.service_name || service.title}</h3>
+                  <h3 className="mb-3">{service.arabic_name || service.title}</h3>
                   <p className="text-muted-foreground mb-4">
                     {service.description}
                   </p>

@@ -9,7 +9,7 @@ import api from "../../utils/api"; // Import the API utility
 import { useSelector } from "react-redux"; // To get user token
 
 export function ClientOverview() {
-  const { token } = useSelector((state) => state.auth);
+  const { token, user } = useSelector((state) => state.auth); // Get token and user from Redux state
   const [stats, setStats] = useState([]);
   const [recentRequests, setRecentRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,8 +17,8 @@ export function ClientOverview() {
 
   useEffect(() => {
     const fetchClientDashboardData = async () => {
-      if (!token) {
-        setError("المستخدم غير مصادق عليه.");
+      if (!token || !user) { // Check for user existence as well
+        setError("المستخدم غير مصادق عليه أو بيانات المستخدم مفقودة.");
         setLoading(false);
         return;
       }
@@ -28,14 +28,18 @@ export function ClientOverview() {
         const statsData = await api.get("/dashboard/client/client-summary/", {
           headers: { Authorization: `Bearer ${token}` },
         });
+        // Combine dashboard stats with user balance info
         setStats([
+          { label: "الرصيد المتاح", value: `$${user.available_balance || '0.00'}`, icon: CreditCard, color: "text-green-600" },
+          { label: "في الضمان", value: `$${user.in_escrow_balance || '0.00'}`, icon: CreditCard, color: "text-blue-600" },
+          { label: "الرصيد المعلق", value: `$${user.pending_balance || '0.00'}`, icon: CreditCard, color: "text-yellow-600" },
           { label: "الطلبات النشطة", value: statsData.active_orders || 0, icon: Clock, color: "text-primary" },
           { label: "المكتملة", value: statsData.completed_orders || 0, icon: CheckCircle, color: "text-green-600" },
           { label: "إجمالي الإنفاق", value: `$${statsData.total_spent || 0}`, icon: CreditCard, color: "text-blue-600" },
         ]);
 
         // Fetch recent orders from correct endpoint
-        const requestsData = await api.get("/orders/orders/", {
+        const requestsData = await api.get("/orders/", {
           headers: { Authorization: `Bearer ${token}` },
         }); 
         setRecentRequests(requestsData.results.slice(0, 4).map(req => ({
@@ -54,7 +58,7 @@ export function ClientOverview() {
     };
 
     fetchClientDashboardData();
-  }, [token]);
+  }, [token, user]); // Add user to dependency array to re-fetch if user data changes
 
 
   const getStatusBadge = (status) => {
@@ -85,8 +89,8 @@ export function ClientOverview() {
         <p className="text-muted-foreground">مرحبًا بعودتك! إليك ما يحدث مع طلباتك.</p>
       </div>
       
-      {/* Stats */}
-      <div className="grid md:grid-cols-3 gap-6">
+      {/* Balances and Stats */}
+      <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
         {stats.map((stat) => (
           <Card key={stat.label}>
             <CardContent className="pt-6">
@@ -95,7 +99,7 @@ export function ClientOverview() {
                   <p className="text-muted-foreground mb-1">{stat.label}</p>
                   <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
                 </div>
-                <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                {stat.icon && <stat.icon className={`h-8 w-8 ${stat.color}`} />}
               </div>
             </CardContent>
           </Card>
@@ -133,11 +137,7 @@ export function ClientOverview() {
               {recentRequests.length > 0 ? (
                 recentRequests.map((request) => (
                   <TableRow key={request.id}>
-                    <TableCell>{request.service}</TableCell>
-                    <TableCell>{request.worker || "غير متاح"}</TableCell> {/* Handle cases where worker might not be assigned yet */}
-                    <TableCell>{request.date}</TableCell>
-                    <TableCell>{getStatusBadge(request.status)}</TableCell>
-                    <TableCell>{request.amount}</TableCell>
+                    <TableCell>{request.service}</TableCell><TableCell>{request.worker || "غير متاح"}</TableCell><TableCell>{request.date}</TableCell><TableCell>{getStatusBadge(request.status)}</TableCell><TableCell>{request.amount}</TableCell>
                   </TableRow>
                 ))
               ) : (

@@ -1,46 +1,50 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { DollarSign, PiggyBank, CalendarCheck, Clock } from "lucide-react";
+import { DollarSign, PiggyBank, Clock, Banknote } from "lucide-react"; // Changed CalendarCheck to Banknote
 import { Card, CardContent } from "../ui/card";
 import api from "../../utils/api"; // Import the API utility
 
 export function WorkerEarnings() {
-  const { token } = useSelector((state) => state.auth);
-  const [earningsData, setEarningsData] = useState({
-    totalEarnings: 0,
-    thisMonthEarnings: 0,
-    pendingEarnings: 0,
-  });
+  const { token, user } = useSelector((state) => state.auth); // Get token and user from Redux state
+  const [dashboardStats, setDashboardStats] = useState([]); // Renamed earningsData to dashboardStats
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchEarningsData = async () => {
-      if (!token) {
-        setError("المستخدم غير مصادق عليه.");
+    const fetchWorkerDashboardData = async () => { // Renamed fetchEarningsData
+      if (!token || !user) { // Check for user existence as well
+        setError("المستخدم غير مصادق عليه أو بيانات المستخدم مفقودة.");
         setLoading(false);
         return;
       }
       try {
         setLoading(true);
-        const data = await api.get("/technicians/earnings-summary/", {
+        // Fetch stats from correct dashboard endpoint (or use user object directly)
+        // For now, we will use user object for balances and keep the existing earnings summary for other stats if any
+        const data = await api.get("/technicians/earnings-summary/", { // Keeping this for other potential worker-specific stats
           headers: { Authorization: `Bearer ${token}` },
-        }); // Assuming an endpoint for worker earnings summary
-        setEarningsData({
-          totalEarnings: data.total_earnings,
-          thisMonthEarnings: data.this_month_earnings,
-          pendingEarnings: data.pending_earnings,
         });
+
+        // Combine dashboard stats with user balance info
+        setDashboardStats([
+          { label: "الرصيد المتاح", value: `$${user.available_balance || '0.00'}`, icon: Banknote, color: "text-green-600" },
+          { label: "في الضمان", value: `$${user.in_escrow_balance || '0.00'}`, icon: PiggyBank, color: "text-blue-600" },
+          { label: "الرصيد المعلق", value: `$${user.pending_balance || '0.00'}`, icon: Clock, color: "text-yellow-600" },
+          { label: "إجمالي الأرباح", value: `$${data.total_earnings || '0.00'}`, icon: DollarSign, color: "text-green-600" },
+          { label: "أرباح هذا الشهر", value: `$${data.this_month_earnings || '0.00'}`, icon: DollarSign, color: "text-green-600" },
+        ]);
+
       } catch (err) {
-        setError(err.message || "فشل في جلب بيانات الأرباح.");
+        setError(err.message || "فشل في جلب بيانات لوحة التحكم."); // Updated error message
       } finally {
         setLoading(false);
       }
     };
 
-    fetchEarningsData();
-  }, [token]);
+    fetchWorkerDashboardData(); // Call the renamed function
+  }, [token, user]); // Add user to dependency array to re-fetch if user data changes
 
+  if (loading) return <div className="text-center p-8" dir="rtl">جاري تحميل الأرباح...</div>;
   if (loading) return <div className="text-center p-8" dir="rtl">جاري تحميل الأرباح...</div>;
   if (error) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ: {error}</div>;
 
@@ -49,38 +53,22 @@ export function WorkerEarnings() {
       <div>
         <h1 className="mb-2 flex items-center space-x-2">
           <DollarSign className="h-7 w-7" />
-          <span>الأرباح</span>
+          <span>الأرباح والرصيد</span>
         </h1>
-        <p className="text-muted-foreground">تتبع دخلك وسجل الدفعات</p>
+        <p className="text-muted-foreground">تتبع دخلك ورصيدك الحالي.</p>
       </div>
-      <div className="grid md:grid-cols-3 gap-6">
-        <Card>
-          <CardContent className="pt-6 flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground mb-2">إجمالي الأرباح</p>
-              <div className="text-green-600 text-2xl font-bold">${earningsData.totalEarnings}</div>
-            </div>
-            <PiggyBank className="h-8 w-8 text-green-600" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground mb-2">هذا الشهر</p>
-              <div className="text-green-600 text-2xl font-bold">${earningsData.thisMonthEarnings}</div>
-            </div>
-            <CalendarCheck className="h-8 w-8 text-green-600" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground mb-2">معلقة</p>
-              <div className="text-yellow-600 text-2xl font-bold">${earningsData.pendingEarnings}</div>
-            </div>
-            <Clock className="h-8 w-8 text-yellow-600" />
-          </CardContent>
-        </Card>
+      <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
+        {dashboardStats.map((stat) => (
+          <Card key={stat.label}>
+            <CardContent className="pt-6 flex items-center justify-between">
+              <div>
+                <p className="text-muted-foreground mb-2">{stat.label}</p>
+                <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
+              </div>
+              {stat.icon && <stat.icon className={`h-8 w-8 ${stat.color}`} />}
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );

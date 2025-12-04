@@ -63,13 +63,26 @@ const notificationSlice = createSlice({
     loading: false,
     error: null,
     unreadCount: 0,
+    // For transient UI notifications (e.g., success/error toasts)
+    uiNotifications: [], 
   },
   reducers: {
     clearNotifications: (state) => {
         state.notifications = [];
         state.unreadCount = 0;
         state.error = null;
-    }
+    },
+    // Action to add a new UI notification (e.g., from global error handler)
+    addNotification: (state, action) => {
+      // payload should be { id: uuid, message: string, type: 'success' | 'error' | 'info' }
+      state.uiNotifications.push(action.payload);
+    },
+    // Action to remove a UI notification after it has been displayed/dismissed
+    removeNotification: (state, action) => {
+      state.uiNotifications = state.uiNotifications.filter(
+        (notification) => notification.id !== action.payload
+      );
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -105,5 +118,5 @@ const notificationSlice = createSlice({
   },
 });
 
-export const { clearNotifications } = notificationSlice.actions;
+export const { clearNotifications, addNotification, removeNotification } = notificationSlice.actions;
 export default notificationSlice.reducer;

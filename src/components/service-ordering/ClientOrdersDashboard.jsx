@@ -8,12 +8,21 @@ import {
   getClientOrders, 
   getOrderOffers, 
   acceptOffer, 
+  cancelOrder, // Import new action
+  releaseFunds, // Import new action
+  submitReview, // Import new action
   clearError, 
   clearSuccessMessage 
 } from '../../redux/orderSlice';
+import { initiateDispute } from '../../redux/disputeSlice'; // Import new action from dispute slice
 import { Clock, CheckCircle, XCircle, DollarSign, User, MapPin, Calendar, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
+import { Input } from '../ui/input'; // For review rating
+
 
 const ClientOrdersDashboard = () => {
   const dispatch = useDispatch();
@@ -25,8 +34,21 @@ const ClientOrdersDashboard = () => {
     error, 
     successMessage 
   } = useSelector((state) => state.orders);
-  
+  const { user } = useSelector((state) => state.auth); // Get current user for review
+
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+
+  // State for modals
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState('');
+  const [isDisputeModalOpen, setIsDisputeModalOpen] = useState(false);
+  const [disputeReason, setDisputeReason] = useState('');
+  const [disputeDescription, setDisputeDescription] = useState('');
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewRating, setReviewRating] = useState('');
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewTechnicianId, setReviewTechnicianId] = useState(null);
+
 
   useEffect(() => {
     dispatch(getClientOrders());
@@ -50,24 +72,127 @@ const ClientOrdersDashboard = () => {
 
   const handleAcceptOffer = async (orderId, offerId) => {
     try {
-      await dispatch(acceptOffer({ orderId, offerId }));
-      // Refresh orders after accepting offer
-      dispatch(getClientOrders());
-    } catch (error) {
-      console.error('Failed to accept offer:', error);
+      await dispatch(acceptOffer({ orderId, offerId })).unwrap();
+      dispatch(getClientOrders()); // Refresh orders after accepting offer
+    } catch (err) {
+      console.error('Failed to accept offer:', err);
+    }
+  };
+
+  const handleCancelOrderClick = (orderId) => {
+    setSelectedOrderId(orderId);
+    setIsCancelModalOpen(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!cancellationReason) {
+      alert('الرجاء إدخال سبب الإلغاء.');
+      return;
+    }
+    try {
+      await dispatch(cancelOrder({ orderId: selectedOrderId, cancellationReason })).unwrap();
+      setIsCancelModalOpen(false);
+      setCancellationReason('');
+      dispatch(getClientOrders()); // Refresh orders
+    } catch (err) {
+      console.error('Failed to cancel order:', err);
+    }
+  };
+
+  const handleReleaseFundsClick = async (orderId) => {
+    if (window.confirm('هل أنت متأكد أنك تريد تحرير الأموال لهذا الطلب؟ سيؤدي هذا إلى إكمال الطلب.')) {
+      try {
+        await dispatch(releaseFunds(orderId)).unwrap();
+        dispatch(getClientOrders()); // Refresh orders
+      } catch (err) {
+        console.error('Failed to release funds:', err);
+      }
+    }
+  };
+
+  const handleInitiateDisputeClick = (orderId) => {
+    setSelectedOrderId(orderId);
+    setIsDisputeModalOpen(true);
+  };
+
+  const handleConfirmDispute = async () => {
+    if (!disputeReason || !disputeDescription) {
+      alert('الرجاء إدخال سبب ووصف النزاع.');
+      return;
+    }
+    try {
+      await dispatch(initiateDispute({ 
+        order: selectedOrderId, 
+        reason: disputeReason, 
+        description: disputeDescription 
+      })).unwrap();
+      setIsDisputeModalOpen(false);
+      setDisputeReason('');
+      setDisputeDescription('');
+      dispatch(getClientOrders()); // Refresh orders
+    } catch (err) {
+      console.error('Failed to initiate dispute:', err);
+    }
+  };
+
+  const handleSubmitReviewClick = (orderId, technicianId) => {
+    setSelectedOrderId(orderId);
+    setReviewTechnicianId(technicianId);
+    setIsReviewModalOpen(true);
+  };
+
+  const handleConfirmReview = async () => {
+    if (!reviewRating || parseFloat(reviewRating) < 1 || parseFloat(reviewRating) > 5) {
+      alert('الرجاء إدخال تقييم بين 1 و 5.');
+      return;
+    }
+    if (!reviewComment) {
+      alert('الرجاء إدخال تعليق للمراجعة.');
+      return;
+    }
+    if (!user?.user_id) {
+      alert('بيانات المستخدم غير متوفرة لتقديم المراجعة.');
+      return;
+    }
+
+    try {
+      await dispatch(submitReview({
+        order: selectedOrderId,
+        technician: reviewTechnicianId,
+        client: user.user_id, // Current client's user_id
+        rating: parseFloat(reviewRating),
+        comment: reviewComment,
+      })).unwrap();
+      setIsReviewModalOpen(false);
+      setReviewRating('');
+      setReviewComment('');
+      setReviewTechnicianId(null);
+      dispatch(getClientOrders()); // Refresh orders
+    } catch (err) {
+      console.error('Failed to submit review:', err);
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'accepted':
-        return 'bg-green-100 text-green-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800';
-      case 'completed':
+      case 'OPEN': // Initial state when client creates order
         return 'bg-blue-100 text-blue-800';
+      case 'PENDING': // Awaiting technician offers
+        return 'bg-yellow-100 text-yellow-800';
+      case 'ACCEPTED': // Client accepts an offer, order assigned to technician
+        return 'bg-green-100 text-green-800';
+      case 'IN_PROGRESS': // Technician starts working
+        return 'bg-indigo-100 text-indigo-800';
+      case 'AWAITING_RELEASE': // Technician marked as completed, awaiting client approval/fund release
+        return 'bg-purple-100 text-purple-800';
+      case 'COMPLETED': // Client released funds
+        return 'bg-teal-100 text-teal-800';
+      case 'DISPUTED': // Dispute initiated
+        return 'bg-orange-100 text-orange-800';
+      case 'CANCELLED': // Order cancelled
+        return 'bg-red-100 text-red-800';
+      case 'REFUNDED': // Order refunded
+        return 'bg-pink-100 text-pink-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -75,14 +200,24 @@ const ClientOrdersDashboard = () => {
 
   const getStatusText = (status) => {
     switch (status) {
-      case 'pending':
+      case 'OPEN':
+        return 'مفتوحة';
+      case 'PENDING':
         return 'معلقة';
-      case 'accepted':
+      case 'ACCEPTED':
         return 'مقبولة';
-      case 'rejected':
-        return 'مرفوضة';
-      case 'completed':
+      case 'IN_PROGRESS':
+        return 'قيد التنفيذ';
+      case 'AWAITING_RELEASE':
+        return 'بانتظار الإفراج';
+      case 'COMPLETED':
         return 'مكتملة';
+      case 'DISPUTED':
+        return 'متنازع عليها';
+      case 'CANCELLED':
+        return 'ملغاة';
+      case 'REFUNDED':
+        return 'مستردة';
       default:
         return 'غير محدد';
     }
@@ -90,11 +225,18 @@ const ClientOrdersDashboard = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'pending':
+      case 'OPEN':
+      case 'PENDING':
+      case 'AWAITING_RELEASE':
+      case 'DISPUTED':
         return <Clock className="h-4 w-4" />;
-      case 'accepted':
+      case 'ACCEPTED':
+      case 'IN_PROGRESS':
         return <CheckCircle className="h-4 w-4" />;
-      case 'rejected':
+      case 'COMPLETED':
+        return <CheckCircle className="h-4 w-4" />;
+      case 'CANCELLED':
+      case 'REFUNDED':
         return <XCircle className="h-4 w-4" />;
       default:
         return <Clock className="h-4 w-4" />;
@@ -198,6 +340,60 @@ const ClientOrdersDashboard = () => {
                           )}
                         </div>
                       </div>
+
+                      {/* Action Buttons */}
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {(order.order_status === 'OPEN' || order.order_status === 'PENDING') && (
+                          <Button 
+                            variant="destructive" 
+                            size="sm" 
+                            onClick={(e) => { e.stopPropagation(); handleCancelOrderClick(order.order_id); }}
+                            disabled={loading}
+                          >
+                            إلغاء الطلب
+                          </Button>
+                        )}
+                        {order.order_status === 'AWAITING_RELEASE' && (
+                          <>
+                            <Button 
+                              variant="success" 
+                              size="sm" 
+                              onClick={(e) => { e.stopPropagation(); handleReleaseFundsClick(order.order_id); }}
+                              disabled={loading}
+                            >
+                              تحرير الأموال
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={(e) => { e.stopPropagation(); handleInitiateDisputeClick(order.order_id); }}
+                              disabled={loading}
+                            >
+                              فتح نزاع
+                            </Button>
+                          </>
+                        )}
+                        {order.order_status === 'COMPLETED' && order.technician_user && (
+                          <Button 
+                            variant="secondary" 
+                            size="sm" 
+                            onClick={(e) => { e.stopPropagation(); handleSubmitReviewClick(order.order_id, order.technician_user.user_id); }}
+                            disabled={loading}
+                          >
+                            كتابة مراجعة
+                          </Button>
+                        )}
+                        {order.order_status === 'DISPUTED' && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={(e) => { e.stopPropagation(); navigate(`/disputes/${order.dispute_id}`); }} // Assuming dispute_id is available
+                            disabled={loading}
+                          >
+                            عرض النزاع
+                          </Button>
+                        )}
+                      </div> {/* End Action Buttons */}
                     </div>
                   ))}
                 </div>
@@ -294,6 +490,120 @@ const ClientOrdersDashboard = () => {
           </Card>
         </div>
       </div>
+
+      {/* Cancel Order Dialog */}
+      <Dialog open={isCancelModalOpen} onOpenChange={setIsCancelModalOpen}>
+        <DialogContent dir="rtl">
+          <DialogHeader>
+            <DialogTitle>تأكيد الإلغاء</DialogTitle>
+            <DialogDescription>
+              هل أنت متأكد أنك تريد إلغاء هذا الطلب؟ الرجاء تقديم سبب.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="cancellationReason">سبب الإلغاء</Label>
+              <Textarea
+                id="cancellationReason"
+                placeholder="أدخل سبب الإلغاء هنا..."
+                value={cancellationReason}
+                onChange={(e) => setCancellationReason(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCancelModalOpen(false)}>
+              إلغاء
+            </Button>
+            <Button onClick={handleConfirmCancel} disabled={loading}>
+              {loading ? 'جاري الإلغاء...' : 'تأكيد الإلغاء'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Initiate Dispute Dialog */}
+      <Dialog open={isDisputeModalOpen} onOpenChange={setIsDisputeModalOpen}>
+        <DialogContent dir="rtl">
+          <DialogHeader>
+            <DialogTitle>فتح نزاع</DialogTitle>
+            <DialogDescription>
+              الرجاء تقديم تفاصيل النزاع الخاص بك.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="disputeReason">سبب النزاع</Label>
+              <Input
+                id="disputeReason"
+                placeholder="سبب قصير للنزاع"
+                value={disputeReason}
+                onChange={(e) => setDisputeReason(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="disputeDescription">وصف النزاع</Label>
+              <Textarea
+                id="disputeDescription"
+                placeholder="صف تفاصيل النزاع هنا..."
+                value={disputeDescription}
+                onChange={(e) => setDisputeDescription(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDisputeModalOpen(false)}>
+              إلغاء
+            </Button>
+            <Button onClick={handleConfirmDispute} disabled={loading}>
+              {loading ? 'جاري فتح النزاع...' : 'تأكيد النزاع'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Submit Review Dialog */}
+      <Dialog open={isReviewModalOpen} onOpenChange={setIsReviewModalOpen}>
+        <DialogContent dir="rtl">
+          <DialogHeader>
+            <DialogTitle>كتابة مراجعة</DialogTitle>
+            <DialogDescription>
+              الرجاء تقييم الفني وتقديم تعليق.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="reviewRating">التقييم (1-5)</Label>
+              <Input
+                id="reviewRating"
+                type="number"
+                min="1"
+                max="5"
+                placeholder="أدخل تقييمًا من 1 إلى 5"
+                value={reviewRating}
+                onChange={(e) => setReviewRating(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="reviewComment">التعليق</Label>
+              <Textarea
+                id="reviewComment"
+                placeholder="اكتب تعليقك هنا..."
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsReviewModalOpen(false)}>
+              إلغاء
+            </Button>
+            <Button onClick={handleConfirmReview} disabled={loading}>
+              {loading ? 'جاري الإرسال...' : 'إرسال المراجعة'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

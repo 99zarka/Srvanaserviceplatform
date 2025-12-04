@@ -22,6 +22,9 @@ import TechnicianBrowse from "./components/service-ordering/TechnicianBrowse";
 import DirectOfferForm from "./components/service-ordering/DirectOfferForm"; // Import DirectOfferForm
 import { ClientOffersPage } from "./components/ClientOffersPage"; // Import ClientOffersPage
 import EditOfferForm from "./components/EditOfferForm"; // Import EditOfferForm
+import { DisputeDetailPage } from "./components/DisputeDetailPage"; // Import DisputeDetailPage
+import { TransactionDetailPage } from "./components/TransactionDetailPage"; // Import TransactionDetailPage
+import { NotificationDisplay } from "./components/NotificationDisplay"; // Import NotificationDisplay
 
 export default function App() {
   const location = useLocation();
@@ -33,7 +36,9 @@ export default function App() {
   ].includes(location.pathname) &&
     !location.pathname.startsWith("/client-dashboard") &&
     !location.pathname.startsWith("/worker-dashboard") &&
-    !location.pathname.startsWith("/admin-dashboard"); // Exclude browse users page
+    !location.pathname.startsWith("/admin-dashboard") &&
+    !location.pathname.startsWith("/disputes") &&
+    !location.pathname.startsWith("/transactions"); // Exclude transactions page for detail page, dashboard handles its own
 
   return (
     <div className="min-h-screen flex flex-col" dir="rtl">
@@ -54,11 +59,12 @@ export default function App() {
           <Route path="/order/create" element={<OrderCreateForm />} />
           <Route path="/orders/dashboard" element={<ClientOrdersDashboard />} />
           <Route path="/technicians/browse" element={<TechnicianBrowse />} />
-          {/* DirectHirePage route removed as its functionality is integrated into UserProfilePage */}
           <Route path="/offer/:technicianId" element={<DirectOfferForm />} /> {/* New route for direct offers */}
           <Route path="/client-offers" element={<ClientOffersPage />} /> {/* New route for client offers */}
           <Route path="/edit-offer/:orderId" element={<EditOfferForm />} /> {/* New route for editing offers */}
-          
+          <Route path="/disputes/:disputeId" element={<DisputeDetailPage />} /> {/* New route for dispute details */}
+          <Route path="/transactions/:transactionId" element={<TransactionDetailPage />} /> {/* New route for transaction details */}
+
           <Route path="/client-dashboard/*" element={<ClientDashboard />} />
           <Route path="/worker-dashboard/*" element={<WorkerDashboard />} />
           <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
@@ -67,6 +73,7 @@ export default function App() {
       </div>
       {showHeaderFooter && <Footer />}
       <Toaster />
+      <NotificationDisplay /> {/* Render the NotificationDisplay component */}
     </div>
   );
 }

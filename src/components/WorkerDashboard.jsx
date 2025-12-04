@@ -8,6 +8,8 @@ import { WorkerEarnings } from "./worker-dashboard/WorkerEarnings";
 import { WorkerReviews } from "./worker-dashboard/WorkerReviews";
 import { WorkerClientOffers } from "./worker-dashboard/WorkerClientOffers";
 import { WorkerTaskDetails } from "./worker-dashboard/WorkerTaskDetails"; // Import WorkerTaskDetails
+import { WorkerDisputes } from "./worker-dashboard/WorkerDisputes"; // Import WorkerDisputes
+import { WorkerTransactions } from "./worker-dashboard/WorkerTransactions"; // Import WorkerTransactions
 
 export function WorkerDashboard() {
   const { user } = useSelector((state) => state.auth); // Get user from Redux state
@@ -19,6 +21,8 @@ export function WorkerDashboard() {
     { icon: Mail, label: "عروض العملاء", path: "/worker-dashboard/client-offers" },
     { icon: DollarSign, label: "الأرباح", path: "/worker-dashboard/earnings" },
     { icon: Star, label: "التقييمات", path: "/worker-dashboard/reviews" },
+    { icon: Flag, label: "النزاعات", path: "/worker-dashboard/disputes" }, // New item for Disputes
+    { icon: DollarSign, label: "المعاملات", path: "/worker-dashboard/transactions" }, // New item for Transactions
     { icon: User, label: "الملف الشخصي", path: `/profile/${userId}` }, // Use dynamic user ID
   ];
 
@@ -35,6 +39,8 @@ export function WorkerDashboard() {
         <Route path="earnings" element={<WorkerEarnings />} />
         <Route path="reviews" element={<WorkerReviews />} />
         <Route path="client-offers" element={<WorkerClientOffers />} />
+        <Route path="disputes" element={<WorkerDisputes />} /> {/* New route for disputes */}
+        <Route path="transactions" element={<WorkerTransactions />} /> {/* New route for transactions */}
       </Routes>
     </DashboardLayout>
   );

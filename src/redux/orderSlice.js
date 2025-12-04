@@ -6,7 +6,7 @@ export const createOrder = createAsyncThunk(
   'orders/create',
   async (orderData, { rejectWithValue }) => {
     try {
-      const response = await api.post('/orders/orders/', orderData);
+      const response = await api.post('/orders/', orderData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -19,7 +19,7 @@ export const getClientOrders = createAsyncThunk(
   'orders/getClientOrders',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/orders/orders/');
+      const response = await api.get('/orders/');
       return response; // Return the entire response object as `action.payload`
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -45,7 +45,7 @@ export const getOrderOffers = createAsyncThunk(
   'orders/getOrderOffers',
   async (orderId, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/orders/orders/${orderId}/offers/`);
+      const response = await api.get(`/orders/${orderId}/offers/`);
       return response; // Return the entire response (paginated object)
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -189,6 +189,64 @@ export const updateClientOffer = createAsyncThunk(
   async ({ offerId, offerData }, { rejectWithValue }) => {
     try {
       const response = await api.put(`/orders/projectoffers/${offerId}/update_client_offer/`, offerData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Client cancels an order
+export const cancelOrder = createAsyncThunk(
+  'orders/cancelOrder',
+  async ({ orderId, cancellationReason }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(`/orders/orders/${orderId}/cancel/`, { 
+        status: 'CANCELLED',
+        cancellation_reason: cancellationReason 
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Client releases funds for a completed order
+export const releaseFunds = createAsyncThunk(
+  'orders/releaseFunds',
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/orders/orders/${orderId}/release-funds/`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Client submits a review for a completed order
+export const submitReview = createAsyncThunk(
+  'orders/submitReview',
+  async (reviewData, { rejectWithValue }) => {
+    try {
+      // reviewData should contain { order, technician, rating, comment }
+      const response = await api.post('/reviews/reviews/', reviewData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Technician marks an assigned order as completed
+export const markOrderAsCompleted = createAsyncThunk(
+  'orders/markOrderAsCompleted',
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(`/orders/orders/${orderId}/mark-as-completed/`, { 
+        status: 'AWAITING_RELEASE' // Or 'COMPLETED', based on backend logic
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -443,6 +501,83 @@ const orderSlice = createSlice({
         }
       })
       .addCase(updateClientOffer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.successMessage = null;
+      })
+
+      // Cancel Order
+      .addCase(cancelOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(cancelOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = 'Order cancelled successfully!';
+        // Update the cancelled order in clientOrders
+        state.clientOrders = state.clientOrders.map(order =>
+          order.id === action.payload.id ? action.payload : order
+        );
+      })
+      .addCase(cancelOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.successMessage = null;
+      })
+
+      // Release Funds
+      .addCase(releaseFunds.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(releaseFunds.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = 'Funds released successfully!';
+        // Update the order in clientOrders
+        state.clientOrders = state.clientOrders.map(order =>
+          order.id === action.payload.id ? action.payload : order
+        );
+      })
+      .addCase(releaseFunds.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.successMessage = null;
+      })
+
+      // Submit Review
+      .addCase(submitReview.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(submitReview.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = 'Review submitted successfully!';
+        // No direct state update needed for orders, as review is separate
+      })
+      .addCase(submitReview.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.successMessage = null;
+      })
+
+      // Mark Order As Completed (Technician)
+      .addCase(markOrderAsCompleted.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(markOrderAsCompleted.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = 'Order marked as completed!';
+        // Update the order in technicianOrders
+        state.technicianOrders = state.technicianOrders.map(order =>
+          order.id === action.payload.id ? action.payload : order
+        );
+      })
+      .addCase(markOrderAsCompleted.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.successMessage = null;

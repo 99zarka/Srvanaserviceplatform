@@ -53,6 +53,149 @@ export const fetchUserProfile = createAsyncThunk(
   }
 );
 
+// Async thunk to deposit funds
+export const depositFunds = createAsyncThunk(
+  'auth/depositFunds',
+  async ({ amount, payment_method_id }, { getState, rejectWithValue, dispatch }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+      const userId = auth.user?.user_id;
+
+      if (!token) {
+        return rejectWithValue('No authentication token found.');
+      }
+      if (!userId) {
+        return rejectWithValue('User ID not found.');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/payments/payments/deposit/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ 
+          amount: parseFloat(amount), // Send amount as a float
+          user: userId,
+          payment_method: payment_method_id,
+          transaction_type: 'DEPOSIT' // Explicitly set transaction type
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data.detail || 'Failed to deposit funds.');
+      }
+      
+      // Re-fetch user profile to update balances in state
+      dispatch(fetchUserProfile()); 
+      return data;
+    } catch (error) {
+      return rejectWithValue('Network error depositing funds.');
+    }
+  }
+);
+
+// Async thunk to withdraw funds
+export const withdrawFunds = createAsyncThunk(
+  'auth/withdrawFunds',
+  async ({ amount, payment_method_id }, { getState, rejectWithValue, dispatch }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+      const userId = auth.user?.user_id;
+
+      if (!token) {
+        return rejectWithValue('No authentication token found.');
+      }
+      if (!userId) {
+        return rejectWithValue('User ID not found.');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/payments/payments/withdraw/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ 
+          amount: parseFloat(amount), // Send amount as a float
+          user: userId,
+          payment_method_id: payment_method_id, // Ensure correct parameter name for backend
+          transaction_type: 'WITHDRAWAL' // Explicitly set transaction type
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data.detail || 'Failed to withdraw funds.');
+      }
+
+      // Re-fetch user profile to update balances in state
+      dispatch(fetchUserProfile());
+      return data;
+    } catch (error) {
+      return rejectWithValue('Network error withdrawing funds.');
+    }
+  }
+);
+
+// Async thunk to add a new payment method
+export const addPaymentMethod = createAsyncThunk(
+  'auth/addPaymentMethod',
+  async ({ card_type, card_holder_name, card_number, expiration_date, last_four_digits }, { getState, rejectWithValue, dispatch }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+      const userId = auth.user?.user_id;
+
+      if (!token) {
+        return rejectWithValue('No authentication token found.');
+      }
+      if (!userId) {
+        return rejectWithValue('User ID not found.');
+      }
+
+      // Backend expects 'last_four_digits' and 'expiration_date' in MM/YYYY format
+      // It also sets 'user' automatically for authenticated non-admin users.
+      const response = await fetch(`${API_BASE_URL}/payments/paymentmethods/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          card_type,
+          card_holder_name,
+          last_four_digits,
+          expiration_date,
+          // card_number is not stored in the backend model directly, only last_four_digits
+          // The user field is automatically set by the backend for non-admin users
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Handle specific validation errors from the backend
+        if (response.status === 400 && data) {
+          return rejectWithValue(data); // Pass validation errors directly
+        }
+        return rejectWithValue(data.detail || 'Failed to add payment method.');
+      }
+
+      // Optionally, re-fetch payment methods in ClientFinancials component after success
+      // No dispatch here to avoid circular dependencies if ClientFinancials also dispatches this thunk
+      return data;
+    } catch (error) {
+      return rejectWithValue('Network error adding payment method.');
+    }
+  }
+);
+
 // Async thunk to fetch any public user profile
 export const fetchPublicUserProfile = createAsyncThunk(
   'auth/fetchPublicUserProfile',
@@ -412,6 +555,48 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(updateUserProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Deposit funds cases
+      .addCase(depositFunds.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(depositFunds.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        // Balance update handled by fetchUserProfile
+      })
+      .addCase(depositFunds.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Withdraw funds cases
+      .addCase(withdrawFunds.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(withdrawFunds.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        // Balance update handled by fetchUserProfile
+      })
+      .addCase(withdrawFunds.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Add Payment Method cases
+      .addCase(addPaymentMethod.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(addPaymentMethod.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+        // The ClientFinancials component will re-fetch payment methods upon success
+      })
+      .addCase(addPaymentMethod.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
