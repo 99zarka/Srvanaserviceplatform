@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
@@ -20,10 +19,8 @@ import { toast } from 'sonner';
 import { getClientOrders, getOrderOffers, updateClientOffer, clearError, clearSuccessMessage } from '../redux/orderSlice';
 import api from '../utils/api';
 
-const EditOfferForm = () => {
+const EditOrderForm = ({ orderId, onClose }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { orderId } = useParams();
   const { clientOrders, currentOrderOffers, loading, error, successMessage } = useSelector((state) => state.orders);
   const { user } = useSelector((state) => state.auth);
 
@@ -39,19 +36,16 @@ const EditOfferForm = () => {
 
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
-  const [order, setOrder] = useState(null); // Reintroduce order as a state variable
+  const [order, setOrder] = useState(null);
 
-  // Derive offerToEdit here to make it available for conditional rendering
   const clientOffers = currentOrderOffers?.filter(offer => offer.offer_initiator === 'client') || [];
   const offerToEdit = clientOffers?.[0];
 
-  // Update form data and set order when currentOrderOffers changes
   useEffect(() => {
     if (currentOrderOffers && currentOrderOffers.length > 0) {
       if (offerToEdit) {
-        // Always set/update the order info from the offer data
         if (offerToEdit.order) {
-          setOrder(offerToEdit.order); // Set order state
+          setOrder(offerToEdit.order);
         }
         setFormData(prevData => ({
           ...prevData,
@@ -65,9 +59,8 @@ const EditOfferForm = () => {
         }));
       }
     }
-  }, [currentOrderOffers, offerToEdit]); // Depend on currentOrderOffers and offerToEdit
+  }, [currentOrderOffers, offerToEdit]);
 
-  // Fetch specific order offers to ensure we have the most up-to-date data
   useEffect(() => {
     if (orderId && user?.user_id) {
       dispatch(getOrderOffers(orderId));
@@ -78,16 +71,14 @@ const EditOfferForm = () => {
     if (successMessage) {
       toast.success(successMessage);
       dispatch(clearSuccessMessage());
-      // Navigate back to client offers page after successful update
-      navigate('/client-offers');
+      onClose(); // Close modal after successful update
     }
     if (error) {
       toast.error(error?.detail || error?.message || error || "حدث خطأ أثناء تحديث العرض.");
       dispatch(clearError());
     }
-  }, [successMessage, error, dispatch, navigate]);
+  }, [successMessage, error, dispatch, onClose]);
 
-  // Effect to fetch services
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -117,17 +108,14 @@ const EditOfferForm = () => {
     setFormData((prev) => ({ ...prev, scheduled_date: date }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // offerToEdit is already derived at the top of the component
 
     if (!offerToEdit) {
       toast.error("لم يتم العثور على عرض صالح للتحديث.");
       return;
     }
 
-    // Basic validation
     if (!formData.offered_price || !formData.problem_description || !formData.requested_location || !formData.scheduled_date || !formData.scheduled_time_start || !formData.scheduled_time_end) {
       toast.error("الرجاء ملء جميع الحقول المطلوبة.");
       return;
@@ -143,10 +131,9 @@ const EditOfferForm = () => {
       offer_description: formData.offer_description,
     };
 
-    dispatch(updateClientOffer({ offerId: offerToEdit.offer_id, offerData }));
+    await dispatch(updateClientOffer({ offerId: offerToEdit.offer_id, offerData }));
   };
 
-  // Primary loading state: show spinner while data is being fetched
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12" dir="rtl">
@@ -156,38 +143,34 @@ const EditOfferForm = () => {
     );
   }
 
-  // If not loading, but no offerToEdit is found (meaning no client-initiated offer for this orderId)
   if (!offerToEdit) {
     return (
       <div className="flex items-center justify-center py-12" dir="rtl">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">لم يتم العثور على عرض من العميل لتعديله لهذا الطلب.</p>
-          <Button onClick={() => navigate('/client-offers')} className="mt-4">
-            العودة إلى العروض
+          <Button onClick={onClose} className="mt-4">
+            العودة
           </Button>
         </div>
       </div>
     );
   }
 
-  // If offerToEdit exists but its status does not allow editing
   if (offerToEdit.status !== 'pending') {
     return (
       <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl" dir="rtl">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
           <h1 className="text-2xl font-bold text-red-800 mb-2">لا يمكن تعديل العرض</h1>
           <p className="text-red-600 mb-4">لا يمكن تعديل هذا العرض لأنه لم يعد في حالة الانتظار.</p>
-          <Button onClick={() => navigate('/client-offers')}>
-            العودة إلى العروض
+          <Button onClick={onClose}>
+            العودة
           </Button>
         </div>
       </div>
     );
   }
 
-  // Ensure 'order' is available before rendering the form itself, as it's used in the form's header and selects.
-  // This check should pass if offerToEdit exists and was properly loaded.
   if (!order) {
     return (
       <div className="flex items-center justify-center py-12" dir="rtl">
@@ -215,7 +198,6 @@ const EditOfferForm = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Service Type */}
           <div className="space-y-2">
             <Label htmlFor="service_id">نوع الخدمة</Label>
             <Select onValueChange={handleServiceChange} value={order.service?.service_id?.toString()}>
@@ -235,7 +217,6 @@ const EditOfferForm = () => {
             )}
           </div>
 
-          {/* Offered Price */}
           <div className="space-y-2">
             <Label htmlFor="offered_price">سعرك المعروض <span className="text-red-500">*</span></Label>
             <Input
@@ -250,7 +231,6 @@ const EditOfferForm = () => {
           </div>
         </div>
 
-        {/* Problem Description */}
         <div className="space-y-2">
           <Label htmlFor="problem_description">وصف المشكلة <span className="text-red-500">*</span></Label>
           <Textarea
@@ -263,7 +243,6 @@ const EditOfferForm = () => {
           />
         </div>
 
-        {/* Requested Location */}
         <div className="space-y-2">
           <Label htmlFor="requested_location">موقع الخدمة <span className="text-red-500">*</span></Label>
           <Input
@@ -276,7 +255,6 @@ const EditOfferForm = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Scheduled Date */}
           <div className="space-y-2">
             <Label htmlFor="scheduled_date">التاريخ المحدد <span className="text-red-500">*</span></Label>
             <Popover>
@@ -302,7 +280,6 @@ const EditOfferForm = () => {
             </Popover>
           </div>
 
-          {/* Scheduled Time Start */}
           <div className="space-y-2">
             <Label htmlFor="scheduled_time_start">وقت البدء <span className="text-red-500">*</span></Label>
             <Input
@@ -314,7 +291,6 @@ const EditOfferForm = () => {
             />
           </div>
 
-          {/* Scheduled Time End */}
           <div className="space-y-2">
             <Label htmlFor="scheduled_time_end">وقت الانتهاء <span className="text-red-500">*</span></Label>
             <Input
@@ -327,7 +303,6 @@ const EditOfferForm = () => {
           </div>
         </div>
 
-        {/* Offer Description (optional) */}
         <div className="space-y-2">
           <Label htmlFor="offer_description">رسالتك (اختياري)</Label>
           <Textarea
@@ -347,7 +322,7 @@ const EditOfferForm = () => {
               'تحديث العرض'
             )}
           </Button>
-          <Button type="button" variant="outline" onClick={() => navigate('/client-offers')} disabled={loading}>
+          <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
             إلغاء
           </Button>
         </div>
@@ -356,4 +331,4 @@ const EditOfferForm = () => {
   );
 };
 
-export default EditOfferForm;
+export default EditOrderForm;

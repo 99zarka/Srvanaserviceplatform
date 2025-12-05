@@ -1,4 +1,4 @@
-import { Home, Briefcase, DollarSign, Star, User, Mail } from "lucide-react";
+import { Home, Briefcase, DollarSign, Star, User, Mail, Flag } from "lucide-react";
 import { DashboardLayout } from "./DashboardLayout";
 import { Routes, Route } from "react-router-dom";
 import { useSelector } from "react-redux"; // Import useSelector

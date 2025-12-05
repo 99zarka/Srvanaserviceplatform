@@ -28,14 +28,14 @@ export function ClientOverview() {
         const statsData = await api.get("/dashboard/client/client-summary/", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Combine dashboard stats with user balance info
+        // Combine dashboard stats with user balance info from API response
         setStats([
-          { label: "الرصيد المتاح", value: `$${user.available_balance || '0.00'}`, icon: CreditCard, color: "text-green-600" },
-          { label: "في الضمان", value: `$${user.in_escrow_balance || '0.00'}`, icon: CreditCard, color: "text-blue-600" },
-          { label: "الرصيد المعلق", value: `$${user.pending_balance || '0.00'}`, icon: CreditCard, color: "text-yellow-600" },
+          { label: "الرصيد المتاح", value: `$${statsData.available_balance ? parseFloat(statsData.available_balance).toFixed(2) : '0.00'}`, icon: CreditCard, color: "text-green-600" },
+          { label: "في الضمان", value: `$${statsData.in_escrow_balance ? parseFloat(statsData.in_escrow_balance).toFixed(2) : '0.00'}`, icon: CreditCard, color: "text-blue-600" },
+          { label: "الرصيد المعلق", value: `$${statsData.pending_balance ? parseFloat(statsData.pending_balance).toFixed(2) : '0.00'}`, icon: CreditCard, color: "text-yellow-600" },
           { label: "الطلبات النشطة", value: statsData.active_orders || 0, icon: Clock, color: "text-primary" },
           { label: "المكتملة", value: statsData.completed_orders || 0, icon: CheckCircle, color: "text-green-600" },
-          { label: "إجمالي الإنفاق", value: `$${statsData.total_spent || 0}`, icon: CreditCard, color: "text-blue-600" },
+          { label: "إجمالي الإنفاق", value: `$${statsData.total_spent ? parseFloat(statsData.total_spent).toFixed(2) : '0.00'}`, icon: CreditCard, color: "text-blue-600" },
         ]);
 
         // Fetch recent orders from correct endpoint
@@ -44,11 +44,11 @@ export function ClientOverview() {
         }); 
         setRecentRequests(requestsData.results.slice(0, 4).map(req => ({
           id: req.order_id,
-          service: req.service || "خدمة غير محددة",
-          worker: req.technician_user || "لم يتم التعيين بعد",
+          service: req.service?.arabic_name || req.service?.service_name || "خدمة غير محددة", // Extract name from service object
+          worker: req.technician_user ? `${req.technician_user.first_name} ${req.technician_user.last_name}` : "لم يتم التعيين بعد", // Extract name from technician_user object
           status: req.order_status,
           date: new Date(req.creation_timestamp).toLocaleDateString("ar-EG"),
-          amount: `$${req.final_price || req.updated_price || 0}`,
+          amount: `$${req.final_price || req.updated_price ? parseFloat(req.final_price || req.updated_price).toFixed(2) : '0.00'}`,
         })));
       } catch (err) {
         setError(err.message || "فشل في جلب بيانات لوحة التحكم.");

@@ -62,7 +62,8 @@ export function WorkerClientOffers() {
 
       {error && (
         <div className="mb-6 p-4 rounded-md bg-red-50 border border-red-200" dir="rtl">
-          <p className="text-sm text-red-600">خطأ: {error}</p>
+          {/* Access error.message safely */}
+          <p className="text-sm text-red-600">خطأ: {error?.message || 'حدث خطأ غير معروف.'}</p>
         </div>
       )}
 

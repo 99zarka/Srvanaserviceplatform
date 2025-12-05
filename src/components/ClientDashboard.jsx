@@ -1,4 +1,4 @@
-import { Home, FileText, CreditCard, MessageSquare, User, Flag, DollarSign } from "lucide-react";
+import { Home, FileText, CreditCard, MessageSquare, User, Flag, DollarSign, ShoppingCart } from "lucide-react";
 import { DashboardLayout } from "./DashboardLayout";
 import { Routes, Route } from "react-router-dom";
 import { useSelector } from "react-redux"; // Import useSelector
@@ -7,6 +7,9 @@ import { ClientRequests } from "./client-dashboard/ClientRequests";
 import { ClientMessages } from "./client-dashboard/ClientMessages";
 import { ClientDisputes } from "./client-dashboard/ClientDisputes"; // Import ClientDisputes
 import { ClientFinancials } from "./client-dashboard/ClientFinancials"; // Import ClientFinancials
+import ClientOrdersAndOffers from './client-dashboard/ClientOrdersAndOffers'; // Import new component
+import EditOrderPage from './client-dashboard/EditOrderPage'; // Import EditOrderPage
+import ViewOrderPage from './client-dashboard/ViewOrderPage'; // Import ViewOrderPage
 
 export function ClientDashboard() {
   const { user } = useSelector((state) => state.auth); // Get user from Redux state
@@ -19,6 +22,7 @@ export function ClientDashboard() {
     { icon: Home, label: "نظرة عامة", path: "/client-dashboard" },
     { icon: FileText, label: "طلباتي", path: "/client-dashboard/requests" },
     { icon: DollarSign, label: "الماليات والمعاملات", path: "/client-dashboard/financials" }, // Combined financial page with updated label
+    { icon: ShoppingCart, label: "الطلبات والعروض", path: "/client-dashboard/orders-offers" }, // New item for Orders and Offers
     { icon: MessageSquare, label: "الرسائل", path: "/client-dashboard/messages" },
     { icon: Flag, label: "النزاعات", path: "/client-dashboard/disputes" }, // New item for Disputes
     { icon: User, label: "الملف الشخصي", path: `/profile/${userId}` }, // Use dynamic user ID
@@ -36,6 +40,9 @@ export function ClientDashboard() {
         <Route index element={<ClientOverview />} />
         <Route path="requests" element={<ClientRequests />} />
         <Route path="financials" element={<ClientFinancials />} /> {/* New route for combined financials */}
+        <Route path="orders-offers" element={<ClientOrdersAndOffers />} /> {/* Route for orders and offers */}
+        <Route path="orders-offers/edit/:orderId" element={<EditOrderPage />} /> {/* New route for editing an order */}
+        <Route path="orders-offers/view/:orderId" element={<ViewOrderPage />} /> {/* New route for viewing an order */}
         <Route path="messages" element={<ClientMessages />} />
         <Route path="disputes" element={<ClientDisputes />} /> {/* New route for disputes */}
       </Routes>

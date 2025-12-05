@@ -19,10 +19,23 @@ export const getClientOrders = createAsyncThunk(
   'orders/getClientOrders',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/orders/');
+      const response = await api.get('/orders/?page_size=50');
       return response; // Return the entire response object as `action.payload`
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Fetch a single order by ID
+export const fetchSingleOrder = createAsyncThunk(
+  'orders/fetchSingleOrder',
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/orders/${orderId}/`);
+      return response; // Corrected: Return the entire response, as api.get already returns parsed data
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message || 'Failed to fetch single order');
     }
   }
 );
@@ -58,7 +71,7 @@ export const acceptOffer = createAsyncThunk(
   'orders/acceptOffer',
   async ({ orderId, offerId }, { rejectWithValue }) => {
     try {
-      const response = await api.post(`/orders/orders/${orderId}/accept-offer/${offerId}/`);
+      const response = await api.post(`/orders/${orderId}/accept-offer/${offerId}/`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -130,9 +143,10 @@ export const makeClientOffer = createAsyncThunk(
   async ({ technicianId, offerData }, { rejectWithValue }) => {
     try {
       const response = await api.post(`/users/users/${technicianId}/make-offer-to-technician/`, offerData);
-      return response.data;
+      return response.data; // On success, returns data
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      const errorMessage = error.response?.data || error.message || 'An unknown error occurred';
+      return rejectWithValue(errorMessage); // On error, returns error data
     }
   }
 );
@@ -147,7 +161,8 @@ export const respondToClientOffer = createAsyncThunk(
         data.rejection_reason = rejectionReason;
       }
       const response = await api.post(`/users/users/${technicianId}/offers/${offerId}/respond-to-client-offer/`, data);
-      return response.data;
+      console.log("respondToClientOffer thunk: response before return:", response); // Updated debug log
+      return response; // Corrected: return response directly as api.post already returns parsed data
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -188,7 +203,21 @@ export const updateClientOffer = createAsyncThunk(
   'orders/updateClientOffer',
   async ({ offerId, offerData }, { rejectWithValue }) => {
     try {
-      const response = await api.put(`/orders/projectoffers/${offerId}/update_client_offer/`, offerData);
+      // Corrected URL from update_client_offer to update-client-offer
+      const response = await api.patch(`/orders/projectoffers/${offerId}/update-client-offer/`, offerData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Update an order
+export const updateOrder = createAsyncThunk(
+  'orders/updateOrder',
+  async ({ orderId, orderData }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(`/orders/${orderId}/`, orderData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -201,12 +230,12 @@ export const cancelOrder = createAsyncThunk(
   'orders/cancelOrder',
   async ({ orderId, cancellationReason }, { rejectWithValue }) => {
     try {
-      const response = await api.patch(`/orders/orders/${orderId}/cancel/`, { 
-        status: 'CANCELLED',
-        cancellation_reason: cancellationReason 
+      const response = await api.post(`/orders/${orderId}/cancel-order/`, {
+        reason: cancellationReason
       });
       return response.data;
-    } catch (error) {
+    }
+    catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
   }
@@ -264,6 +293,7 @@ const orderSlice = createSlice({
     currentOrderOffers: [],
     technicians: [],
     selectedTechnician: null,
+    currentViewingOrder: null, // New state for a single order being viewed/edited
     loading: false,
     error: null,
     successMessage: null,
@@ -286,6 +316,9 @@ const orderSlice = createSlice({
     },
     clearSelectedTechnician: (state) => {
       state.selectedTechnician = null;
+    },
+    clearCurrentViewingOrder: (state) => { // New action to clear the single order state
+      state.currentViewingOrder = null;
     }
   },
   extraReducers: (builder) => {
@@ -302,7 +335,11 @@ const orderSlice = createSlice({
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        // Ensure state.error is always an object with a message property
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to create order.');
+        state.error = { message: errorMessage };
       })
       
       // Get client orders
@@ -316,7 +353,31 @@ const orderSlice = createSlice({
       })
       .addCase(getClientOrders.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch client orders.');
+        state.error = { message: errorMessage };
+      })
+
+      // Fetch Single Order
+      .addCase(fetchSingleOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.currentViewingOrder = null; // Clear previous order when fetching new one
+      })
+      .addCase(fetchSingleOrder.fulfilled, (state, action) => {
+        console.log('fetchSingleOrder.fulfilled:', action.payload); // Added debug log
+        state.loading = false;
+        state.currentViewingOrder = action.payload;
+      })
+      .addCase(fetchSingleOrder.rejected, (state, action) => {
+        console.error('fetchSingleOrder.rejected:', action.payload); // Added debug log
+        state.loading = false;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch single order.');
+        state.error = { message: errorMessage };
+        state.currentViewingOrder = null; // Ensure it's cleared on error
       })
       
       // Get available orders
@@ -330,7 +391,10 @@ const orderSlice = createSlice({
       })
       .addCase(getAvailableOrders.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch available orders.');
+        state.error = { message: errorMessage };
       })
       
   // Get order offers
@@ -344,7 +408,10 @@ const orderSlice = createSlice({
       })
       .addCase(getOrderOffers.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch order offers.');
+        state.error = { message: errorMessage };
       })
       
       // Accept offer
@@ -364,7 +431,10 @@ const orderSlice = createSlice({
       })
       .addCase(acceptOffer.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to accept offer.');
+        state.error = { message: errorMessage };
       })
       
       // Create project offer
@@ -382,7 +452,10 @@ const orderSlice = createSlice({
       })
       .addCase(createProjectOffer.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to create project offer.');
+        state.error = { message: errorMessage };
       })
       
       // Get technicians
@@ -397,7 +470,10 @@ const orderSlice = createSlice({
       })
       .addCase(getTechnicians.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch technicians.');
+        state.error = { message: errorMessage };
       })
       
       // Get technician detail
@@ -411,7 +487,10 @@ const orderSlice = createSlice({
       })
       .addCase(getTechnicianDetail.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch technician detail.');
+        state.error = { message: errorMessage };
       })
       
       // Get technician orders
@@ -425,10 +504,13 @@ const orderSlice = createSlice({
       })
       .addCase(getTechnicianOrders.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch technician orders.');
+        state.error = { message: errorMessage };
       })
 
-      // Get technician client offers
+      // Get client-initiated offers for a specific technician
       .addCase(getTechnicianClientOffers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -439,7 +521,10 @@ const orderSlice = createSlice({
       })
       .addCase(getTechnicianClientOffers.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch technician client offers.');
+        state.error = { message: errorMessage };
       })
 
       // Make Client Offer
@@ -449,17 +534,22 @@ const orderSlice = createSlice({
         state.successMessage = null;
       })
       .addCase(makeClientOffer.fulfilled, (state, action) => {
+        console.log('makeClientOffer.fulfilled:', action.payload); // Debug log
         state.loading = false;
-        state.successMessage = action.payload.message || 'Offer made successfully!';
+        state.successMessage = action.payload?.message || 'Offer made successfully!';
         // Add the new order to clientOrders
-        if (action.payload.order) {
+        if (action.payload?.order) {
           state.clientOrders.push(action.payload.order);
         }
         // Potentially update selectedTechnician with offer details if needed for UI feedback
       })
       .addCase(makeClientOffer.rejected, (state, action) => {
+        console.error('makeClientOffer.rejected:', action.payload); // Debug log
         state.loading = false;
-        state.error = action.payload;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to make client offer.');
+        state.error = { message: errorMessage };
         state.successMessage = null;
       })
 
@@ -471,16 +561,54 @@ const orderSlice = createSlice({
       })
       .addCase(respondToClientOffer.fulfilled, (state, action) => {
         state.loading = false;
-        state.successMessage = action.payload.message || 'Offer response sent successfully!';
-        // Update the status of the offer in relevant arrays (e.g., technician's offers)
-        // Also update the associated order's status if accepted
-        state.technicianClientOffers = state.technicianClientOffers.map(offer =>
-          offer.offer_id === action.payload.offer_id ? { ...offer, status: action.payload.status } : offer
-        );
+        state.successMessage = action.payload?.message || 'Offer response sent successfully!';
+        console.log("respondToClientOffer.fulfilled: Full action.payload:", action.payload); // Add detailed logging here
+
+        let updatedOfferData = action.payload?.offer; // Try to extract the nested offer object first
+
+        if (!updatedOfferData) {
+          // If action.payload.offer is not found, assume offer_id and status are directly on action.payload
+          updatedOfferData = action.payload;
+        }
+
+        // Defensive check for the offer data and its properties
+        if (!updatedOfferData || typeof updatedOfferData.offer_id === 'undefined' || typeof updatedOfferData.status === 'undefined') {
+          console.error("respondToClientOffer.fulfilled: Offer data is missing expected properties (offer_id, status)", action.payload);
+          // If essential data is missing, we still want to proceed to avoid blocking,
+          // but logging this error is crucial for debugging.
+        } else {
+            state.technicianClientOffers = state.technicianClientOffers.map(offer =>
+              offer.offer_id === updatedOfferData.offer_id ? { ...offer, status: updatedOfferData.status } : offer
+            );
+        }
+        // Also update the current viewing order if it's relevant and contains this offer
+        if (state.currentViewingOrder && action.payload?.order_status) { // Assuming order_status is returned
+          state.currentViewingOrder = {
+            ...state.currentViewingOrder,
+            order_status: action.payload.order_status, // Update order status
+            project_offers: state.currentViewingOrder.project_offers?.map(pOffer =>
+              pOffer.offer_id === updatedOfferData.offer_id ? { ...pOffer, status: updatedOfferData.status } : pOffer
+            ) || []
+          };
+        }
       })
       .addCase(respondToClientOffer.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        // Ensure state.error is always an object with a message property, defaulting to a generic message
+        let errorMessage = 'Failed to respond to offer. An unknown error occurred.';
+        if (typeof action.payload === 'object' && action.payload !== null) {
+          if (typeof action.payload.message === 'string') {
+            errorMessage = action.payload.message;
+          } else if (typeof action.payload.detail === 'string') { // Common Django REST Framework error field
+            errorMessage = action.payload.detail;
+          } else if (Object.values(action.payload).some(val => typeof val === 'string')) {
+            // If payload is an object with some string values (e.g., field errors)
+            errorMessage = Object.values(action.payload).filter(val => typeof val === 'string').join(', ');
+          }
+        } else if (typeof action.payload === 'string') {
+          errorMessage = action.payload;
+        }
+        state.error = { message: errorMessage };
         state.successMessage = null;
       })
 
@@ -493,16 +621,64 @@ const orderSlice = createSlice({
       .addCase(updateClientOffer.fulfilled, (state, action) => {
         state.loading = false;
         state.successMessage = action.payload?.message || 'Offer updated successfully!';
-        // Update the offer in the relevant arrays
-        if (action.payload?.offer) {
+      
+        // Add a defensive check here
+        if (!action.payload || !action.payload.offer) {
+          console.error("updateClientOffer.fulfilled: action.payload or action.payload.offer is undefined", action.payload);
+          // If the offer object is missing, we cannot update the state reliably,
+          // so we'll just rely on the success message and potentially a re-fetch.
+          return; 
+        }
+
+        const updatedOffer = action.payload.offer;
+      
+        if (updatedOffer) {
+          // Update the offer in the technician-facing list
           state.technicianClientOffers = state.technicianClientOffers.map(offer =>
-            offer.offer_id === action.payload.offer.offer_id ? action.payload.offer : offer
+            offer.offer_id === updatedOffer.offer_id ? { ...offer, ...updatedOffer } : offer
           );
+      
+          // Find and update the order in the main clientOrders list
+          state.clientOrders = state.clientOrders.map(order => {
+            // Need to check if updatedOffer.order is an object or an ID
+            const orderIdFromOffer = updatedOffer.order?.order_id || updatedOffer.order;
+
+            if (order.order_id === orderIdFromOffer) {
+              // Find the specific offer within this order and update it
+              const updatedProjectOffers = order.project_offers.map(pOffer => 
+                pOffer.offer_id === updatedOffer.offer_id ? updatedOffer : pOffer
+              );
+              // Optimistically update the order's fields that were part of the request
+              // Note: This won't reflect any other server-side changes to the order.
+              // A re-fetch would be more robust, but this is a good optimistic update.
+              return { 
+                ...order, 
+                project_offers: updatedProjectOffers,
+                // We can't update other order fields because they aren't returned.
+                // The UI will show the change locally, and it will be correct on next fetch.
+              };
+            }
+            return order;
+          });
+      
+          // Also update the current viewing order if it's the one being edited
+          if (state.currentViewingOrder && (state.currentViewingOrder.order_id === updatedOffer.order?.order_id || state.currentViewingOrder.order_id === updatedOffer.order)) {
+            const updatedProjectOffers = state.currentViewingOrder.project_offers.map(pOffer => 
+              pOffer.offer_id === updatedOffer.offer_id ? updatedOffer : pOffer
+            );
+            state.currentViewingOrder = { 
+              ...state.currentViewingOrder, 
+              project_offers: updatedProjectOffers 
+            };
+          }
         }
       })
       .addCase(updateClientOffer.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to update client offer.');
+        state.error = { message: errorMessage };
         state.successMessage = null;
       })
 
@@ -514,15 +690,27 @@ const orderSlice = createSlice({
       })
       .addCase(cancelOrder.fulfilled, (state, action) => {
         state.loading = false;
-        state.successMessage = 'Order cancelled successfully!';
-        // Update the cancelled order in clientOrders
-        state.clientOrders = state.clientOrders.map(order =>
-          order.id === action.payload.id ? action.payload : order
-        );
+        state.successMessage = action.payload?.message || 'Order cancelled successfully!';
+        
+        // Add a defensive check to ensure action.payload and action.payload.order exist
+        if (action.payload && action.payload.order) {
+          const updatedOrder = action.payload.order;
+          
+          // Find the order in the state and update it with the data from the backend
+          state.clientOrders = state.clientOrders.map(order =>
+            order.order_id === updatedOrder.order_id ? updatedOrder : order
+          );
+        }
+        // If payload is not as expected, the success message is still set,
+        // and the component's useEffect will trigger a refresh. This prevents a crash.
       })
       .addCase(cancelOrder.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        // Ensure state.error is always an object with a message property
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message 
+                             ? String(action.payload.message) 
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to cancel order.');
+        state.error = { message: errorMessage };
         state.successMessage = null;
       })
 
@@ -542,7 +730,10 @@ const orderSlice = createSlice({
       })
       .addCase(releaseFunds.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to release funds.');
+        state.error = { message: errorMessage };
         state.successMessage = null;
       })
 
@@ -559,7 +750,10 @@ const orderSlice = createSlice({
       })
       .addCase(submitReview.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to submit review.');
+        state.error = { message: errorMessage };
         state.successMessage = null;
       })
 
@@ -579,7 +773,44 @@ const orderSlice = createSlice({
       })
       .addCase(markOrderAsCompleted.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to mark order as completed.');
+        state.error = { message: errorMessage };
+        state.successMessage = null;
+      })
+
+      // Update Order
+      .addCase(updateOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(updateOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload?.message || 'Order updated successfully!';
+
+        if (action.payload && (action.payload.order_id || action.payload.id)) {
+          const updatedOrderData = action.payload;
+          const orderToUpdateId = updatedOrderData.order_id || updatedOrderData.id;
+
+          state.clientOrders = state.clientOrders.map(order =>
+            (order.order_id === orderToUpdateId || order.id === orderToUpdateId)
+              ? { ...order, ...updatedOrderData } // Merge existing order with updated data
+              : order
+          );
+          // If the updated order is the current viewing order, update it too
+          if (state.currentViewingOrder && (state.currentViewingOrder.order_id === orderToUpdateId || state.currentViewingOrder.id === orderToUpdateId)) {
+            state.currentViewingOrder = { ...state.currentViewingOrder, ...updatedOrderData };
+          }
+        }
+      })
+      .addCase(updateOrder.rejected, (state, action) => {
+        state.loading = false;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to update order.');
+        state.error = { message: errorMessage };
         state.successMessage = null;
       });
   },
@@ -591,6 +822,7 @@ export const {
   setCurrentOrderOffers, 
   addOfferToCurrentOrder,
   clearTechnicians,
-  clearSelectedTechnician
+  clearSelectedTechnician,
+  clearCurrentViewingOrder
 } = orderSlice.actions;
 export default orderSlice.reducer;

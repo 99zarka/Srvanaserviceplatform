@@ -89,7 +89,9 @@ const api = {
     };
     
     const response = await fetch(url, config);
-    return handleResponse(response);
+    const result = await handleResponse(response); // Await handleResponse
+    console.log("api.get: Result from handleResponse:", result); // New debug log
+    return result;
   },
 
   async post(endpoint, data, options = {}) {
@@ -108,7 +110,9 @@ const api = {
     };
     
     const response = await fetch(url, config);
-    return handleResponse(response);
+    const result = await handleResponse(response); // Await handleResponse
+    console.log("api.post: Result from handleResponse:", result); // New debug log
+    return result;
   },
 
   async put(endpoint, data, options = {}) {
@@ -127,7 +131,9 @@ const api = {
     };
     
     const response = await fetch(url, config);
-    return handleResponse(response);
+    const result = await handleResponse(response); // Await handleResponse
+    console.log("api.put: Result from handleResponse:", result); // New debug log
+    return result;
   },
 
   async patch(endpoint, data, options = {}) {
@@ -146,7 +152,9 @@ const api = {
     };
     
     const response = await fetch(url, config);
-    return handleResponse(response);
+    const result = await handleResponse(response); // Await handleResponse
+    console.log("api.patch: Result from handleResponse:", result); // New debug log
+    return result;
   },
 
   async delete(endpoint, options = {}) {
@@ -169,7 +177,9 @@ const api = {
       return { success: true };
     }
     
-    return handleResponse(response);
+    const result = await handleResponse(response); // Await handleResponse
+    console.log("api.delete: Result from handleResponse:", result); // New debug log
+    return result;
   },
 };
 

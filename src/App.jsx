@@ -10,21 +10,20 @@ import { TechnicianVerificationPage } from "./components/TechnicianVerificationP
 import { ClientDashboard } from "./components/ClientDashboard";
 import { WorkerDashboard } from "./components/WorkerDashboard";
 import { AdminDashboard } from "./components/AdminDashboard";
-import { UserProfilePage } from "./components/UserProfilePage"; // Import UserProfilePage
-import { BrowseUsersPage } from "./components/BrowseUsersPage"; // Import BrowseUsersPage
+import { UserProfilePage } from "./components/UserProfilePage";
+import { BrowseUsersPage } from "./components/BrowseUsersPage";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { Toaster } from "sonner"; // Import Toaster for sonner notifications
+import { Toaster } from "sonner";
 
 // Import new service ordering components
 import OrderCreateForm from "./components/service-ordering/OrderCreateForm";
-import ClientOrdersDashboard from "./components/service-ordering/ClientOrdersDashboard";
+// import ClientOrdersDashboard from "./components/service-ordering/ClientOrdersDashboard"; // Removed
 import TechnicianBrowse from "./components/service-ordering/TechnicianBrowse";
-import DirectOfferForm from "./components/service-ordering/DirectOfferForm"; // Import DirectOfferForm
-import { ClientOffersPage } from "./components/ClientOffersPage"; // Import ClientOffersPage
-import EditOfferForm from "./components/EditOfferForm"; // Import EditOfferForm
-import { DisputeDetailPage } from "./components/DisputeDetailPage"; // Import DisputeDetailPage
-import { TransactionDetailPage } from "./components/TransactionDetailPage"; // Import TransactionDetailPage
-import { NotificationDisplay } from "./components/NotificationDisplay"; // Import NotificationDisplay
+import DirectOfferForm from "./components/service-ordering/DirectOfferForm";
+// import { ClientOffersPage } from "./components/ClientOffersPage"; // Removed
+import { DisputeDetailPage } from "./components/DisputeDetailPage";
+import { TransactionDetailPage } from "./components/TransactionDetailPage";
+import { NotificationDisplay } from "./components/NotificationDisplay";
 
 export default function App() {
   const location = useLocation();
@@ -38,7 +37,7 @@ export default function App() {
     !location.pathname.startsWith("/worker-dashboard") &&
     !location.pathname.startsWith("/admin-dashboard") &&
     !location.pathname.startsWith("/disputes") &&
-    !location.pathname.startsWith("/transactions"); // Exclude transactions page for detail page, dashboard handles its own
+    !location.pathname.startsWith("/transactions");
 
   return (
     <div className="min-h-screen flex flex-col" dir="rtl">
@@ -52,28 +51,27 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/technician-verification" element={<TechnicianVerificationPage />} />
-          <Route path="/profile/:userId" element={<UserProfilePage />} /> {/* New route for user profiles */}
-          <Route path="/browse-users" element={<BrowseUsersPage />} /> {/* New route for browsing users */}
+          <Route path="/profile/:userId" element={<UserProfilePage />} />
+          <Route path="/browse-users" element={<BrowseUsersPage />} />
           
           {/* Service Ordering Routes */}
           <Route path="/order/create" element={<OrderCreateForm />} />
-          <Route path="/orders/dashboard" element={<ClientOrdersDashboard />} />
+          {/* <Route path="/orders/dashboard" element={<ClientOrdersDashboard />} /> */} {/* Removed */}
           <Route path="/technicians/browse" element={<TechnicianBrowse />} />
-          <Route path="/offer/:technicianId" element={<DirectOfferForm />} /> {/* New route for direct offers */}
-          <Route path="/client-offers" element={<ClientOffersPage />} /> {/* New route for client offers */}
-          <Route path="/edit-offer/:orderId" element={<EditOfferForm />} /> {/* New route for editing offers */}
-          <Route path="/disputes/:disputeId" element={<DisputeDetailPage />} /> {/* New route for dispute details */}
-          <Route path="/transactions/:transactionId" element={<TransactionDetailPage />} /> {/* New route for transaction details */}
+          <Route path="/offer/:technicianId" element={<DirectOfferForm />} />
+          {/* <Route path="/client-offers" element={<ClientOffersPage />} /> */} {/* Removed */}
+          <Route path="/disputes/:disputeId" element={<DisputeDetailPage />} />
+          <Route path="/transactions/:transactionId" element={<TransactionDetailPage />} />
 
           <Route path="/client-dashboard/*" element={<ClientDashboard />} />
           <Route path="/worker-dashboard/*" element={<WorkerDashboard />} />
           <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
-          <Route path="*" element={<HomePage />} /> {/* Fallback route */}
+          <Route path="*" element={<HomePage />} />
         </Routes>
       </div>
       {showHeaderFooter && <Footer />}
       <Toaster />
-      <NotificationDisplay /> {/* Render the NotificationDisplay component */}
+      <NotificationDisplay />
     </div>
   );
 }
