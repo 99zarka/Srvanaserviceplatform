@@ -42,7 +42,7 @@ const ClientOrdersAndOffers = () => {
   const [cancellationReason, setCancellationReason] = useState('');
   const [isCancelling, setIsCancelling] = useState(false); // Local loading state for cancellation
   const [isDisputeModalOpen, setIsDisputeModalOpen] = useState(false);
-  const [disputeReason, setDisputeReason] = useState('');
+  const [disputeReason, setDisputeReason] = useState(''); // Keep for UI, but not sent to backend
   const [disputeDescription, setDisputeDescription] = useState('');
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewRating, setReviewRating] = useState('');
@@ -60,7 +60,7 @@ const ClientOrdersAndOffers = () => {
     if (successMessage) {
       toast.success(successMessage);
       dispatch(clearSuccessMessage());
-      dispatch(getClientOrders()); // Refresh orders after any successful action
+      // No explicit refetch here. Rely on Redux state update.
     }
     if (error) {
       const errorMessageToDisplay = error.detail || error.message || 'An unknown error occurred.';
@@ -77,10 +77,9 @@ const ClientOrdersAndOffers = () => {
   const handleAcceptOffer = async (orderId, offerId) => {
     try {
       await dispatch(acceptOffer({ orderId, offerId })).unwrap();
-      dispatch(getClientOrders());
+      // Rely solely on the reducer to update the state.
     } catch (err) {
-      // The global error toast in useEffect should catch this, but this log was added to help debug the error structure.
-      // Now that the toast is working, we can remove the explicit console.error here.
+      // Error is handled by the global useEffect
     }
   };
 
@@ -97,12 +96,11 @@ const ClientOrdersAndOffers = () => {
     setIsCancelling(true);
     try {
       await dispatch(cancelOrder({ orderId: selectedOrderId, cancellationReason })).unwrap();
-      // The modal will now close and data will refresh via the useEffect hook listening for successMessage.
       setIsCancelModalOpen(false);
       setCancellationReason('');
+      dispatch(getClientOrders()); // Explicitly refetch orders on success
     } catch (err) {
       console.error('Failed to cancel order:', err);
-      // Error toast is handled by the global useEffect
     } finally {
       setIsCancelling(false);
     }
@@ -112,7 +110,7 @@ const ClientOrdersAndOffers = () => {
     if (window.confirm('هل أنت متأكد أنك تريد تحرير الأموال لهذا الطلب؟ سيؤدي هذا إلى إكمال الطلب.')) {
       try {
         await dispatch(releaseFunds(orderId)).unwrap();
-        dispatch(getClientOrders());
+        dispatch(getClientOrders()); // Explicitly refetch orders on success
       } catch (err) {
         console.error('Failed to release funds:', err);
       }
@@ -125,20 +123,19 @@ const ClientOrdersAndOffers = () => {
   };
 
   const handleConfirmDispute = async () => {
-    if (!disputeReason || !disputeDescription) {
-      toast.error('الرجاء إدخال سبب ووصف النزاع.');
+    if (!disputeDescription) { // Only disputeDescription is sent to backend as client_argument
+      toast.error('الرجاء إدخال وصف النزاع.');
       return;
     }
     try {
       await dispatch(initiateDispute({ 
-        order: selectedOrderId, 
-        reason: disputeReason, 
-        description: disputeDescription 
+        orderId: selectedOrderId, 
+        clientArgument: disputeDescription 
       })).unwrap();
       setIsDisputeModalOpen(false);
       setDisputeReason('');
       setDisputeDescription('');
-      dispatch(getClientOrders());
+      dispatch(getClientOrders()); // Explicitly refetch orders on success
     } catch (err) {
       console.error('Failed to initiate dispute:', err);
     }
@@ -176,7 +173,7 @@ const ClientOrdersAndOffers = () => {
       setReviewRating('');
       setReviewComment('');
       setReviewTechnicianId(null);
-      dispatch(getClientOrders());
+      dispatch(getClientOrders()); // Explicitly refetch orders on success
     } catch (err) {
       console.error('Failed to submit review:', err);
     }
@@ -250,7 +247,7 @@ const ClientOrdersAndOffers = () => {
       case 'PENDING':
       case 'AWAITING_RELEASE':
       case 'DISPUTED':
-      case 'AWAITING_CLIENT_ESCROW_CONFIRMATION': // Add this status
+      case 'AWAITING_CLIENT_ESCROW_CONFIRMATION':
         return <Clock className="h-4 w-4" />;
       case 'ACCEPTED':
       case 'IN_PROGRESS':
@@ -301,9 +298,21 @@ const ClientOrdersAndOffers = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {sortedClientOrders.map((order) => (
+                  {sortedClientOrders.map((order) => {
+                    // Determine if the "تأكيد وتمويل الضمان" button should be disabled
+                    const isAcceptOfferButtonDisabled = 
+                      order.order_status !== 'AWAITING_CLIENT_ESCROW_CONFIRMATION' ||
+                      (order.associated_offer && order.associated_offer.status === 'accepted') ||
+                      order.order_status === 'ACCEPTED' ||
+                      loading; // Also consider global loading state
+
+                    const acceptOfferButtonText = 
+                      (order.order_status === 'ACCEPTED' || (order.associated_offer && order.associated_offer.status === 'accepted'))
+                        ? 'تم التأكيد' 
+                        : 'تأكيد وتمويل الضمان';
+
                     // Add a check to ensure order and order.order_id are not undefined
-                    order && order.order_id ? (
+                    return order && order.order_id ? (
                       <div
                         key={order.order_id}
                         className={`p-4 border rounded-lg cursor-pointer transition-colors ${
@@ -431,15 +440,15 @@ const ClientOrdersAndOffers = () => {
                               variant="success"
                               size="sm"
                               onClick={(e) => { e.stopPropagation(); handleAcceptOffer(order.order_id, order.associated_offer.offer_id); }}
-                              disabled={loading}
+                              disabled={isAcceptOfferButtonDisabled}
                             >
-                              تأكيد وتمويل الضمان
+                              {acceptOfferButtonText}
                             </Button>
                           )}
                         </div>
                       </div>
                     ) : null // Render nothing if order or order_id is undefined
-                  ))}
+                  })}
                 </div>
               </CardContent>
             </Card>

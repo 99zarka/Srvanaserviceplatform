@@ -7,20 +7,41 @@ import { Badge } from '../ui/badge';
 import { Loader2, MapPin, Calendar, Clock, User, DollarSign, Info } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
-import { fetchSingleOrder, clearError, clearCurrentViewingOrder, cancelOrder, acceptOffer } from '../../redux/orderSlice'; // Import fetchSingleOrder, clearCurrentViewingOrder, and acceptOffer
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "../ui/dialog";
+import { Textarea } from "../ui/textarea";
+import {
+  fetchSingleOrder,
+  clearError,
+  clearCurrentViewingOrder,
+  cancelOrder,
+  acceptOffer,
+  releaseFunds, // Import releaseFunds
+  initiateDispute, // Import initiateDispute
+} from '../../redux/orderSlice';
 
 const ViewOrderPage = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { currentViewingOrder, loading, error, successMessage } = useSelector((state) => state.orders); // Use currentViewingOrder
+  const { currentViewingOrder, loading, error, successMessage } = useSelector((state) => state.orders);
+
+  const [showDisputeDialog, setShowDisputeDialog] = useState(false);
+  const [disputeReason, setDisputeReason] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (orderId) {
       dispatch(fetchSingleOrder(orderId));
     }
 
-    // Clean up currentViewingOrder on unmount
     return () => {
       dispatch(clearCurrentViewingOrder());
     };
@@ -30,32 +51,68 @@ const ViewOrderPage = () => {
     if (error) {
       toast.error(error?.detail || error?.message || error || "حدث خطأ أثناء جلب تفاصيل الطلب.");
       dispatch(clearError());
-      // If there's an error fetching a single order, navigate back to the list
-      navigate('/client-dashboard/orders-offers');
+      // No navigation back to list on fetch error, allow user to retry or manually navigate
     }
-  }, [error, dispatch, navigate]);
+  }, [error, dispatch]);
 
   useEffect(() => {
     if (successMessage) {
-        toast.success(successMessage);
-        navigate('/client-dashboard/orders-offers');
+      toast.success(successMessage);
+      dispatch(fetchSingleOrder(orderId)); // Refresh the order after successful action
+      // Clear success message after displaying and refreshing
+      dispatch(clearSuccessMessage());
     }
-  }, [successMessage, navigate]);
+  }, [successMessage, dispatch, orderId]);
 
   const handleCancelOrder = async () => {
+    setIsSubmitting(true);
     try {
       await dispatch(cancelOrder({ orderId, cancellationReason: 'Cancelled by user from view page' })).unwrap();
     } catch (err) {
       // Error is handled by the global error handler in the slice
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleAcceptOffer = async (orderId, offerId) => {
+    setIsSubmitting(true);
     try {
       await dispatch(acceptOffer({ orderId, offerId })).unwrap();
-      dispatch(fetchSingleOrder(orderId)); // Refresh the single order after acceptance
     } catch (err) {
       console.error('Failed to accept offer:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleReleaseFunds = async () => {
+    setIsSubmitting(true);
+    try {
+      await dispatch(releaseFunds(orderId)).unwrap();
+      toast.success("تم تحرير الأموال بنجاح للفني.");
+    } catch (err) {
+      toast.error(err.message || "فشل في تحرير الأموال.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleInitiateDispute = async () => {
+    if (!disputeReason.trim()) {
+      toast.error("الرجاء تقديم سبب للنزاع.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await dispatch(initiateDispute({ orderId, argument: disputeReason })).unwrap();
+      toast.success("تم فتح نزاع بنجاح.");
+      setShowDisputeDialog(false);
+      setDisputeReason("");
+    } catch (err) {
+      toast.error(err.message || "فشل في فتح النزاع.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -70,7 +127,7 @@ const ViewOrderPage = () => {
       case 'IN_PROGRESS':
         return 'bg-indigo-100 text-indigo-800';
       case 'AWAITING_RELEASE':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-purple-100 text-purple-800'; // New status color
       case 'COMPLETED':
         return 'bg-teal-100 text-teal-800';
       case 'DISPUTED':
@@ -99,7 +156,7 @@ const ViewOrderPage = () => {
       case 'IN_PROGRESS':
         return 'قيد التنفيذ';
       case 'AWAITING_RELEASE':
-        return 'بانتظار الإفراج';
+        return 'بانتظار الإفراج'; // New status text
       case 'COMPLETED':
         return 'مكتملة';
       case 'DISPUTED':
@@ -127,13 +184,11 @@ const ViewOrderPage = () => {
     );
   }
 
-  // Determine if there's an associated offer to display (for single display)
   const hasAssociatedOffer = currentViewingOrder.associated_offer;
   const associatedOfferedPrice = hasAssociatedOffer ? currentViewingOrder.associated_offer.offered_price : null;
   const associatedOfferDescription = hasAssociatedOffer ? currentViewingOrder.associated_offer.offer_description : null;
   const associatedOfferTechnician = hasAssociatedOffer ? currentViewingOrder.associated_offer.technician_user : null;
 
-  // Get all project offers
   const projectOffers = currentViewingOrder.project_offers || [];
 
   return (
@@ -167,28 +222,24 @@ const ViewOrderPage = () => {
               <Clock className="h-4 w-4 text-gray-500" />
               <p>الوقت: <span className="font-medium">{currentViewingOrder.scheduled_time_start} - {currentViewingOrder.scheduled_time_end}</span></p>
             </div>
-            {/* Display technician from associated offer if available, otherwise from order directly */}
             {(associatedOfferTechnician || currentViewingOrder.technician_user) && (
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-gray-500" />
                 <p>الفني: <span className="font-medium">{(associatedOfferTechnician || currentViewingOrder.technician_user).first_name} {(associatedOfferTechnician || currentViewingOrder.technician_user).last_name}</span></p>
               </div>
             )}
-            {/* Display final price if available for direct_hire */}
             {currentViewingOrder.final_price && currentViewingOrder.order_type === 'direct_hire' && (
               <div className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-gray-500" />
                 <p>السعر النهائي: <span className="font-medium">${currentViewingOrder.final_price}</span></p>
               </div>
             )}
-            {/* Display expected price if available for service_request */}
             {currentViewingOrder.expected_price && currentViewingOrder.order_type === 'service_request' && (
               <div className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-gray-500" />
                 <p>السعر المتوقع: <span className="font-medium">${currentViewingOrder.expected_price}</span></p>
               </div>
             )}
-            {/* Display offered price from associated offer if available (for service_request after acceptance) */}
             {associatedOfferedPrice && (currentViewingOrder.order_type === 'service_request' || currentViewingOrder.order_type === 'direct_hire') && (
               <div className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-gray-500" />
@@ -209,7 +260,6 @@ const ViewOrderPage = () => {
             </div>
           )}
 
-          {/* Display all project offers */}
           {projectOffers.length > 0 && currentViewingOrder.order_type === 'service_request' && (
             <div className="space-y-4 mt-6">
               <h3 className="text-lg font-semibold border-b pb-2 mb-2">العروض المقدمة ({projectOffers.length})</h3>
@@ -237,32 +287,26 @@ const ViewOrderPage = () => {
                         </p>
                       </div>
                     )}
-                    {/* Add action buttons for offers, e.g., accept/reject */}
-                    {/* Example: If current user is client and offer is pending */}
-                    {/* {currentViewingOrder.client_user?.user_id === currentUser.user_id && offer.status === 'pending' && (
-                      <div className="flex justify-end gap-2 mt-2">
-                        <Button variant="outline" size="sm">قبول</Button>
-                        <Button variant="destructive" size="sm">رفض</Button>
-                      </div>
-                    )} */}
                   </Card>
                 ))}
               </div>
             </div>
           )}
-          
+
           <div className="flex justify-end gap-2">
-            <Button onClick={() => navigate('/client-dashboard/orders-offers')} variant="outline">
+            <Button onClick={() => navigate('/client-dashboard/orders-offers')} variant="outline" disabled={isSubmitting}>
               العودة إلى الطلبات
             </Button>
-            {/* Add more action buttons here based on order status, e.g., edit, cancel, dispute */}
-            {(currentViewingOrder.order_status === 'OPEN' || currentViewingOrder.order_status === 'AWAITING_TECHNICIAN_RESPONSE' || currentViewingOrder.order_status === 'PENDING' || currentViewingOrder.order_status === 'ACCEPTED' ) && (
-              <Button onClick={handleCancelOrder} variant="destructive">
-                إلغاء الطلب
-              </Button>
-            )}
+            {(currentViewingOrder.order_status === 'OPEN' ||
+              currentViewingOrder.order_status === 'AWAITING_TECHNICIAN_RESPONSE' ||
+              currentViewingOrder.order_status === 'PENDING' ||
+              currentViewingOrder.order_status === 'ACCEPTED') && (
+                <Button onClick={handleCancelOrder} variant="destructive" disabled={isSubmitting}>
+                  إلغاء الطلب
+                </Button>
+              )}
             {(currentViewingOrder.order_status === 'OPEN' || currentViewingOrder.order_status === 'AWAITING_TECHNICIAN_RESPONSE') && (
-              <Button onClick={() => navigate(`/client-dashboard/orders-offers/edit/${currentViewingOrder.order_id}`)}>
+              <Button onClick={() => navigate(`/client-dashboard/orders-offers/edit/${currentViewingOrder.order_id}`)} disabled={isSubmitting}>
                 تعديل الطلب
               </Button>
             )}
@@ -270,13 +314,53 @@ const ViewOrderPage = () => {
               <Button
                 variant="success"
                 onClick={() => handleAcceptOffer(currentViewingOrder.order_id, currentViewingOrder.associated_offer.offer_id)}
+                disabled={isSubmitting}
               >
                 تأكيد وتمويل الضمان
               </Button>
             )}
+
+            {currentViewingOrder.order_status === 'AWAITING_RELEASE' && (
+              <>
+                <Button onClick={() => setShowDisputeDialog(true)} variant="destructive" disabled={isSubmitting}>
+                  رفض وفتح نزاع
+                </Button>
+                <Button onClick={handleReleaseFunds} disabled={isSubmitting}>
+                  {isSubmitting ? "جاري التحرير..." : "الموافقة وتحرير الدفع"}
+                </Button>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
+
+      {/* Dispute Confirmation Dialog */}
+      <Dialog open={showDisputeDialog} onOpenChange={setShowDisputeDialog}>
+        <DialogContent dir="rtl">
+          <DialogHeader>
+            <DialogTitle>فتح نزاع</DialogTitle>
+            <DialogDescription>
+              الرجاء تقديم سبب لرفض طلب الدفع وفتح نزاع. سيتم إخطار الفني وسيتدخل المسؤول لحل المشكلة.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <Textarea
+              placeholder="سبب النزاع"
+              value={disputeReason}
+              onChange={(e) => setDisputeReason(e.target.value)}
+              disabled={isSubmitting}
+            />
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline" disabled={isSubmitting}>إلغاء</Button>
+            </DialogClose>
+            <Button onClick={handleInitiateDispute} disabled={isSubmitting}>
+              {isSubmitting ? "جاري الفتح..." : "تأكيد وفتح نزاع"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

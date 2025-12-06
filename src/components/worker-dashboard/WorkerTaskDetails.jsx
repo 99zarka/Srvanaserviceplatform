@@ -1,48 +1,81 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { ArrowLeft } from "lucide-react";
 import api from "../../utils/api";
-import { Badge } from "../ui/badge"; // Added Badge for status
+import { Badge } from "../ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "../ui/dialog"; // Import dialog components
+import { Textarea } from "../ui/textarea"; // Import Textarea
+import { toast } from "sonner"; // Assuming sonner is used for toasts
+import { markJobDone, cancelOrder, fetchSingleOrder } from "../../redux/orderSlice"; // Import Redux thunks
 
 export function WorkerTaskDetails() {
   const { taskId } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { token } = useSelector((state) => state.auth);
-  const [task, setTask] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { currentViewingOrder: task, loading, error } = useSelector((state) => state.orders);
+  
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const fetchTaskDetails = async () => {
-      if (!token) {
-        setError("المستخدم غير مصادق عليه.");
-        setLoading(false);
-        return;
-      }
-      try {
-        setLoading(true);
-        const response = await api.get(`/orders/worker-tasks/${taskId}/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        console.log("WorkerTaskDetails: Received API Response:", response); // Debugging: log the full response
-        setTask(response); // Directly set the response as the task, as api.get returns parsed JSON
-      } catch (err) {
-        console.error("Error fetching task details:", err); // Debugging
-        setError(err.message || "فشل في جلب تفاصيل المهمة.");
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (token && taskId) {
+      dispatch(fetchSingleOrder(taskId));
+    }
+  }, [taskId, token, dispatch]);
 
-    fetchTaskDetails();
-  }, [taskId, token]);
+  const handleMarkJobDone = async () => {
+    if (!task || !token) {
+      toast.error("حدث خطأ: لا توجد بيانات مهمة أو المستخدم غير مصادق عليه.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await dispatch(markJobDone(task.order_id)).unwrap();
+      toast.success("تم إرسال طلب الدفع بنجاح إلى العميل.");
+      // The order status should be updated by the Redux slice automatically
+      // No need to manually refetch if slice updates currentViewingOrder
+    } catch (err) {
+      toast.error(err.message || "فشل في إرسال طلب الدفع.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-  if (loading) return <div className="text-center p-8" dir="rtl">جاري تحميل تفاصيل المهمة...</div>;
-  if (error) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ: {error}</div>;
+  const handleCancelOrder = async () => {
+    if (!task || !token || !cancellationReason.trim()) {
+      toast.error("الرجاء تقديم سبب للإلغاء.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await dispatch(cancelOrder({ orderId: task.order_id, cancellationReason })).unwrap();
+      toast.success("تم إلغاء المهمة بنجاح.");
+      setShowCancelDialog(false);
+      setCancellationReason("");
+      // The order status should be updated by the Redux slice automatically
+    } catch (err) {
+      toast.error(err.message || "فشل في إلغاء المهمة.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading && !task) return <div className="text-center p-8" dir="rtl">جاري تحميل تفاصيل المهمة...</div>;
+  if (error && !task) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ: {error}</div>;
   if (!task) {
-    console.log("Task state is null or undefined, displaying 'Task not found'. Current task:", task); // Debugging
     return <div className="text-center p-8" dir="rtl">لم يتم العثور على المهمة.</div>;
   }
 
@@ -52,21 +85,22 @@ export function WorkerTaskDetails() {
       "awaiting_technician_response": { variant: "outline", className: "bg-yellow-100 text-yellow-800" },
       "accepted": { variant: "default", className: "bg-blue-100 text-blue-800" },
       "in_progress": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
+      "awaiting_release": { variant: "default", className: "bg-indigo-100 text-indigo-800" }, // New status
       "completed": { variant: "default", className: "bg-green-100 text-green-800" },
       "cancelled": { variant: "destructive", className: "bg-red-100 text-red-800" },
       "rejected": { variant: "destructive", className: "bg-red-100 text-red-800" },
       "on_hold": { variant: "outline", className: "bg-purple-100 text-purple-800" },
-      "awaiting_payment": { variant: "default", className: "bg-indigo-100 text-indigo-800" },
       "disputed": { variant: "destructive", className: "bg-orange-100 text-orange-800" },
+      // Arabic translations
       "معلقة": { variant: "outline", className: "bg-gray-100 text-gray-800" },
       "بانتظار رد الفني": { variant: "outline", className: "bg-yellow-100 text-yellow-800" },
       "مقبولة": { variant: "default", className: "bg-blue-100 text-blue-800" },
       "قيد التنفيذ": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
+      "بانتظار الموافقة": { variant: "default", className: "bg-indigo-100 text-indigo-800" }, // New status
       "مكتملة": { variant: "default", className: "bg-green-100 text-green-800" },
       "ملغاة": { variant: "destructive", className: "bg-red-100 text-red-800" },
       "مرفوضة": { variant: "destructive", className: "bg-red-100 text-red-800" },
       "معلقة مؤقتًا": { variant: "outline", className: "bg-purple-100 text-purple-800" },
-      "بانتظار الدفع": { variant: "default", className: "bg-indigo-100 text-indigo-800" },
       "متنازع عليها": { variant: "destructive", className: "bg-orange-100 text-orange-800" },
     };
 
@@ -84,6 +118,9 @@ export function WorkerTaskDetails() {
       case "in_progress":
         translatedStatus = "قيد التنفيذ";
         break;
+      case "awaiting_release":
+        translatedStatus = "بانتظار الموافقة"; // New translation
+        break;
       case "completed":
         translatedStatus = "مكتملة";
         break;
@@ -96,12 +133,11 @@ export function WorkerTaskDetails() {
       case "on_hold":
         translatedStatus = "معلقة مؤقتًا";
         break;
-      case "awaiting_payment":
-        translatedStatus = "بانتظار الدفع";
-        break;
       case "disputed":
         translatedStatus = "متنازع عليها";
         break;
+      default:
+        translatedStatus = status; // Fallback for any unhandled status
     }
     const config = variants[status] || { variant: "outline", className: "bg-gray-100 text-gray-800" };
     return <Badge variant={config.variant} className={`${config.className} text-sm font-semibold`}>{translatedStatus}</Badge>;
@@ -235,6 +271,52 @@ export function WorkerTaskDetails() {
               </div>
             </div>
           )}
+
+          {/* Action Buttons for Technician */}
+          {(task.order_status === "in_progress" || task.order_status === "accepted") && (
+            <div className="col-span-full flex justify-end space-x-4 rtl:space-x-reverse mt-6">
+              <Button onClick={() => setShowCancelDialog(true)} variant="outline" disabled={isSubmitting}>
+                إلغاء المهمة
+              </Button>
+              <Button onClick={handleMarkJobDone} disabled={isSubmitting}>
+                {isSubmitting ? "جاري الإرسال..." : "تحديد كمكتمل وطلب الدفع"}
+              </Button>
+            </div>
+          )}
+
+          {task.order_status === "awaiting_release" && (
+            <div className="col-span-full flex justify-end mt-6">
+              <p className="text-lg font-semibold text-indigo-700">بانتظار موافقة العميل على الدفع.</p>
+            </div>
+          )}
+
+          {/* Cancel Confirmation Dialog */}
+          <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+            <DialogContent dir="rtl">
+              <DialogHeader>
+                <DialogTitle>تأكيد الإلغاء</DialogTitle>
+                <DialogDescription>
+                  هل أنت متأكد أنك تريد إلغاء هذه المهمة؟ الرجاء تقديم سبب للإلغاء.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <Textarea
+                  placeholder="سبب الإلغاء"
+                  value={cancellationReason}
+                  onChange={(e) => setCancellationReason(e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline" disabled={isSubmitting}>إلغاء</Button>
+                </DialogClose>
+                <Button onClick={handleCancelOrder} disabled={isSubmitting}>
+                  {isSubmitting ? "جاري الإلغاء..." : "تأكيد الإلغاء"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
     </div>

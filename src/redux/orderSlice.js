@@ -7,7 +7,7 @@ export const createOrder = createAsyncThunk(
   async (orderData, { rejectWithValue }) => {
     try {
       const response = await api.post('/orders/', orderData);
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -72,7 +72,7 @@ export const acceptOffer = createAsyncThunk(
   async ({ orderId, offerId }, { rejectWithValue }) => {
     try {
       const response = await api.post(`/orders/${orderId}/accept-offer/${offerId}/`);
-      return response.data;
+      return response; // Return the full response data
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -85,7 +85,7 @@ export const createProjectOffer = createAsyncThunk(
   async (offerData, { rejectWithValue }) => {
     try {
       const response = await api.post('/orders/projectoffers/', offerData);
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -130,7 +130,7 @@ export const getTechnicianDetail = createAsyncThunk(
   async (technicianId, { rejectWithValue }) => {
     try {
       const response = await api.get(`/users/users/${technicianId}/technician_detail/`);
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -143,7 +143,7 @@ export const makeClientOffer = createAsyncThunk(
   async ({ technicianId, offerData }, { rejectWithValue }) => {
     try {
       const response = await api.post(`/users/users/${technicianId}/make-offer-to-technician/`, offerData);
-      return response.data; // On success, returns data
+      return response; // On success, returns data
     } catch (error) {
       const errorMessage = error.response?.data || error.message || 'An unknown error occurred';
       return rejectWithValue(errorMessage); // On error, returns error data
@@ -205,7 +205,7 @@ export const updateClientOffer = createAsyncThunk(
     try {
       // Corrected URL from update_client_offer to update-client-offer
       const response = await api.patch(`/orders/projectoffers/${offerId}/update-client-offer/`, offerData);
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -218,7 +218,7 @@ export const updateOrder = createAsyncThunk(
   async ({ orderId, orderData }, { rejectWithValue }) => {
     try {
       const response = await api.patch(`/orders/${orderId}/`, orderData);
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -233,7 +233,7 @@ export const cancelOrder = createAsyncThunk(
       const response = await api.post(`/orders/${orderId}/cancel-order/`, {
         reason: cancellationReason
       });
-      return response.data;
+      return response;
     }
     catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -246,8 +246,8 @@ export const releaseFunds = createAsyncThunk(
   'orders/releaseFunds',
   async (orderId, { rejectWithValue }) => {
     try {
-      const response = await api.post(`/orders/orders/${orderId}/release-funds/`);
-      return response.data;
+      const response = await api.post(`/orders/${orderId}/release-funds/`);
+      return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -261,22 +261,75 @@ export const submitReview = createAsyncThunk(
     try {
       // reviewData should contain { order, technician, rating, comment }
       const response = await api.post('/reviews/reviews/', reviewData);
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
 
-// Technician marks an assigned order as completed
-export const markOrderAsCompleted = createAsyncThunk(
-  'orders/markOrderAsCompleted',
+// Technician marks an assigned order as done
+export const markJobDone = createAsyncThunk(
+  'orders/markJobDone',
   async (orderId, { rejectWithValue }) => {
     try {
-      const response = await api.patch(`/orders/orders/${orderId}/mark-as-completed/`, { 
-        status: 'AWAITING_RELEASE' // Or 'COMPLETED', based on backend logic
+      const response = await api.post(`/orders/${orderId}/mark-job-done/`);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Technician starts an assigned job
+export const startJob = createAsyncThunk(
+  'orders/startJob',
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/orders/${orderId}/start-job/`);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Initiate a dispute for an order
+export const initiateDispute = createAsyncThunk(
+  'orders/initiateDispute',
+  async ({ orderId, argument }, { rejectWithValue }) => {
+    try {
+      const response = await api.post('/disputes/disputes/', { order: orderId, argument });
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Fetch a single dispute by ID
+export const fetchSingleDispute = createAsyncThunk(
+  'orders/fetchSingleDispute',
+  async (disputeId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/disputes/${disputeId}/`);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+// Resolve a dispute (Admin action)
+export const resolveDispute = createAsyncThunk(
+  'orders/resolveDispute',
+  async ({ disputeId, resolution, adminNotes }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/disputes/${disputeId}/resolve-dispute/`, {
+        resolution,
+        admin_notes: adminNotes,
       });
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -294,6 +347,7 @@ const orderSlice = createSlice({
     technicians: [],
     selectedTechnician: null,
     currentViewingOrder: null, // New state for a single order being viewed/edited
+    currentViewingDispute: null, // New state for a single dispute being viewed
     loading: false,
     error: null,
     successMessage: null,
@@ -319,7 +373,10 @@ const orderSlice = createSlice({
     },
     clearCurrentViewingOrder: (state) => { // New action to clear the single order state
       state.currentViewingOrder = null;
-    }
+    },
+    clearCurrentViewingDispute: (state) => { // New action to clear the single dispute state
+      state.currentViewingDispute = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -422,11 +479,19 @@ const orderSlice = createSlice({
       .addCase(acceptOffer.fulfilled, (state, action) => {
         state.loading = false;
         state.successMessage = 'Offer accepted successfully';
-        // Update the order in clientOrders with assigned technician
-        const updatedOrder = action.payload;
-        const orderIndex = state.clientOrders.findIndex(order => order.id === updatedOrder.id);
-        if (orderIndex !== -1) {
-          state.clientOrders[orderIndex] = updatedOrder;
+        console.log('acceptOffer.fulfilled action.payload:', action.payload); // Debug log for full payload
+        const updatedOrder = action.payload.order; // Correctly extract the order object
+
+        if (updatedOrder) {
+            const orderIndex = state.clientOrders.findIndex(order => order.order_id === updatedOrder.order_id);
+            if (orderIndex !== -1) {
+              // Merge the updated order data to ensure all fields are current, including associated_offer status
+              state.clientOrders[orderIndex] = { ...state.clientOrders[orderIndex], ...updatedOrder };
+              console.log('clientOrders updated:', state.clientOrders[orderIndex]); // Debug log for updated order
+            } else {
+              console.warn('acceptOffer.fulfilled: Updated order not found in clientOrders for direct update.');
+              // If not found, a full refresh (via getClientOrders) will eventually pick it up.
+            }
         }
       })
       .addCase(acceptOffer.rejected, (state, action) => {
@@ -602,7 +667,7 @@ const orderSlice = createSlice({
           } else if (typeof action.payload.detail === 'string') { // Common Django REST Framework error field
             errorMessage = action.payload.detail;
           } else if (Object.values(action.payload).some(val => typeof val === 'string')) {
-            // If payload is an object with some string values (e.g., field errors)
+            // If payload is an object with some string values (e.e.g., field errors)
             errorMessage = Object.values(action.payload).filter(val => typeof val === 'string').join(', ');
           }
         } else if (typeof action.payload === 'string') {
@@ -725,7 +790,7 @@ const orderSlice = createSlice({
         state.successMessage = 'Funds released successfully!';
         // Update the order in clientOrders
         state.clientOrders = state.clientOrders.map(order =>
-          order.id === action.payload.id ? action.payload : order
+          order.order_id === action.payload.order_id ? action.payload : order // Changed to order_id
         );
       })
       .addCase(releaseFunds.rejected, (state, action) => {
@@ -757,25 +822,134 @@ const orderSlice = createSlice({
         state.successMessage = null;
       })
 
-      // Mark Order As Completed (Technician)
-      .addCase(markOrderAsCompleted.pending, (state) => {
+      // Mark Job Done (Technician)
+      .addCase(markJobDone.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.successMessage = null;
       })
-      .addCase(markOrderAsCompleted.fulfilled, (state, action) => {
+      .addCase(markJobDone.fulfilled, (state, action) => {
         state.loading = false;
-        state.successMessage = 'Order marked as completed!';
-        // Update the order in technicianOrders
+        state.successMessage = action.payload?.message || 'Job marked as done!';
+        // Update the current viewing order status
+        if (state.currentViewingOrder && state.currentViewingOrder.order_id === action.meta.arg) {
+          state.currentViewingOrder.order_status = action.payload.order_status;
+        }
+        // Update the order in technicianOrders list
         state.technicianOrders = state.technicianOrders.map(order =>
-          order.id === action.payload.id ? action.payload : order
+          order.order_id === action.meta.arg ? { ...order, order_status: action.payload.order_status } : order
         );
       })
-      .addCase(markOrderAsCompleted.rejected, (state, action) => {
+      .addCase(markJobDone.rejected, (state, action) => {
         state.loading = false;
         const errorMessage = typeof action.payload === 'object' && action.payload?.message
                              ? String(action.payload.message)
-                             : (typeof action.payload === 'string' ? action.payload : 'Failed to mark order as completed.');
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to mark job as done.');
+        state.error = { message: errorMessage };
+        state.successMessage = null;
+      })
+
+      // Start Job (Technician)
+      .addCase(startJob.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(startJob.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload?.message || 'Job started successfully!';
+        // Update the current viewing order status
+        if (state.currentViewingOrder && state.currentViewingOrder.order_id === action.meta.arg) {
+          state.currentViewingOrder.order_status = action.payload.order_status;
+        }
+        // Update the order in technicianOrders list
+        state.technicianOrders = state.technicianOrders.map(order =>
+          order.order_id === action.meta.arg ? { ...order, order_status: action.payload.order_status } : order
+        );
+      })
+      .addCase(startJob.rejected, (state, action) => {
+        state.loading = false;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to start job.');
+        state.error = { message: errorMessage };
+        state.successMessage = null;
+      })
+
+      // Initiate Dispute
+      .addCase(initiateDispute.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(initiateDispute.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload?.message || 'Dispute initiated successfully!';
+        // Update the order status in currentViewingOrder if applicable
+        if (state.currentViewingOrder && state.currentViewingOrder.order_id === action.payload.order) {
+          state.currentViewingOrder.order_status = 'DISPUTED';
+        }
+        // Update the order in clientOrders
+        state.clientOrders = state.clientOrders.map(order =>
+          order.order_id === action.payload.order ? { ...order, order_status: 'DISPUTED' } : order
+        );
+      })
+      .addCase(initiateDispute.rejected, (state, action) => {
+        state.loading = false;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to initiate dispute.');
+        state.error = { message: errorMessage };
+        state.successMessage = null;
+      })
+
+      // Fetch Single Dispute
+      .addCase(fetchSingleDispute.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.currentViewingDispute = null;
+      })
+      .addCase(fetchSingleDispute.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentViewingDispute = action.payload;
+      })
+      .addCase(fetchSingleDispute.rejected, (state, action) => {
+        state.loading = false;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch dispute details.');
+        state.error = { message: errorMessage };
+        state.currentViewingDispute = null;
+      })
+
+      // Resolve Dispute
+      .addCase(resolveDispute.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(resolveDispute.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload?.message || 'Dispute resolved successfully!';
+        // Update the dispute in currentViewingDispute if applicable
+        if (state.currentViewingDispute && state.currentViewingDispute.dispute_id === action.payload.dispute_id) {
+          state.currentViewingDispute = action.payload; // Backend should return updated dispute
+        }
+        // Optionally update the associated order's status if returned in payload
+        if (action.payload.order_id && action.payload.order_status) {
+          state.clientOrders = state.clientOrders.map(order =>
+            order.order_id === action.payload.order_id ? { ...order, order_status: action.payload.order_status } : order
+          );
+          if (state.currentViewingOrder && state.currentViewingOrder.order_id === action.payload.order_id) {
+            state.currentViewingOrder.order_status = action.payload.order_status;
+          }
+        }
+      })
+      .addCase(resolveDispute.rejected, (state, action) => {
+        state.loading = false;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to resolve dispute.');
         state.error = { message: errorMessage };
         state.successMessage = null;
       })
@@ -823,6 +997,7 @@ export const {
   addOfferToCurrentOrder,
   clearTechnicians,
   clearSelectedTechnician,
-  clearCurrentViewingOrder
+  clearCurrentViewingOrder,
+  clearCurrentViewingDispute
 } = orderSlice.actions;
 export default orderSlice.reducer;

@@ -4,11 +4,11 @@ import api from '../utils/api';
 // Initiate a dispute for an order
 export const initiateDispute = createAsyncThunk(
   'disputes/initiateDispute',
-  async (disputeData, { rejectWithValue }) => {
+  async ({ orderId, clientArgument }, { rejectWithValue }) => {
     try {
-      // disputeData should contain { order, reason, description }
-      const response = await api.post('/disputes/disputes/', disputeData);
-      return response.data;
+      // disputeData should contain { orderId, clientArgument }
+      const response = await api.post(`/orders/${orderId}/initiate-dispute/`, { client_argument: clientArgument });
+      return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -21,7 +21,7 @@ export const getOrderDisputes = createAsyncThunk(
   async (orderId, { rejectWithValue }) => {
     try {
       const response = await api.get(`/disputes/orders/${orderId}/disputes/`);
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -34,7 +34,7 @@ export const getDisputeDetail = createAsyncThunk(
   async (disputeId, { rejectWithValue }) => {
     try {
       const response = await api.get(`/disputes/disputes/${disputeId}/`);
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -48,7 +48,7 @@ export const respondToDispute = createAsyncThunk(
     try {
       // responseData should contain { message }
       const response = await api.patch(`/disputes/disputes/${disputeId}/respond/`, responseData);
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -62,7 +62,7 @@ export const resolveDispute = createAsyncThunk(
     try {
       // resolutionData should contain { decision, resolved_by, amount_to_client, amount_to_technician }
       const response = await api.post(`/disputes/disputes/${disputeId}/resolve/`, resolutionData);
-      return response.data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -100,8 +100,14 @@ const disputeSlice = createSlice({
       .addCase(initiateDispute.fulfilled, (state, action) => {
         state.loading = false;
         state.successMessage = 'Dispute initiated successfully!';
-        state.disputes.push(action.payload);
-        state.currentDispute = action.payload; // Set as current if it's the only one
+        // Assuming the backend returns the updated order or the new dispute object
+        // The `order` object contains the `dispute_id` if successfully created
+        const updatedOrder = action.payload.order;
+        if (updatedOrder && updatedOrder.dispute_id) {
+          // If we have a list of client orders or disputes, we'd update them here.
+          // For now, let's just assume success and the user might refetch disputes.
+          state.currentDispute = { dispute_id: updatedOrder.dispute_id, order: updatedOrder };
+        }
       })
       .addCase(initiateDispute.rejected, (state, action) => {
         state.loading = false;

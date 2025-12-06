@@ -6,6 +6,7 @@ import notificationReducer from './notificationSlice';
 import orderReducer from './orderSlice';
 import disputeReducer from './disputeSlice'; // Import new dispute reducer
 import transactionReducer from './transactionSlice'; // Import new transaction reducer
+import paymentReducer from './paymentSlice'; // Import new payment reducer
 import { api } from '../services/api';
 
 export const store = configureStore({
@@ -17,6 +18,7 @@ export const store = configureStore({
     orders: orderReducer,
     disputes: disputeReducer,
     transactions: transactionReducer,
+    payments: paymentReducer, // Add the payment reducer
     [api.reducerPath]: api.reducer,
   },
   middleware: (getDefaultMiddleware) =>

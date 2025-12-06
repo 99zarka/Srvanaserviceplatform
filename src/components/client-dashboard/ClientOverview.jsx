@@ -5,47 +5,55 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Link } from "react-router-dom";
-import api from "../../utils/api"; // Import the API utility
-import { useSelector } from "react-redux"; // To get user token
+import api from "../../utils/api";
+import { useSelector } from "react-redux";
+import BalanceDisplayAndTransfer from "../common/BalanceDisplayAndTransfer";
 
 export function ClientOverview() {
-  const { token, user } = useSelector((state) => state.auth); // Get token and user from Redux state
+  const { token, user } = useSelector((state) => state.auth);
+  const { userBalances } = useSelector((state) => state.payments); // Get userBalances from paymentSlice
   const [stats, setStats] = useState([]);
   const [recentRequests, setRecentRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Extract balances from Redux state for display
+  const available_balance = parseFloat(userBalances.available_balance) || 0;
+  const in_escrow_balance = parseFloat(userBalances.in_escrow_balance) || 0;
+  const pending_balance = parseFloat(userBalances.pending_balance) || 0;
+
   useEffect(() => {
     const fetchClientDashboardData = async () => {
-      if (!token || !user) { // Check for user existence as well
+      if (!token || !user) {
         setError("المستخدم غير مصادق عليه أو بيانات المستخدم مفقودة.");
         setLoading(false);
         return;
       }
       try {
         setLoading(true);
-        // Fetch stats from correct dashboard endpoint
+        // Fetch core dashboard stats (excluding balances, which come from Redux)
         const statsData = await api.get("/dashboard/client/client-summary/", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Combine dashboard stats with user balance info from API response
+
+        // Update local stats, explicitly using balances from Redux state
         setStats([
-          { label: "الرصيد المتاح", value: `$${statsData.available_balance ? parseFloat(statsData.available_balance).toFixed(2) : '0.00'}`, icon: CreditCard, color: "text-green-600" },
-          { label: "في الضمان", value: `$${statsData.in_escrow_balance ? parseFloat(statsData.in_escrow_balance).toFixed(2) : '0.00'}`, icon: CreditCard, color: "text-blue-600" },
-          { label: "الرصيد المعلق", value: `$${statsData.pending_balance ? parseFloat(statsData.pending_balance).toFixed(2) : '0.00'}`, icon: CreditCard, color: "text-yellow-600" },
+          { label: "الرصيد المتاح", value: `$${available_balance.toFixed(2)}`, icon: CreditCard, color: "text-green-600" },
+          { label: "في الضمان", value: `$${in_escrow_balance.toFixed(2)}`, icon: CreditCard, color: "text-blue-600" },
+          { label: "الرصيد المعلق", value: `$${pending_balance.toFixed(2)}`, icon: CreditCard, color: "text-yellow-600" },
           { label: "الطلبات النشطة", value: statsData.active_orders || 0, icon: Clock, color: "text-primary" },
           { label: "المكتملة", value: statsData.completed_orders || 0, icon: CheckCircle, color: "text-green-600" },
           { label: "إجمالي الإنفاق", value: `$${statsData.total_spent ? parseFloat(statsData.total_spent).toFixed(2) : '0.00'}`, icon: CreditCard, color: "text-blue-600" },
         ]);
 
-        // Fetch recent orders from correct endpoint
+        // Fetch recent orders
         const requestsData = await api.get("/orders/", {
           headers: { Authorization: `Bearer ${token}` },
-        }); 
+        });
         setRecentRequests(requestsData.results.slice(0, 4).map(req => ({
           id: req.order_id,
-          service: req.service?.arabic_name || req.service?.service_name || "خدمة غير محددة", // Extract name from service object
-          worker: req.technician_user ? `${req.technician_user.first_name} ${req.technician_user.last_name}` : "لم يتم التعيين بعد", // Extract name from technician_user object
+          service: req.service?.arabic_name || req.service?.service_name || "خدمة غير محددة",
+          worker: req.technician_user ? `${req.technician_user.first_name} ${req.technician_user.last_name}` : "لم يتم التعيين بعد",
           status: req.order_status,
           date: new Date(req.creation_timestamp).toLocaleDateString("ar-EG"),
           amount: `$${req.final_price || req.updated_price ? parseFloat(req.final_price || req.updated_price).toFixed(2) : '0.00'}`,
@@ -58,8 +66,7 @@ export function ClientOverview() {
     };
 
     fetchClientDashboardData();
-  }, [token, user]); // Add user to dependency array to re-fetch if user data changes
-
+  }, [token, user, available_balance, in_escrow_balance, pending_balance]); // Include Redux balances in dependencies
 
   const getStatusBadge = (status) => {
     const variants = {
@@ -67,10 +74,10 @@ export function ClientOverview() {
       "accepted": { variant: "default", className: "bg-blue-100 text-blue-800" },
       "completed": { variant: "default", className: "bg-green-100 text-green-800" },
       "cancelled": { variant: "default", className: "bg-red-100 text-red-800" },
-      "قيد التنفيذ": { variant: "default", className: "bg-blue-100 text-blue-800" }, // For static data fallback
-      "مكتملة": { variant: "default", className: "bg-green-100 text-green-800" }, // For static data fallback
-      "معلقة": { variant: "default", className: "bg-yellow-100 text-yellow-800" }, // For static data fallback
-      "ملغاة": { variant: "default", className: "bg-red-100 text-red-800" }, // For static data fallback
+      "قيد التنفيذ": { variant: "default", className: "bg-blue-100 text-blue-800" },
+      "مكتملة": { variant: "default", className: "bg-green-100 text-green-800" },
+      "معلقة": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
+      "ملغاة": { variant: "default", className: "bg-red-100 text-red-800" },
     };
     const config = variants[status] || { variant: "default", className: "bg-gray-100 text-gray-800" };
     return <Badge variant={config.variant} className={config.className}>{status}</Badge>;
@@ -88,7 +95,7 @@ export function ClientOverview() {
         </h1>
         <p className="text-muted-foreground">مرحبًا بعودتك! إليك ما يحدث مع طلباتك.</p>
       </div>
-      
+
       {/* Balances and Stats */}
       <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
         {stats.map((stat) => (
@@ -104,6 +111,13 @@ export function ClientOverview() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Balance Transfer Component */}
+      <div className="flex justify-center my-6">
+        <div className="w-full lg:w-1/2">
+          <BalanceDisplayAndTransfer />
+        </div>
       </div>
 
       {/* Recent Requests */}
