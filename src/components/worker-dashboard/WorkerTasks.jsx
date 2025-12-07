@@ -19,6 +19,7 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { markJobDone, initiateDispute, getTechnicianOrders, startJob } from "../../redux/orderSlice";
 import { toast } from "sonner";
+import { InitiateDisputeDialog } from "../disputes/InitiateDisputeDialog"; // Import the new component
 
 export function WorkerTasks() {
   const dispatch = useDispatch();
@@ -29,8 +30,9 @@ export function WorkerTasks() {
   const [showDisputeModal, setShowDisputeModal] = useState(false);
   const [showStartJobModal, setShowStartJobModal] = useState(false); // New state for start job modal
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const [disputeReason, setDisputeReason] = useState("");
-  const [disputeDescription, setDisputeDescription] = useState("");
+  const [disputeReason, setDisputeReason] = useState(""); // This can be removed if not used elsewhere
+  // The following state and handler are now handled by InitiateDisputeDialog
+  // const [disputeDescription, setDisputeDescription] = useState(""); 
 
   useEffect(() => {
     if (token) {
@@ -114,27 +116,28 @@ export function WorkerTasks() {
     setShowDisputeModal(true);
   };
 
-  const handleConfirmDispute = async () => {
-    if (selectedOrderId && disputeDescription.trim()) {
-      try {
-        await dispatch(initiateDispute({
-          orderId: selectedOrderId,
-          argument: disputeDescription,
-        })).unwrap();
-        toast.success("تم فتح نزاع بنجاح.");
-        dispatch(getTechnicianOrders());
-      } catch (err) {
-        toast.error(err.message || "فشل في فتح النزاع.");
-      } finally {
-        setShowDisputeModal(false);
-        setSelectedOrderId(null);
-        setDisputeReason("");
-        setDisputeDescription("");
-      }
-    } else {
-      toast.error("الرجاء تقديم وصف تفصيلي للنزاع.");
-    }
-  };
+  // This function is now handled by InitiateDisputeDialog
+  // const handleConfirmDispute = async () => {
+  //   if (selectedOrderId && disputeDescription.trim()) {
+  //     try {
+  //       await dispatch(initiateDispute({
+  //         orderId: selectedOrderId,
+  //         argument: disputeDescription,
+  //       })).unwrap();
+  //       toast.success("تم فتح نزاع بنجاح.");
+  //       dispatch(getTechnicianOrders());
+  //     } catch (err) {
+  //       toast.error(err.message || "فشل في فتح النزاع.");
+  //     } finally {
+  //       setShowDisputeModal(false);
+  //       setSelectedOrderId(null);
+  //       setDisputeReason("");
+  //       setDisputeDescription("");
+  //     }
+  //   } else {
+  //     toast.error("الرجاء تقديم وصف تفصيلي للنزاع.");
+  //   }
+  // };
 
   const handleStartJobClick = (orderId) => {
     setSelectedOrderId(orderId);
@@ -282,8 +285,8 @@ export function WorkerTasks() {
         </DialogContent>
       </Dialog>
 
-      {/* Initiate Dispute Modal */}
-      <Dialog open={showDisputeModal} onOpenChange={setShowDisputeModal}>
+      {/* Initiate Dispute Modal - Replaced by new component */}
+      {/* <Dialog open={showDisputeModal} onOpenChange={setShowDisputeModal}>
         <DialogContent dir="rtl">
           <DialogHeader>
             <DialogTitle>فتح نزاع على المهمة</DialogTitle>
@@ -308,7 +311,15 @@ export function WorkerTasks() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
+      
+      {/* Use the new InitiateDisputeDialog component */}
+      <InitiateDisputeDialog
+        isOpen={showDisputeModal}
+        onOpenChange={setShowDisputeModal}
+        orderId={selectedOrderId}
+        onDisputeSuccess={() => dispatch(getTechnicianOrders())}
+      />
 
       {/* Start Job Confirmation Modal */}
       <Dialog open={showStartJobModal} onOpenChange={setShowStartJobModal}>

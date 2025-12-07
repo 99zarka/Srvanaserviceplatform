@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom"; // Import use
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/authSlice";
 import { getVerificationStatus } from "../redux/verificationSlice";
-import { fetchNotifications, markNotificationAsRead } from "../redux/notificationSlice";
+import { fetchNotifications, markNotificationAsRead } from "../redux/notificationSlice"; // Removed setLoadingMore for now, will add later if needed.
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -207,12 +207,13 @@ function AuthSection({ isMobile = false, closeMenu }) {
       if (user.user_type === 'worker' && user.id) {
         dispatch(getVerificationStatus(user.id));
       }
-      // Fetch notifications for all authenticated users
+      // Fetch initial notifications for all authenticated users
       dispatch(fetchNotifications());
       
       // Optional: Set up polling interval (e.g., every minute)
       const intervalId = setInterval(() => {
-        dispatch(fetchNotifications());
+        // Only fetch the first page for polling to keep unread count updated
+        dispatch(fetchNotifications()); 
       }, 60000);
       
       return () => clearInterval(intervalId);
@@ -296,9 +297,9 @@ function AuthSection({ isMobile = false, closeMenu }) {
 }
 
 function NotificationDropdown({ isMobile, closeMenu }) {
-  const { notifications, unreadCount } = useSelector((state) => state.notifications);
+  const { allNotifications, unreadCount, hasMore, nextPageUrl, loadingMore } = useSelector((state) => state.notifications);
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   const handleNotificationClick = (notification) => {
@@ -325,11 +326,21 @@ function NotificationDropdown({ isMobile, closeMenu }) {
       } else if (notification.notification_type === 'new_direct_offer' || notification.notification_type === 'client_offer_rejected') {
          navigate(`/worker-dashboard/client-offers`);
       }
+    } else if (notification.related_dispute) {
+      // Navigate to dispute details page or relevant order page
+      navigate(`/disputes/${notification.related_dispute}`);
     }
     // Add more specific navigation logic as needed
   };
 
-  const displayNotifications = notifications.slice(0, 10); // Show last 10 notifications
+  // const displayNotifications = notifications.slice(0, 10); // Removed this line, now using allNotifications
+  const displayNotifications = allNotifications;
+
+  const handleLoadMore = () => {
+    if (hasMore && nextPageUrl && !loadingMore) {
+      dispatch(fetchNotifications(nextPageUrl));
+    }
+  };
 
   if (isMobile) {
     return (
@@ -352,6 +363,16 @@ function NotificationDropdown({ isMobile, closeMenu }) {
                 <div className="text-xs text-muted-foreground">{notification.message}</div>
               </div>
             ))
+          )}
+          {hasMore && (
+            <Button 
+              variant="ghost" 
+              onClick={handleLoadMore} 
+              disabled={loadingMore}
+              className="mt-2"
+            >
+              {loadingMore ? "تحميل المزيد..." : "تحميل المزيد"}
+            </Button>
           )}
         </div>
       </div>
@@ -405,6 +426,18 @@ function NotificationDropdown({ isMobile, closeMenu }) {
                 </span>
               </DropdownMenuItem>
             ))
+          )}
+          {hasMore && (
+            <div className="p-2 text-center">
+              <Button 
+                variant="ghost" 
+                onClick={handleLoadMore} 
+                disabled={loadingMore}
+                className="w-full"
+              >
+                {loadingMore ? "تحميل المزيد..." : "تحميل المزيد"}
+              </Button>
+            </div>
           )}
         </ScrollArea>
       </DropdownMenuContent>

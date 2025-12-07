@@ -299,7 +299,8 @@ export const initiateDispute = createAsyncThunk(
   'orders/initiateDispute',
   async ({ orderId, argument }, { rejectWithValue }) => {
     try {
-      const response = await api.post('/disputes/disputes/', { order: orderId, argument });
+      // Corrected API endpoint to use the specific order initiate-dispute action
+      const response = await api.post(`/orders/${orderId}/initiate-dispute/`, { argument });
       return response;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);

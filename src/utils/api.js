@@ -46,7 +46,7 @@ const handleResponse = async (response) => {
 
     // Specific handling for authentication errors
     if (response.status === 401 || response.status === 403) {
-      store.dispatch(logout()); // Dispatch logout action
+      // store.dispatch(logout()); // Dispatch logout action
       store.dispatch(addNotification({ message: 'Session expired or unauthorized. Please log in again.', type: 'warning' }));
     }
 
