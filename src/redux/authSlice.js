@@ -421,6 +421,8 @@ const authSlice = createSlice({
       localStorage.setItem('refreshToken', action.payload.refresh);
       localStorage.setItem('user', JSON.stringify(action.payload.user));
     },
+    // Selector for current user
+    selectCurrentUser: (state) => state.user,
   },
   extraReducers: (builder) => {
     builder
@@ -603,5 +605,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, setSocialLoginData } = authSlice.actions;
+export const { logout, clearError, setSocialLoginData, selectCurrentUser } = authSlice.actions;
 export default authSlice.reducer;

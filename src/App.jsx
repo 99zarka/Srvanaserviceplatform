@@ -25,6 +25,11 @@ import { DisputeDetailPage } from "./components/DisputeDetailPage";
 import { TransactionDetailPage } from "./components/TransactionDetailPage";
 import { NotificationDisplay } from "./components/NotificationDisplay";
 
+// Import public project components
+import PublicProjectsList from "./components/public/PublicProjectsList";
+import ProjectDetail from "./components/public/ProjectDetail";
+
+
 export default function App() {
   const location = useLocation();
 
@@ -54,6 +59,10 @@ export default function App() {
           <Route path="/profile/:userId" element={<UserProfilePage />} />
           <Route path="/browse-users" element={<BrowseUsersPage />} />
           
+          {/* Public Project Routes */}
+          <Route path="/projects" element={<PublicProjectsList />} />
+          <Route path="/projects/:order_id" element={<ProjectDetail />} />
+
           {/* Service Ordering Routes */}
           <Route path="/order/create" element={<OrderCreateForm />} />
           {/* <Route path="/orders/dashboard" element={<ClientOrdersDashboard />} /> */} {/* Removed */}

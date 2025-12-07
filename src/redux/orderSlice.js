@@ -40,12 +40,25 @@ export const fetchSingleOrder = createAsyncThunk(
   }
 );
 
+// Fetch a single public order by ID
+export const fetchPublicOrderDetail = createAsyncThunk(
+  'orders/fetchPublicOrderDetail',
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/orders/public-projects/${orderId}/`);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message || 'Failed to fetch public order detail');
+    }
+  }
+);
+
 // Get available orders for technicians (technicians view available orders to apply)
 export const getAvailableOrders = createAsyncThunk(
   'orders/getAvailableOrders',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/orders/orders/available_for_offer/');
+      const response = await api.get('/orders/available-for-offer/');
       return response; // Return the entire response (paginated object)
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -436,6 +449,25 @@ const orderSlice = createSlice({
                              : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch single order.');
         state.error = { message: errorMessage };
         state.currentViewingOrder = null; // Ensure it's cleared on error
+      })
+
+      // Fetch Public Order Detail
+      .addCase(fetchPublicOrderDetail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.currentViewingOrder = null;
+      })
+      .addCase(fetchPublicOrderDetail.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentViewingOrder = action.payload;
+      })
+      .addCase(fetchPublicOrderDetail.rejected, (state, action) => {
+        state.loading = false;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch public order detail.');
+        state.error = { message: errorMessage };
+        state.currentViewingOrder = null;
       })
       
       // Get available orders
