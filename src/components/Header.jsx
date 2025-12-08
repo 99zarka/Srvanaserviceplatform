@@ -45,7 +45,6 @@ export function Header() {
     { name: "الرئيسية", path: "/", icon: Home },
     { name: "تصفح المستخدمين", path: "/browse-users", icon: Users }, // New link
     { name: "المشاريع المتاحة", path: "/projects", icon: Briefcase }, // Added public projects link
-    { name: "الخدمات", path: "/services", icon: Briefcase },
     { name: "اتصل بنا", path: "/contact", icon: Mail },
   ];
 
@@ -54,49 +53,81 @@ export function Header() {
     // Determine dashboard link based on user type
     let userDashboardPath = "";
     let dashboardLabel = "";
-    switch (user.user_type) {
-      case "client":
-        userDashboardPath = "/client-dashboard";
-        dashboardLabel = "لوحة تحكم العميل";
-        break;
-      case "worker":
-        userDashboardPath = "/worker-dashboard";
-        dashboardLabel = "لوحة تحكم الفني";
-        break;
-      case "admin":
-        userDashboardPath = "/admin-dashboard";
-        dashboardLabel = "لوحة تحكم المدير";
-        break;
-      default:
-        userDashboardPath = "/";
-        dashboardLabel = "لوحة التحكم";
+    const userTypeName = user.user_type?.user_type_name || user.user_type;
+
+    // Determine appropriate dashboard based on user type
+    if (userTypeName === 'technician') {
+      userDashboardPath = "/worker-dashboard";
+      dashboardLabel = "لوحة تحكم الفني";
+    } else if (userTypeName === 'admin') {
+      userDashboardPath = "/admin-dashboard";
+      dashboardLabel = "لوحة تحكم المدير";
+    } else {
+      // Default to client dashboard for clients and other user types
+      userDashboardPath = "/client-dashboard";
+      dashboardLabel = "لوحة تحكم العميل";
     }
 
-    // Add Dashboard dropdown/link
-    navItems.splice(1, 0, { 
-      name: dashboardLabel, 
-      path: userDashboardPath, 
-      icon: Wrench,
-      isDropdown: true, // Indicate this item should be a dropdown
-      dropdownItems: [
+    // Create dashboard dropdown items based on user type
+    const dashboardItems = [];
+    if (userTypeName === 'admin') {
+      // Admins see all dashboards
+      dashboardItems.push(
         { name: "لوحة تحكم العميل", path: "/client-dashboard" },
         { name: "لوحة تحكم الفني", path: "/worker-dashboard" },
-        { name: "لوحة تحكم المدير", path: "/admin-dashboard" },
-      ]
+        { name: "لوحة تحكم المدير", path: "/admin-dashboard" }
+      );
+    } else if (userTypeName === 'technician') {
+      // Technicians see both client and technician dashboards
+      dashboardItems.push(
+        { name: "لوحة تحكم العميل", path: "/client-dashboard" },
+        { name: "لوحة تحكم الفني", path: "/worker-dashboard" }
+      );
+    } else {
+      // Clients see only client dashboard
+      dashboardItems.push(
+        { name: "لوحة تحكم العميل", path: "/client-dashboard" }
+      );
+    }
+
+    // Add Dashboard dropdown
+    navItems.splice(1, 0, {
+      name: "لوحة التحكم",
+      path: "#",
+      icon: Wrench,
+      isDropdown: true,
+      dropdownItems: dashboardItems
     });
 
-    // Add service ordering links
-    navItems.splice(3, 0, { name: "طلب خدمة", path: "/order/create", icon: Plus });
-    navItems.splice(3, 0, { name: "طلباتي", path: "/orders/dashboard", icon: Briefcase });
-    navItems.splice(3, 0, { name: "تصفح الفنيين", path: "/technicians/browse", icon: Wrench });
-    navItems.splice(3, 0, { name: "عروضي", path: "/client-offers", icon: Briefcase }); // Add client offers link for clients
-    
+    // Create a "Services" dropdown menu to reduce horizontal space
+    const serviceItems = [
+      { name: "الخدمات", path: "/services", icon: Briefcase },
+      { name: "طلب خدمة", path: "/order/create", icon: Plus },
+      { name: "تصفح الفنيين", path: "/technicians/browse", icon: Wrench },
+      { name: "طلباتي", path: "/client-dashboard/orders-offers", icon: Briefcase }
+
+      ];
+
     // Add profile link
-    navItems.splice(3, 0, { name: "ملفي الشخصي", path: `/profile/${user.user_id}`, icon: CircleUser });
-    
-    // Add technician verification link for workers
-    if (user.user_type !== 'technician') { // Assuming 'worker' is the string for worker user type
-      navItems.splice(4, 0, { name: "تحقق الفنيين", path: "/technician-verification", icon: Shield });
+    navItems.splice(2, 0, { name: "ملفي الشخصي", path: `/profile/${user.user_id}`, icon: CircleUser });
+
+    // Add technician-specific links for technician users
+    if (userTypeName === 'technician' || userTypeName === 'admin') {
+      serviceItems.push(
+        { name: "مهامي", path: "/worker-dashboard/tasks", icon: Briefcase },
+        { name: "عروضي", path: "/worker-dashboard/client-offers", icon: Mail }
+      );
+    }
+
+    // Add Services dropdown if there are service items
+    if (serviceItems.length > 0) {
+      navItems.splice(2, 0, {
+        name: "الخدمات",
+        path: "#",
+        icon: Briefcase,
+        isDropdown: true,
+        dropdownItems: serviceItems
+      });
     }
   }
 
@@ -204,19 +235,20 @@ function AuthSection({ isMobile = false, closeMenu }) {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      // Get verification status for authenticated workers
-      if (user.user_type === 'worker' && user.id) {
+      // Get verification status for authenticated technicians
+      const userTypeName = user.user_type?.user_type_name || user.user_type;
+      if (userTypeName === 'technician' && user.id) {
         dispatch(getVerificationStatus(user.id));
       }
       // Fetch initial notifications for all authenticated users
       dispatch(fetchNotifications());
-      
+
       // Optional: Set up polling interval (e.g., every minute)
       const intervalId = setInterval(() => {
         // Only fetch the first page for polling to keep unread count updated
-        dispatch(fetchNotifications()); 
+        dispatch(fetchNotifications());
       }, 60000);
-      
+
       return () => clearInterval(intervalId);
     }
   }, [isAuthenticated, user, dispatch]);
@@ -234,37 +266,49 @@ function AuthSection({ isMobile = false, closeMenu }) {
 
   if (isAuthenticated && user) {
     return (
-      <div className={`${isMobile ? "flex flex-col space-y-2" : "hidden md:flex"} items-center space-x-4`}>
-        {/* Welcome Message */}
-        <span className="text-foreground flex items-center space-x-2">
-          <Smile className="h-5 w-5" />
+      <div className={`${isMobile ? "flex flex-col space-y-2" : "hidden md:flex"} items-center space-x-2`}>
+        {/* Welcome Message - more compact */}
+        <span className="text-foreground flex items-center space-x-1 text-sm">
+          <Smile className="h-4 w-4" />
           <span>
-            مرحبًا, {user.first_name && user.last_name
-              ? `${user.first_name} ${user.last_name}`
-              : user.username || user.email || "مستخدم"}
+            مرحبًا, {user.first_name ? user.first_name.split(' ')[0] : user.username || "مستخدم"}
           </span>
         </span>
 
         {/* Notification Dropdown */}
         <NotificationDropdown isMobile={isMobile} closeMenu={closeMenu} />
 
-        {/* Verification Status Widget for Workers */}
-        {user.user_type === 'worker' && (
-          <VerificationStatusWidget 
+        {/* Verification Status Widget for Technicians - compact version */}
+        {user.user_type?.user_type_name === 'technician' && (
+          <VerificationStatusWidget
             verificationStatus={verificationState.verificationStatus}
             onBecomeTechnician={handleBecomeTechnician}
             isMobile={isMobile}
+            compact={true}
           />
         )}
 
-        {/* Logout Button */}
+        {/* Become Technician Button for non-technician users - more compact */}
+        {user.user_type?.user_type_name !== 'technician' && user.user_type?.user_type_name !== 'admin' && (
+          <Button
+            onClick={handleBecomeTechnician}
+            className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white p-1 h-8"
+            size="sm"
+          >
+            <Wrench className="h-4 w-4" />
+            <span className="text-sm">فني</span>
+          </Button>
+        )}
+
+        {/* Logout Button - more compact */}
         <Button
           variant="ghost"
           onClick={handleLogout}
-          className="flex items-center space-x-2"
+          className="flex items-center space-x-1 p-1 h-8"
+          size="sm"
         >
-          <LogOut className="h-5 w-5" />
-          <span>تسجيل الخروج</span>
+          <LogOut className="h-4 w-4" />
+          <span className="text-sm">خروج</span>
         </Button>
       </div>
     );
@@ -446,7 +490,7 @@ function NotificationDropdown({ isMobile, closeMenu }) {
   );
 }
 
-function VerificationStatusWidget({ verificationStatus, onBecomeTechnician, isMobile = false }) {
+function VerificationStatusWidget({ verificationStatus, onBecomeTechnician, isMobile = false, compact = false }) {
   if (!verificationStatus) {
     // No verification document submitted yet
     return (
@@ -509,6 +553,15 @@ function VerificationStatusWidget({ verificationStatus, onBecomeTechnician, isMo
   }
 
   // Desktop layout - horizontal
+  if (compact) {
+    return (
+      <div className={`flex items-center space-x-1 px-2 py-1 rounded-md border ${config.color} h-8`}>
+        <IconComponent className="h-4 w-4" />
+        <span className="text-xs font-medium">{config.text}</span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center space-x-2">
       <div className={`flex items-center space-x-2 px-3 py-1 rounded-md border ${config.color}`}>
