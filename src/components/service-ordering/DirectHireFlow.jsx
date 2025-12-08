@@ -12,14 +12,14 @@ import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
-import { 
-  Star, 
-  MapPin, 
-  Clock, 
-  Wrench, 
-  User, 
-  DollarSign, 
-  CheckCircle, 
+import {
+  Star,
+  MapPin,
+  Clock,
+  Wrench,
+  User,
+  DollarSign,
+  CheckCircle,
   Calendar,
   Loader2,
   ArrowLeft,
@@ -32,13 +32,13 @@ import { format } from 'date-fns';
 
 // Form validation schema
 const hireSchema = z.object({
-  service: z.string().min(1, 'Please select a service'),
-  problem_description: z.string().min(10, 'Description must be at least 10 characters'),
-  requested_location: z.string().min(5, 'Please provide a valid location'),
-  scheduled_date: z.date({ required_error: 'Please select a date' }),
-  scheduled_time_start: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format'),
-  scheduled_time_end: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format'),
-  budget: z.string().min(1, 'Please provide your budget'),
+  service: z.string().min(1, 'يرجى اختيار خدمة'),
+  problem_description: z.string().min(10, 'يجب أن تكون الوصفة على الأقل 10 أحرف'),
+  requested_location: z.string().min(5, 'يرجى تقديم عنوان صحيح'),
+  scheduled_date: z.date({ required_error: 'يرجى اختيار التاريخ' }),
+  scheduled_time_start: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'تنسيق الوقت غير صحيح'),
+  scheduled_time_end: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'تنسيق الوقت غير صحيح'),
+  budget: z.string().min(1, 'يرجى تقديم ميزانيتك'),
   urgent_service: z.boolean().default(false),
 });
 
@@ -47,14 +47,14 @@ const DirectHireFlow = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { loading, error, successMessage } = useSelector((state) => state.orders);
-  
+
   const selectedTechnician = location.state?.technician;
   const [currentStep, setCurrentStep] = useState(1);
   const [services] = useState([
-    { service_id: 1, service_name: 'Plumbing', category: { category_name: 'Home Services' } },
-    { service_id: 2, service_name: 'Electrical', category: { category_name: 'Home Services' } },
-    { service_id: 3, service_name: 'HVAC', category: { category_name: 'Home Services' } },
-    { service_id: 4, service_name: 'Cleaning', category: { category_name: 'Home Services' } },
+    { service_id: 1, service_name: 'السباكة', category: { category_name: 'خدمات منزلية' } },
+    { service_id: 2, service_name: 'الكهرباء', category: { category_name: 'خدمات منزلية' } },
+    { service_id: 3, service_name: 'التدفئة والتكييف', category: { category_name: 'خدمات منزلية' } },
+    { service_id: 4, service_name: 'التنظيف', category: { category_name: 'خدمات منزلية' } },
   ]);
   const [selectedDate, setSelectedDate] = useState();
 
@@ -74,10 +74,10 @@ const DirectHireFlow = () => {
         <Card>
           <CardContent className="text-center py-12">
             <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No technician selected</h3>
-            <p className="text-gray-600 mb-4">Please select a technician to start the hiring process</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">لم يتم اختيار فني</h3>
+            <p className="text-gray-600 mb-4">يرجى اختيار فني لبدء عملية التوظيف</p>
             <Button onClick={() => navigate('/technician-browse')}>
-              Browse Technicians
+              تصفح الفنيين
             </Button>
           </CardContent>
         </Card>
@@ -102,7 +102,7 @@ const DirectHireFlow = () => {
       };
 
       const result = await dispatch(createOrder(orderData));
-      
+
       if (result && !result.error) {
         setCurrentStep(4); // Success step
       }
@@ -123,20 +123,20 @@ const DirectHireFlow = () => {
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
-    
+
     for (let i = 0; i < fullStars; i++) {
       stars.push(<Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />);
     }
-    
+
     if (hasHalfStar) {
       stars.push(<Star key="half" className="h-4 w-4 fill-yellow-200 text-yellow-400" />);
     }
-    
+
     const emptyStars = 5 - Math.ceil(rating);
     for (let i = 0; i < emptyStars; i++) {
       stars.push(<Star key={`empty-${i}`} className="h-4 w-4 text-gray-300" />);
     }
-    
+
     return stars;
   };
 
@@ -145,8 +145,8 @@ const DirectHireFlow = () => {
       {[1, 2, 3, 4].map((step) => (
         <React.Fragment key={step}>
           <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-            step <= currentStep 
-              ? 'bg-blue-600 text-white' 
+            step <= currentStep
+              ? 'bg-blue-600 text-white'
               : 'bg-gray-200 text-gray-600'
           }`}>
             {step < currentStep ? (
@@ -166,18 +166,18 @@ const DirectHireFlow = () => {
   );
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto p-6 max-w-4xl" dir="rtl">
       <div className="mb-6">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={() => navigate('/technician-browse')}
           className="mb-4"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Browse
+          <ArrowLeft className="h-4 w-4 ml-2" />
+          العودة إلى التصفح
         </Button>
-        <h1 className="text-3xl font-bold">Direct Hire: {selectedTechnician.first_name}</h1>
-        <p className="text-gray-600">Book {selectedTechnician.first_name} {selectedTechnician.last_name} directly</p>
+        <h1 className="text-3xl font-bold">توظيف مباشر: {selectedTechnician.first_name}</h1>
+        <p className="text-gray-600">احجز {selectedTechnician.first_name} {selectedTechnician.last_name} مباشرة</p>
       </div>
 
       <StepIndicator />
@@ -185,24 +185,24 @@ const DirectHireFlow = () => {
       {currentStep === 1 && (
         <Card>
           <CardHeader>
-            <CardTitle>Step 1: Service Details</CardTitle>
+            <CardTitle>الخطوة 1: تفاصيل الخدمة</CardTitle>
             <CardDescription>
-              Tell us what service you need
+              أخبرنا عن الخدمة التي تحتاجها
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(nextStep)} className="space-y-6">
               {/* Service Selection */}
               <div className="space-y-2">
-                <Label htmlFor="service">Service Type</Label>
+                <Label htmlFor="service">نوع الخدمة</Label>
                 <Select onValueChange={(value) => setValue('service', value)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a service" />
+                    <SelectValue placeholder="اختر خدمة" />
                   </SelectTrigger>
                   <SelectContent>
                     {(services || []).map((service) => (
                       <SelectItem key={service.service_id} value={service.service_id.toString()}>
-                        {service.service_name} - {service.category?.category_name || 'Unknown'}
+                        {service.service_name} - {service.category?.category_name || 'غير معلوم'}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -214,11 +214,12 @@ const DirectHireFlow = () => {
 
               {/* Problem Description */}
               <div className="space-y-2">
-                <Label htmlFor="problem_description">Describe Your Issue</Label>
+                <Label htmlFor="problem_description">وصف المشكلة</Label>
                 <Textarea
                   id="problem_description"
-                  placeholder="Describe what needs to be fixed or installed..."
+                  placeholder="وصف ما يحتاج إلى إصلاح أو تركيب..."
                   className="min-h-[120px]"
+                  dir="rtl"
                   {...register('problem_description')}
                 />
                 {errors.problem_description && (
@@ -228,10 +229,11 @@ const DirectHireFlow = () => {
 
               {/* Location */}
               <div className="space-y-2">
-                <Label htmlFor="requested_location">Service Location</Label>
+                <Label htmlFor="requested_location">موقع الخدمة</Label>
                 <Input
                   id="requested_location"
-                  placeholder="123 Main St, Cairo, Egypt"
+                  placeholder="123 شارع الرئيسي، القاهرة، مصر"
+                  dir="rtl"
                   {...register('requested_location')}
                 />
                 {errors.requested_location && (
@@ -241,8 +243,8 @@ const DirectHireFlow = () => {
 
               <div className="flex justify-end">
                 <Button type="submit">
-                  Next Step
-                  <ArrowRight className="h-4 w-4 ml-2" />
+                  الخطوة التالية
+                  <ArrowRight className="h-4 w-4 mr-2" />
                 </Button>
               </div>
             </form>
@@ -253,20 +255,21 @@ const DirectHireFlow = () => {
       {currentStep === 2 && (
         <Card>
           <CardHeader>
-            <CardTitle>Step 2: Schedule & Budget</CardTitle>
+            <CardTitle>الخطوة 2: الجدولة والميزانية</CardTitle>
             <CardDescription>
-              When do you need the service and what's your budget?
+              متى تحتاج الخدمة وما هي ميزانيتك؟
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(nextStep)} className="space-y-6">
               {/* Date Selection */}
               <div className="space-y-2">
-                <Label>Preferred Date</Label>
+                <Label>التاريخ المفضل</Label>
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full justify-start text-left font-normal"
+                  className="w-full justify-start text-right font-normal"
+                  dir="rtl"
                   onClick={() => {
                     const tomorrow = new Date();
                     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -274,8 +277,8 @@ const DirectHireFlow = () => {
                     setValue('scheduled_date', tomorrow);
                   }}
                 >
-                  <Calendar className="mr-2 h-4 w-4" />
-                  {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
+                  <Calendar className="ml-2 h-4 w-4" />
+                  {selectedDate ? format(selectedDate, 'PPP', { locale: 'ar' }) || 'اختر تاريخ' : 'اختر تاريخ'}
                 </Button>
                 {errors.scheduled_date && (
                   <p className="text-sm text-red-600">{errors.scheduled_date.message}</p>
@@ -285,7 +288,7 @@ const DirectHireFlow = () => {
               {/* Time Selection */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="scheduled_time_start">Start Time</Label>
+                  <Label htmlFor="scheduled_time_start">وقت البداية</Label>
                   <Input
                     id="scheduled_time_start"
                     type="time"
@@ -296,7 +299,7 @@ const DirectHireFlow = () => {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="scheduled_time_end">End Time</Label>
+                  <Label htmlFor="scheduled_time_end">وقت النهاية</Label>
                   <Input
                     id="scheduled_time_end"
                     type="time"
@@ -310,11 +313,11 @@ const DirectHireFlow = () => {
 
               {/* Budget */}
               <div className="space-y-2">
-                <Label htmlFor="budget">Your Budget (USD)</Label>
+                <Label htmlFor="budget">ميزانيتك (دولار أمريكي)</Label>
                 <Input
                   id="budget"
                   type="number"
-                  placeholder="e.g., 150"
+                  placeholder="مثل 150"
                   {...register('budget')}
                 />
                 {errors.budget && (
@@ -329,17 +332,17 @@ const DirectHireFlow = () => {
                   id="urgent_service"
                   {...register('urgent_service')}
                 />
-                <Label htmlFor="urgent_service">This is an urgent service</Label>
+                <Label htmlFor="urgent_service">هذه خدمة طارئة</Label>
               </div>
 
               <div className="flex justify-between">
                 <Button type="button" variant="outline" onClick={prevStep}>
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Previous
+                  السابق
                 </Button>
                 <Button type="submit">
-                  Next Step
-                  <ArrowRight className="h-4 w-4 ml-2" />
+                  الخطوة التالية
+                  <ArrowRight className="h-4 w-4 mr-2" />
                 </Button>
               </div>
             </form>
@@ -350,16 +353,16 @@ const DirectHireFlow = () => {
       {currentStep === 3 && (
         <Card>
           <CardHeader>
-            <CardTitle>Step 3: Review & Confirm</CardTitle>
+            <CardTitle>الخطوة 3: المراجعة والتأكيد</CardTitle>
             <CardDescription>
-              Review your booking details before confirming
+              راجع تفاصيل الحجز قبل التأكيد
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
               {/* Technician Info */}
               <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold mb-3">Your Selected Technician</h3>
+                <h3 className="font-semibold mb-3">فنييك المختار</h3>
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
                     <User className="h-8 w-8 text-gray-500" />
@@ -371,8 +374,8 @@ const DirectHireFlow = () => {
                     <p className="text-sm text-gray-600">{selectedTechnician.specialization}</p>
                     <div className="flex items-center gap-1 mt-1">
                       {renderStars(selectedTechnician.overall_rating || 0)}
-                      <span className="text-sm ml-1">
-                        {selectedTechnician.overall_rating?.toFixed(1) || '0.0'} ({selectedTechnician.num_jobs_completed || 0} jobs)
+                      <span className="text-sm mr-1">
+                        {selectedTechnician.overall_rating?.toFixed(1) || '0.0'} ({selectedTechnician.num_jobs_completed || 0} أعمال)
                       </span>
                     </div>
                   </div>
@@ -381,30 +384,30 @@ const DirectHireFlow = () => {
 
               {/* Service Summary */}
               <div className="p-4 border rounded-lg">
-                <h3 className="font-semibold mb-3">Service Details</h3>
+                <h3 className="font-semibold mb-3">تفاصيل الخدمة</h3>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="font-medium">Service:</span>
+                    <span className="font-medium">الخدمة:</span>
                     <p>{services.find(s => s.service_id.toString() === watch('service'))?.service_name}</p>
                   </div>
                   <div>
-                    <span className="font-medium">Date:</span>
-                    <p>{selectedDate ? format(selectedDate, 'PPP') : 'Not selected'}</p>
+                    <span className="font-medium">التاريخ:</span>
+                    <p>{selectedDate ? format(selectedDate, 'PPP', { locale: 'ar' }) || 'غير محدد' : 'غير محدد'}</p>
                   </div>
                   <div>
-                    <span className="font-medium">Time:</span>
+                    <span className="font-medium">الوقت:</span>
                     <p>{watch('scheduled_time_start')} - {watch('scheduled_time_end')}</p>
                   </div>
                   <div>
-                    <span className="font-medium">Budget:</span>
+                    <span className="font-medium">الميزانية:</span>
                     <p>${watch('budget')}</p>
                   </div>
                   <div className="col-span-2">
-                    <span className="font-medium">Location:</span>
+                    <span className="font-medium">الموقع:</span>
                     <p>{watch('requested_location')}</p>
                   </div>
                   <div className="col-span-2">
-                    <span className="font-medium">Description:</span>
+                    <span className="font-medium">الوصف:</span>
                     <p>{watch('problem_description')}</p>
                   </div>
                 </div>
@@ -413,16 +416,16 @@ const DirectHireFlow = () => {
               <div className="flex justify-between">
                 <Button type="button" variant="outline" onClick={prevStep}>
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Previous
+                  السابق
                 </Button>
                 <Button onClick={handleSubmit(onSubmit)} disabled={loading}>
                   {loading ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Creating Booking...
+                      إنشاء الحجز...
                     </>
                   ) : (
-                    'Confirm Booking'
+                    'تأكيد الحجز'
                   )}
                 </Button>
               </div>
@@ -435,17 +438,17 @@ const DirectHireFlow = () => {
         <Card>
           <CardContent className="text-center py-12">
             <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-green-800 mb-2">Booking Confirmed!</h2>
+            <h2 className="text-2xl font-bold text-green-800 mb-2">تم تأكيد الحجز!</h2>
             <p className="text-gray-600 mb-6">
-              Your direct hire request has been sent to {selectedTechnician.first_name}. 
-              You will receive a confirmation once they accept the booking.
+              تم إرسال طلب التوظيف المباشر إلى {selectedTechnician.first_name}.
+              ستتلقى تأكيدًا بمجرد قبوله الحجز.
             </p>
             <div className="flex gap-4 justify-center">
               <Button variant="outline" onClick={() => navigate('/client-dashboard')}>
-                View My Orders
+                عرض طلباتي
               </Button>
               <Button onClick={() => navigate('/')}>
-                Back to Home
+                العودة إلى الرئيسية
               </Button>
             </div>
           </CardContent>

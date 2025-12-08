@@ -38,11 +38,11 @@ const ProjectDetail = () => {
   const handleSubmitOffer = async (e) => {
     e.preventDefault();
     if (!offerPrice || !offerDescription) {
-      toast.error('Please provide both an offer price and description.');
+      toast.error('يرجى تقديم كل من سعر العرض ووصفه.');
       return;
     }
     if (!currentUser || !currentUser.user_id) {
-      toast.error('You must be logged in to submit an offer.');
+      toast.error('يجب أن تكون مسجلاً دخولك لإرسال عرض.');
       return;
     }
 
@@ -54,13 +54,13 @@ const ProjectDetail = () => {
         offer_description: offerDescription,
         technician_user: currentUser.user_id, // Ensure technician_user is sent
       })).unwrap();
-      toast.success('Offer submitted successfully!');
+      toast.success('تم إرسال العرض بنجاح!');
       setOfferPrice('');
       setOfferDescription('');
       // Optionally refresh the order to show the new offer immediately
-      dispatch(fetchPublicOrderDetail(order_id)); 
+      dispatch(fetchPublicOrderDetail(order_id));
     } catch (err) {
-      const errorMessage = err.message || 'Failed to submit offer.';
+      const errorMessage = err.message || 'فشل في إرسال العرض.';
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -68,56 +68,56 @@ const ProjectDetail = () => {
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading project details...</div>;
+    return <div className="text-center py-8">جاري تحميل تفاصيل المشروع...</div>;
   }
 
   if (error) {
-    return <div className="text-center py-8 text-red-500">Error: {error.message || 'Failed to fetch project details'}</div>;
+    return <div className="text-center py-8 text-red-500">خطأ: {error.message || 'فشل في جلب تفاصيل المشروع'}</div>;
   }
 
   if (!selectedOrder) {
-    return <div className="text-center py-8 text-gray-600">Project not found or no data.</div>;
+    return <div className="text-center py-8 text-gray-600">المشروع غير موجود أو لا توجد بيانات.</div>;
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <button 
-        onClick={() => navigate('/projects')} 
+    <div className="container mx-auto px-4 py-8" dir="rtl">
+      <button
+        onClick={() => navigate('/projects')}
         className="mb-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
       >
-        &larr; Back to Projects
+        العودة إلى المشاريع &rarr;
       </button>
 
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">{selectedOrder.service?.arabic_name || 'Service Project'}</h1>
-      
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">{selectedOrder.service?.arabic_name || 'مشروع خدمة'}</h1>
+
       <div className="bg-white shadow-md rounded-lg p-6 mb-8">
         <p className="text-gray-700 text-lg mb-4">{selectedOrder.problem_description}</p>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-600 mb-4">
           <div>
-            <strong className="block text-gray-800">Client:</strong> 
+            <strong className="block text-gray-800">العميل:</strong>
             {selectedOrder.client_user?.first_name} {selectedOrder.client_user?.last_name}
           </div>
           <div>
-            <strong className="block text-gray-800">Location:</strong> 
+            <strong className="block text-gray-800">الموقع:</strong>
             {selectedOrder.requested_location}
           </div>
           <div>
-            <strong className="block text-gray-800">Scheduled Date:</strong> 
+            <strong className="block text-gray-800">التاريخ المحدد:</strong>
             {selectedOrder.scheduled_date}
           </div>
           <div>
-            <strong className="block text-gray-800">Time:</strong> 
+            <strong className="block text-gray-800">الوقت:</strong>
             {selectedOrder.scheduled_time_start} - {selectedOrder.scheduled_time_end}
           </div>
           {selectedOrder.expected_price && (
             <div>
-              <strong className="block text-gray-800">Expected Price:</strong> 
+              <strong className="block text-gray-800">السعر المتوقع:</strong>
               <span className="text-blue-600 font-semibold">${selectedOrder.expected_price}</span>
             </div>
           )}
           <div>
-            <strong className="block text-gray-800">Status:</strong> 
+            <strong className="block text-gray-800">الحالة:</strong>
             <span className="capitalize">{selectedOrder.order_status?.toLowerCase().replace(/_/g, ' ')}</span>
           </div>
         </div>
@@ -125,17 +125,17 @@ const ProjectDetail = () => {
 
       {isTechnician && selectedOrder.order_status === 'OPEN' && !hasAlreadyOffered && (
         <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Make an Offer</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">قدم عرضًا</h2>
           <form onSubmit={handleSubmitOffer}>
             <div className="mb-4">
               <label htmlFor="offerPrice" className="block text-gray-700 text-sm font-bold mb-2">
-                Your Offer Price ($)
+                سعر عرضك ($)
               </label>
               <input
                 type="number"
                 id="offerPrice"
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                placeholder="e.g., 150.00"
+                placeholder="مثل 150.00"
                 value={offerPrice}
                 onChange={(e) => setOfferPrice(e.target.value)}
                 required
@@ -145,12 +145,12 @@ const ProjectDetail = () => {
             </div>
             <div className="mb-6">
               <label htmlFor="offerDescription" className="block text-gray-700 text-sm font-bold mb-2">
-                Offer Description
+                وصف العرض
               </label>
               <textarea
                 id="offerDescription"
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-32"
-                placeholder="Describe your approach, availability, or any other relevant details."
+                placeholder="وصف نهجك، توافرك، أو أي تفاصيل أخرى ذات صلة."
                 value={offerDescription}
                 onChange={(e) => setOfferDescription(e.target.value)}
                 required
@@ -161,7 +161,7 @@ const ProjectDetail = () => {
               className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Offer'}
+              {isSubmitting ? 'جاري الإرسال...' : 'إرسال العرض'}
             </button>
           </form>
         </div>
@@ -169,36 +169,36 @@ const ProjectDetail = () => {
 
       {isTechnician && hasAlreadyOffered && (
         <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4" role="alert">
-          <p className="font-bold">Offer Submitted</p>
-          <p>You have already submitted an offer for this project.</p>
+          <p className="font-bold">تم إرسال العرض</p>
+          <p>لقد قدمت عرضًا بالفعل لهذا المشروع.</p>
         </div>
       )}
 
       {!isTechnician && currentUser && (
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
-          <p className="font-bold">Not a Technician</p>
-          <p>Only technicians can make offers on projects.</p>
+          <p className="font-bold">ليست فنيًا</p>
+          <p>فقط الفنيون يمكنهم تقديم عروض على المشاريع.</p>
         </div>
       )}
 
       {!currentUser && (
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
-          <p className="font-bold">Sign In to Offer</p>
-          <p>Please sign in with a technician account to make an offer on this project.</p>
+          <p className="font-bold">سجل الدخول للعرض</p>
+          <p>يرجى تسجيل الدخول بحساب فني لتقديم عرض على هذا المشروع.</p>
         </div>
       )}
 
       {selectedOrder.order_status !== 'OPEN' && (isTechnician || currentUser) && (
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
-          <p className="font-bold">Project Not Open</p>
-          <p>This project is no longer open for offers (Current Status: {selectedOrder.order_status?.toLowerCase().replace(/_/g, ' ')}).</p>
+          <p className="font-bold">المشروع غير مفتوح</p>
+          <p>هذا المشروع لم يعد مفتوحًا للعروض (الحالة الحالية: {selectedOrder.order_status?.toLowerCase().replace(/_/g, ' ')}).</p>
         </div>
       )}
 
       {/* Display existing offers for this project */}
       {projectOffers && projectOffers.length > 0 && (
         <div className="bg-white shadow-md rounded-lg p-6 mt-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Existing Offers</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">العروض الموجودة</h2>
           <div className="space-y-6">
             {projectOffers.map((offer) => (
               <div key={offer.offer_id} className="border border-gray-200 rounded-lg p-4">
@@ -208,15 +208,15 @@ const ProjectDetail = () => {
                     <p className="text-gray-600">{offer.offer_description}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-gray-500">Offer #{offer.offer_id}</p>
-                    <p className="text-sm text-gray-500">Status: <span className="capitalize">{offer.status?.toLowerCase().replace(/_/g, ' ')}</span></p>
-                    <p className="text-sm text-gray-500">Date: {offer.offer_date}</p>
+                    <p className="text-sm text-gray-500">العرض #{offer.offer_id}</p>
+                    <p className="text-sm text-gray-500">الحالة: <span className="capitalize">{offer.status?.toLowerCase().replace(/_/g, ' ')}</span></p>
+                    <p className="text-sm text-gray-500">التاريخ: {offer.offer_date}</p>
                   </div>
                 </div>
                 {offer.technician_user && (
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
                     <div className="flex items-center">
-                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center ml-3">
                         <span className="text-gray-600 font-medium">
                           {offer.technician_user.first_name?.charAt(0)}{offer.technician_user.last_name?.charAt(0)}
                         </span>
@@ -225,7 +225,7 @@ const ProjectDetail = () => {
                         <p className="font-medium text-gray-800">
                           {offer.technician_user.first_name} {offer.technician_user.last_name}
                         </p>
-                        <p className="text-sm text-gray-600">Technician</p>
+                        <p className="text-sm text-gray-600">فني</p>
                       </div>
                     </div>
                     {/* Show edit button for technician's own offers */}
@@ -239,7 +239,7 @@ const ProjectDetail = () => {
                         }}
                         className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium"
                       >
-                        Edit Offer
+                        تحرير العرض
                       </button>
                     )}
                   </div>
@@ -253,9 +253,9 @@ const ProjectDetail = () => {
       {/* Edit Offer Modal */}
       {isEditing && editingOffer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4" dir="rtl">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-800">Edit Your Offer</h2>
+              <h2 className="text-xl font-bold text-gray-800">تحرير عرضك</h2>
               <button
                 onClick={() => setIsEditing(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -269,7 +269,7 @@ const ProjectDetail = () => {
                 e.preventDefault();
                 // Handle edit form submission
                 if (!editPrice || !editDescription) {
-                  toast.error('Please provide both an offer price and description.');
+                  toast.error('يرجى تقديم كل من سعر العرض ووصفه.');
                   return;
                 }
 
@@ -282,12 +282,12 @@ const ProjectDetail = () => {
                     }
                   })).unwrap();
 
-                  toast.success('Offer updated successfully!');
+                  toast.success('تم تحديث العرض بنجاح!');
                   setIsEditing(false);
                   // Refresh the order to show the updated offer
                   dispatch(fetchPublicOrderDetail(order_id));
                 } catch (err) {
-                  const errorMessage = err.message || 'Failed to update offer.';
+                  const errorMessage = err.message || 'فشل في تحديث العرض.';
                   toast.error(errorMessage);
                 }
               }}
@@ -295,7 +295,7 @@ const ProjectDetail = () => {
             >
               <div>
                 <label htmlFor="editPrice" className="block text-gray-700 text-sm font-bold mb-2">
-                  Offer Price ($)
+                  سعر العرض ($)
                 </label>
                 <input
                   type="number"
@@ -311,7 +311,7 @@ const ProjectDetail = () => {
 
               <div>
                 <label htmlFor="editDescription" className="block text-gray-700 text-sm font-bold mb-2">
-                  Offer Description
+                  وصف العرض
                 </label>
                 <textarea
                   id="editDescription"
@@ -328,13 +328,13 @@ const ProjectDetail = () => {
                   onClick={() => setIsEditing(false)}
                   className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded"
                 >
-                  Cancel
+                  إلغاء
                 </button>
                 <button
                   type="submit"
                   className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
                 >
-                  Update Offer
+                  تحديث العرض
                 </button>
               </div>
             </form>

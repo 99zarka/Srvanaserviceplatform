@@ -60,8 +60,8 @@ export function ServicesPage() {
     "Tree Trimming": Paintbrush,
   };
 
-  if (loading) return <div className="text-center py-20">Loading services...</div>;
-  if (error) return <div className="text-center py-20 text-red-500">Error: {error.message}</div>;
+  if (loading) return <div className="text-center py-20">جاري تحميل الخدمات...</div>;
+  if (error) return <div className="text-center py-20 text-red-500">خطأ: {error.message}</div>;
 
   return (
     <div className="min-h-screen" dir="rtl">
