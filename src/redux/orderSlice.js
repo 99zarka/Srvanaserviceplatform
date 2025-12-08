@@ -225,6 +225,19 @@ export const updateClientOffer = createAsyncThunk(
   }
 );
 
+// Update a technician's project offer
+export const updateProjectOffer = createAsyncThunk(
+  'orders/updateProjectOffer',
+  async ({ offerId, offerData }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(`/orders/projectoffers/${offerId}/`, offerData);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 // Update an order
 export const updateOrder = createAsyncThunk(
   'orders/updateOrder',

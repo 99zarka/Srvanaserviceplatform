@@ -18,6 +18,15 @@ const OrderCreateForm = () => {
   const [isLoadingServices, setIsLoadingServices] = useState(false);
   const [formKey, setFormKey] = useState(0); // Key to force OrderForm remount
   const [serverErrorMessage, setServerErrorMessage] = useState(null); // New state for global server error
+  const [currentFormData, setCurrentFormData] = useState({
+    service_id: '', // Ensure this matches the schema in OrderForm (service_id)
+    problem_description: '',
+    requested_location: '',
+    scheduled_date: undefined, // Should be undefined or null for a fresh form
+    scheduled_time_start: '',
+    scheduled_time_end: '',
+    expected_price: '', // Changed to expected_price
+  });
 
   const formSetErrorRef = useRef(null); // Ref to hold setError function from OrderForm
   const formClearErrorsRef = useRef(null); // Ref to hold clearErrors function from OrderForm
@@ -62,7 +71,7 @@ const OrderCreateForm = () => {
 
   const handleSubmitOrderForm = async (data) => {
     const orderData = {
-      service: parseInt(data.service_id), // Use service_id from OrderForm schema
+      service_id: parseInt(data.service_id), // Use service_id from OrderForm schema
       problem_description: data.problem_description,
       requested_location: data.requested_location,
       scheduled_date: data.scheduled_date.toISOString().split('T')[0],
@@ -81,7 +90,16 @@ const OrderCreateForm = () => {
       const result = await dispatch(createOrder(orderData)).unwrap(); // Use .unwrap() to catch rejections
 
       toast.success(result?.message || 'تم إنشاء الطلب بنجاح!');
-      setFormKey(prevKey => prevKey + 1); // Increment key to reset form
+      // Update form data instead of clearing it
+      setCurrentFormData({
+        service_id: data.service_id,
+        problem_description: data.problem_description,
+        requested_location: data.requested_location,
+        scheduled_date: data.scheduled_date,
+        scheduled_time_start: data.scheduled_time_start,
+        scheduled_time_end: data.scheduled_time_end,
+        expected_price: data.expected_price,
+      });
       navigate('/client-dashboard/orders-offers'); // Navigate to client orders dashboard
     } catch (backendError) {
       // Backend error occurred, map them to form fields
@@ -92,15 +110,8 @@ const OrderCreateForm = () => {
     }
   };
 
-  const initialData = {
-    service_id: '', // Ensure this matches the schema in OrderForm (service_id)
-    problem_description: '',
-    requested_location: '',
-    scheduled_date: undefined, // Should be undefined or null for a fresh form
-    scheduled_time_start: '',
-    scheduled_time_end: '',
-    expected_price: '', // Changed to expected_price
-  };
+  // Use currentFormData as initialData for the form
+  const initialData = currentFormData;
 
   return (
     <div className="max-w-2xl mx-auto p-6" dir="rtl">

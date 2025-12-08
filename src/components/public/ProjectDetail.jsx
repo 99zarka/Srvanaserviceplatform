@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchPublicOrderDetail, createProjectOffer } from '../../redux/orderSlice';
+import { fetchPublicOrderDetail, createProjectOffer, updateProjectOffer } from '../../redux/orderSlice';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -10,11 +10,19 @@ const ProjectDetail = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user: currentUser, isAuthenticated, token } = useSelector((state) => state.auth);
-  const { currentViewingOrder: selectedOrder, loading, error } = useSelector((state) => state.orders);
+  const { currentViewingOrder: orderData, loading, error } = useSelector((state) => state.orders);
+
+  // Extract order and project offers from the response
+  const selectedOrder = orderData?.order || orderData;
+  const projectOffers = orderData?.project_offers || [];
 
   const [offerPrice, setOfferPrice] = useState('');
   const [offerDescription, setOfferDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingOffer, setEditingOffer] = useState(null);
+  const [editPrice, setEditPrice] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (order_id) {
@@ -80,7 +88,7 @@ const ProjectDetail = () => {
         &larr; Back to Projects
       </button>
 
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">{selectedOrder.service?.name || 'Service Project'}</h1>
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">{selectedOrder.service?.arabic_name || 'Service Project'}</h1>
       
       <div className="bg-white shadow-md rounded-lg p-6 mb-8">
         <p className="text-gray-700 text-lg mb-4">{selectedOrder.problem_description}</p>
@@ -184,6 +192,153 @@ const ProjectDetail = () => {
         <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
           <p className="font-bold">Project Not Open</p>
           <p>This project is no longer open for offers (Current Status: {selectedOrder.order_status?.toLowerCase().replace(/_/g, ' ')}).</p>
+        </div>
+      )}
+
+      {/* Display existing offers for this project */}
+      {projectOffers && projectOffers.length > 0 && (
+        <div className="bg-white shadow-md rounded-lg p-6 mt-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Existing Offers</h2>
+          <div className="space-y-6">
+            {projectOffers.map((offer) => (
+              <div key={offer.offer_id} className="border border-gray-200 rounded-lg p-4">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <p className="text-lg font-semibold text-gray-800">${offer.offered_price}</p>
+                    <p className="text-gray-600">{offer.offer_description}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-500">Offer #{offer.offer_id}</p>
+                    <p className="text-sm text-gray-500">Status: <span className="capitalize">{offer.status?.toLowerCase().replace(/_/g, ' ')}</span></p>
+                    <p className="text-sm text-gray-500">Date: {offer.offer_date}</p>
+                  </div>
+                </div>
+                {offer.technician_user && (
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                        <span className="text-gray-600 font-medium">
+                          {offer.technician_user.first_name?.charAt(0)}{offer.technician_user.last_name?.charAt(0)}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-800">
+                          {offer.technician_user.first_name} {offer.technician_user.last_name}
+                        </p>
+                        <p className="text-sm text-gray-600">Technician</p>
+                      </div>
+                    </div>
+                    {/* Show edit button for technician's own offers */}
+                    {isTechnician && currentUser?.user_id === offer.technician_user.user_id && offer.status === 'pending' && (
+                      <button
+                        onClick={() => {
+                          setEditingOffer(offer);
+                          setEditPrice(offer.offered_price);
+                          setEditDescription(offer.offer_description);
+                          setIsEditing(true);
+                        }}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium"
+                      >
+                        Edit Offer
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Edit Offer Modal */}
+      {isEditing && editingOffer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-800">Edit Your Offer</h2>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <span className="text-2xl">&times;</span>
+              </button>
+            </div>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                // Handle edit form submission
+                if (!editPrice || !editDescription) {
+                  toast.error('Please provide both an offer price and description.');
+                  return;
+                }
+
+                try {
+                  await dispatch(updateProjectOffer({
+                    offerId: editingOffer.offer_id,
+                    offerData: {
+                      offered_price: parseFloat(editPrice),
+                      offer_description: editDescription
+                    }
+                  })).unwrap();
+
+                  toast.success('Offer updated successfully!');
+                  setIsEditing(false);
+                  // Refresh the order to show the updated offer
+                  dispatch(fetchPublicOrderDetail(order_id));
+                } catch (err) {
+                  const errorMessage = err.message || 'Failed to update offer.';
+                  toast.error(errorMessage);
+                }
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label htmlFor="editPrice" className="block text-gray-700 text-sm font-bold mb-2">
+                  Offer Price ($)
+                </label>
+                <input
+                  type="number"
+                  id="editPrice"
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  value={editPrice}
+                  onChange={(e) => setEditPrice(e.target.value)}
+                  required
+                  min="0.01"
+                  step="0.01"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="editDescription" className="block text-gray-700 text-sm font-bold mb-2">
+                  Offer Description
+                </label>
+                <textarea
+                  id="editDescription"
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-32"
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  required
+                ></textarea>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  Update Offer
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

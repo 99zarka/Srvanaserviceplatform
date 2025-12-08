@@ -30,7 +30,7 @@ export function Header() {
       case "client":
         dashboardPath = "/client-dashboard";
         break;
-      case "worker":
+      case "technician":
         dashboardPath = "/worker-dashboard";
         break;
       case "admin":
@@ -95,7 +95,7 @@ export function Header() {
     navItems.splice(3, 0, { name: "ملفي الشخصي", path: `/profile/${user.user_id}`, icon: CircleUser });
     
     // Add technician verification link for workers
-    if (user.user_type !== 'worker') { // Assuming 'worker' is the string for worker user type
+    if (user.user_type !== 'technician') { // Assuming 'worker' is the string for worker user type
       navItems.splice(4, 0, { name: "تحقق الفنيين", path: "/technician-verification", icon: Shield });
     }
   }
