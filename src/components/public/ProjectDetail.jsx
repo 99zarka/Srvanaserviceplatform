@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchPublicOrderDetail, createProjectOffer } from '../../redux/orderSlice';
-import { selectCurrentUser } from '../../redux/authSlice';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -10,7 +9,7 @@ const ProjectDetail = () => {
   const { order_id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const currentUser = useSelector(selectCurrentUser);
+  const { user: currentUser, isAuthenticated, token } = useSelector((state) => state.auth);
   const { currentViewingOrder: selectedOrder, loading, error } = useSelector((state) => state.orders);
 
   const [offerPrice, setOfferPrice] = useState('');
@@ -23,7 +22,7 @@ const ProjectDetail = () => {
     }
   }, [dispatch, order_id]);
 
-  const isTechnician = currentUser?.user_type?.user_type_name === 'technician';
+  const isTechnician = currentUser?.user_type === 'technician' || currentUser?.user_type === 'worker';
   const hasAlreadyOffered = selectedOrder?.project_offers?.some(
     (offer) => offer.technician_user === currentUser?.user_id
   );
