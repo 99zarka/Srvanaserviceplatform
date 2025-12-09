@@ -69,25 +69,33 @@ export function DashboardLayout({
             </div>
             {/* Navigation */}
             <nav className="flex-1 p-4 space-y-2">
-              {sidebarItems.map((item, index) => (
-                <Link
-                  key={index}
-                  to={item.path}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`
-                    w-full flex items-center space-x-3 px-4 py-3 rounded-lg
-                    transition-colors
-                    ${
-                      location.pathname === item.path
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                    }
-                  `}
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.label}</span>
-                </Link>
-              ))}
+              {sidebarItems.map((item, index) => {
+                if (item.isSeparator) {
+                  return <hr key={index} className="my-2 border-t border-sidebar-border" />;
+                }
+                if (item.isTitle) {
+                  return <h3 key={index} className="px-4 py-2 text-sidebar-foreground/50 text-sm font-semibold">{item.label}</h3>;
+                }
+                return (
+                  <Link
+                    key={index}
+                    to={item.path}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`
+                      w-full flex items-center space-x-3 px-4 py-3 rounded-lg
+                      transition-colors
+                      ${
+                        location.pathname === item.path
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                      }
+                    `}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
             </nav>
 
             {/* Logout */}

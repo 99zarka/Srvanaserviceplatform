@@ -7,9 +7,7 @@ import { ContactPage } from "./components/ContactPage";
 import { LoginPage } from "./components/LoginPage";
 import { SignupPage } from "./components/SignupPage";
 import { TechnicianVerificationPage } from "./components/TechnicianVerificationPage";
-import { ClientDashboard } from "./components/ClientDashboard";
-import { WorkerDashboard } from "./components/WorkerDashboard";
-import { AdminDashboard } from "./components/AdminDashboard";
+import { UnifiedDashboard } from "./components/UnifiedDashboard";
 import { UserProfilePage } from "./components/UserProfilePage";
 import { BrowseUsersPage } from "./components/BrowseUsersPage";
 import { Routes, Route, useLocation } from "react-router-dom";
@@ -38,9 +36,7 @@ export default function App() {
     "/signup",
     "/technician-verification"
   ].includes(location.pathname) &&
-    !location.pathname.startsWith("/client-dashboard") &&
-    !location.pathname.startsWith("/worker-dashboard") &&
-    !location.pathname.startsWith("/admin-dashboard") &&
+    !location.pathname.startsWith("/dashboard") &&
     !location.pathname.startsWith("/disputes") &&
     !location.pathname.startsWith("/transactions");
 
@@ -72,9 +68,7 @@ export default function App() {
           <Route path="/disputes/:disputeId" element={<DisputeDetailPage />} />
           <Route path="/transactions/:transactionId" element={<TransactionDetailPage />} />
 
-          <Route path="/client-dashboard/*" element={<ClientDashboard />} />
-          <Route path="/worker-dashboard/*" element={<WorkerDashboard />} />
-          <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
+          <Route path="/dashboard/*" element={<UnifiedDashboard />} />
           <Route path="*" element={<HomePage />} />
         </Routes>
       </div>
