@@ -16,8 +16,9 @@ import {
   LogIn,
 } from "lucide-react";
 import { DashboardLayout } from "./DashboardLayout";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
 import { ClientOverview } from "./client-dashboard/ClientOverview";
 import { ClientRequests } from "./client-dashboard/ClientRequests";
 import { ClientMessages } from "./client-dashboard/ClientMessages";
@@ -43,6 +44,7 @@ import { AdminSettings } from "./admin-dashboard/AdminSettings";
 
 export function UnifiedDashboard() {
   const { user } = useSelector((state) => state.auth);
+  const location = useLocation();
   const userId = user?.user_id;
   const userName = user ? `${user.first_name} ${user.last_name}` : "اسم المستخدم";
   
@@ -127,33 +129,67 @@ export function UnifiedDashboard() {
     ];
   }
 
-  const routes = (
-    <Routes>
-      {/* Client Routes */}
-      <Route index element={<ClientOverview />} />
-      <Route path="requests" element={<ClientRequests />} />
-      <Route path="financials" element={<ClientFinancials />} />
-      <Route path="orders-offers" element={<ClientOrdersAndOffers />} />
-      <Route path="orders-offers/edit/:orderId" element={<EditOrderPage />} />
-      <Route path="orders-offers/view/:orderId" element={<ViewOrderPage />} />
-      <Route path="messages" element={<ClientMessages />} />
-      <Route path="disputes" element={<ClientDisputes />} />
+  // Animation variants for page transitions
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      x: 20,
+    },
+    animate: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut",
+      },
+    },
+    exit: {
+      opacity: 0,
+      x: -20,
+      transition: {
+        duration: 0.2,
+        ease: "easeIn",
+      },
+    },
+  };
 
-      {/* Worker Routes */}
-      <Route path="tasks" element={<WorkerTasks />} />
-      <Route path="tasks/:taskId" element={<WorkerTaskDetails />} />
-      <Route path="earnings" element={<WorkerEarnings />} />
-      <Route path="reviews" element={<WorkerReviews />} />
-      <Route path="client-offers" element={<WorkerClientOffers />} />
-      <Route path="transactions" element={<WorkerTransactions />} />
-      
-      {/* Admin Routes */}
-      <Route path="users" element={<AdminUsers />} />
-      <Route path="verifications" element={<AdminVerifications />} />
-      <Route path="services" element={<AdminServices />} />
-      <Route path="reports" element={<AdminReports />} />
-      <Route path="settings" element={<AdminSettings />} />
-    </Routes>
+  const routes = (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        variants={pageVariants}
+      >
+        <Routes location={location}>
+          {/* Client Routes */}
+          <Route index element={<ClientOverview />} />
+          <Route path="requests" element={<ClientRequests />} />
+          <Route path="financials" element={<ClientFinancials />} />
+          <Route path="orders-offers" element={<ClientOrdersAndOffers />} />
+          <Route path="orders-offers/edit/:orderId" element={<EditOrderPage />} />
+          <Route path="orders-offers/view/:orderId" element={<ViewOrderPage />} />
+          <Route path="messages" element={<ClientMessages />} />
+          <Route path="disputes" element={<ClientDisputes />} />
+
+          {/* Worker Routes */}
+          <Route path="tasks" element={<WorkerTasks />} />
+          <Route path="tasks/:taskId" element={<WorkerTaskDetails />} />
+          <Route path="earnings" element={<WorkerEarnings />} />
+          <Route path="reviews" element={<WorkerReviews />} />
+          <Route path="client-offers" element={<WorkerClientOffers />} />
+          <Route path="transactions" element={<WorkerTransactions />} />
+          
+          {/* Admin Routes */}
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="verifications" element={<AdminVerifications />} />
+          <Route path="services" element={<AdminServices />} />
+          <Route path="reports" element={<AdminReports />} />
+          <Route path="settings" element={<AdminSettings />} />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
   );
 
   return (

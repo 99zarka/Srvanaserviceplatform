@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import { store } from "./redux/store.js";
 import App from "./App.jsx";
 import "./index.css";
+import "./styles/animations.css"; // Import global animations
 import { Toaster } from "./components/ui/sonner"; // Import the Toaster component
 
 const root = createRoot(document.getElementById("root"));

@@ -4,6 +4,7 @@ import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export function HomePage() {
   const services = [
@@ -74,75 +75,98 @@ export function HomePage() {
   return (
     <div className="min-h-screen" dir="rtl">
       {/* Hero Section */}
-      <section className="bg-linear-to-br from-secondary to-secondary/90 text-secondary-foreground py-20 md:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <Badge className="mb-4 bg-primary text-primary-foreground hover:bg-primary/90">
+      <section className="py-20 bg-linear-to-br from-secondary to-secondary/90 text-secondary-foreground md:py-32">
+        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="grid items-center gap-12 md:grid-cols-2">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <Badge className="mb-4 bg-primary text-primary-foreground hover:bg-primary/90 animate-fade-in">
                 موثوق به من قبل أكثر من 10,000 مستخدم
               </Badge>
-              <h1 className="mb-6">
+              <h1 className="mb-6 animate-fade-in-up">
                 تواصل مع المهنيين المهرة لكل خدمة منزلية
               </h1>
-              <p className="mb-8 text-secondary-foreground/90">
+              <p className="mb-8 text-secondary-foreground/90 animate-fade-in-up">
                 سرفانا تجعل من السهل العثور على عمال موثوقين لأعمال النجارة، السباكة،
                 الأعمال الكهربائية، والمزيد. خدمة عالية الجودة، مضمونة.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col gap-4 sm:flex-row animate-fade-in-up">
                 <Button
                   size="lg"
                   asChild
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground hover-lift"
                 >
                   <Link to="/services" className="flex items-center space-x-2">
                     <span>ابحث عن خدمة</span>
-                    <Search className="h-5 w-5" />
+                    <Search className="w-5 h-5" />
                   </Link>
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   asChild
-                  className="border-secondary-foreground/30 hover:text-secondary-foreground hover:bg-secondary-foreground/10 flex items-center space-x-2"
+                  className="flex items-center space-x-2 border-secondary-foreground/30 hover:text-secondary-foreground hover:bg-secondary-foreground/10 hover-lift"
                 >
                   <Link to="/signup">
                     <span>انضم كعامل</span>
-                    <UserPlus className="h-5 w-5" />
+                    <UserPlus className="w-5 h-5" />
                   </Link>
                 </Button>
               </div>
-            </div>
-            <div className="relative">
+            </motion.div>
+            <motion.div 
+              className="relative"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
               <ImageWithFallback
                 src="https://images.unsplash.com/photo-1581578949510-fa7315c4c350?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxob21lJTIwc2VydmljZXMlMjBoYW5keW1hbnxlbnwxfHx8fDE3NjI0MzA2MDV8MA&ixlib=rb-4.1.0&q=80&w=1080"
                 alt="Professional worker"
-                className="rounded-lg shadow-2xl w-full"
+                className="w-full rounded-lg shadow-2xl hover-scale"
               />
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* How It Works */}
       <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <motion.div 
+            className="mb-12 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
             <h2 className="mb-4">كيف تعمل</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="max-w-2xl mx-auto text-muted-foreground">
               ابدأ بثلاث خطوات بسيطة
             </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {howItWorks.map((item) => (
-              <Card key={item.step} className="border-2 hover:border-primary transition-colors">
-                <CardContent className="pt-6 text-center">
-                  <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-primary-foreground mb-4 mx-auto">
-                    {item.icon && <item.icon className="h-6 w-6" />}
-                  </div>
-                  <h3 className="mb-2">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.description}</p>
-                </CardContent>
-              </Card>
+          </motion.div>
+          <div className="grid gap-8 md:grid-cols-3">
+            {howItWorks.map((item, index) => (
+              <motion.div
+                key={item.step}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Card className="transition-colors border-2 hover:border-primary hover-lift">
+                  <CardContent className="pt-6 text-center">
+                    <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-primary text-primary-foreground animate-float">
+                      {item.icon && <item.icon className="w-6 h-6" />}
+                    </div>
+                    <h3 className="mb-2">{item.title}</h3>
+                    <p className="text-muted-foreground">{item.description}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -150,28 +174,40 @@ export function HomePage() {
 
       {/* Featured Services */}
       <section className="py-20 bg-muted">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="mb-4 flex items-center justify-center space-x-2">
+        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <motion.div 
+            className="mb-12 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="flex items-center justify-center mb-4 space-x-2">
               <Sparkles className="h-7 w-7 text-primary" />
               <span>خدمات مميزة</span>
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="max-w-2xl mx-auto text-muted-foreground">
               مهنيون خبراء مستعدون للمساعدة في مشاريع منزلك
             </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map((service) => (
-              <Link 
-                key={service.title} 
-                to="/services"
-                className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
+          </motion.div>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {services.map((service, index) => (
+              <motion.div
+                key={service.title}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
               >
-                <div className="aspect-video overflow-hidden">
+                <Link 
+                  to="/services"
+                  className="overflow-hidden transition-shadow cursor-pointer hover:shadow-lg group card-enter"
+                >
+                  <div className="overflow-hidden aspect-video">
                   <ImageWithFallback
                     src={service.image}
                     alt={service.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
                   />
                 </div>
                 <CardContent className="pt-4">
@@ -179,12 +215,13 @@ export function HomePage() {
                   <p className="text-muted-foreground">{service.description}</p>
                   <Button 
                     variant="link" 
-                    className="p-0 h-auto mt-2 text-primary"
+                    className="h-auto p-0 mt-2 text-primary hover-scale"
                   >
-                    تعلم المزيد <ArrowRight className="mr-1 h-4 w-4" />
+                    تعلم المزيد <ArrowRight className="w-4 h-4 mr-1" />
                   </Button>
                 </CardContent>
               </Link>
+            </motion.div>
             ))}
           </div>
         </div>
@@ -192,26 +229,26 @@ export function HomePage() {
 
       {/* Testimonials */}
       <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="mb-4 flex items-center justify-center space-x-2">
+        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="mb-12 text-center">
+            <h2 className="flex items-center justify-center mb-4 space-x-2">
               <MessageSquareQuote className="h-7 w-7 text-primary" />
               <span>ماذا يقول مستخدمونا</span>
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="max-w-2xl mx-auto text-muted-foreground">
               انضم إلى آلاف العملاء والعمال الراضين
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid gap-8 md:grid-cols-3">
             {testimonials.map((testimonial) => (
               <Card key={testimonial.name}>
                 <CardContent className="pt-6">
                   <div className="flex mb-4">
                     {Array.from({ length: testimonial.rating }).map((_, i) => (
-                      <Star key={i} className="h-5 w-5 fill-primary text-primary" />
+                      <Star key={i} className="w-5 h-5 fill-primary text-primary" />
                     ))}
                   </div>
-                  <p className="text-muted-foreground mb-4">"{testimonial.content}"</p>
+                  <p className="mb-4 text-muted-foreground">"{testimonial.content}"</p>
                   <div>
                     <p>{testimonial.name}</p>
                     <p className="text-muted-foreground">{testimonial.role}</p>
@@ -225,34 +262,34 @@ export function HomePage() {
 
       {/* CTA Section */}
       <section className="py-20 bg-secondary text-secondary-foreground">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="mb-4 flex items-center justify-center space-x-2">
+        <div className="max-w-4xl px-4 mx-auto text-center sm:px-6 lg:px-8">
+          <h2 className="flex items-center justify-center mb-4 space-x-2">
             <Rocket className="h-7 w-7" />
             <span>هل أنت مستعد للبدء؟</span>
           </h2>
           <p className="mb-8 text-secondary-foreground/90">
             سواء كنت بحاجة إلى خدمة أو ترغب في تقديم مهاراتك، سرفانا هنا من أجلك
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button
               size="lg"
               asChild
-              className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center space-x-2"
+              className="flex items-center space-x-2 bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               <Link to="/services">
                 <span>تصفح الخدمات</span>
-                <Search className="h-5 w-5" />
+                <Search className="w-5 h-5" />
               </Link>
             </Button>
             <Button
               size="lg"
               variant="outline"
               asChild
-              className="border-secondary-foreground/30 hover:text-secondary-foreground hover:bg-secondary-foreground/10 flex items-center space-x-2"
+              className="flex items-center space-x-2 border-secondary-foreground/30 hover:text-secondary-foreground hover:bg-secondary-foreground/10"
             >
               <Link to="/signup">
                 <span>كن عاملاً</span>
-                <UserPlus className="h-5 w-5" />
+                <UserPlus className="w-5 h-5" />
               </Link>
             </Button>
           </div>
