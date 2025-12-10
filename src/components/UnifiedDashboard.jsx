@@ -58,56 +58,54 @@ export function UnifiedDashboard() {
 
   const mainTools = [
     { icon: Home, label: "نظرة عامة", path: "/dashboard" },
-    { icon: FileText, label: "طلباتي", path: "requests" },
-    { icon: DollarSign, label: "الماليات والمعاملات", path: "financials" },
-    { icon: ShoppingCart, label: "الطلبات والعروض", path: "orders-offers" },
-    { icon: MessageSquare, label: "الرسائل", path: "messages" },
-    { icon: Flag, label: "النزاعات", path: "disputes" },
-    { icon: User, label: "الملف الشخصي", path: `/profile/${userId}` },
+    { icon: FileText, label: "طلباتي", path: "/dashboard/requests" },
+    { icon: DollarSign, label: "الماليات", path: "/dashboard/financials" },
+    { icon: ShoppingCart, label: "الطلبات والعروض", path: "/dashboard/orders-offers" },
+    { icon: MessageSquare, label: "الرسائل", path: "/dashboard/messages" },
+    { icon: Flag, label: "النزاعات", path: "/dashboard/disputes" },
+    { icon: User, label: "الملف الشخصي", path: `/dashboard/profile/${userId}` },
   ];
 
-  const technicianTools = [
-    { icon: Briefcase, label: "مهامي", path: "tasks" },
-    { icon: Mail, label: "عروض العملاء", path: "client-offers" },
-    { icon: DollarSign, label: "الأرباح", path: "earnings" },
-    { icon: Star, label: "التقييمات", path: "reviews" },
-    { icon: Flag, label: "النزاعات", path: "disputes" },
-    { icon: DollarSign, label: "المعاملات", path: "transactions" },
+ const technicianTools = [
+    { icon: LayoutDashboard, label: "نظرة عامة", path: "/dashboard/overview" },
+    { icon: Briefcase, label: "مهامي", path: "/dashboard/tasks" },
+    { icon: Mail, label: "عروض العملاء", path: "/dashboard/client-offers" },
+    { icon: DollarSign, label: "الأرباح", path: "/dashboard/earnings" },
+    { icon: Star, label: "التقييمات", path: "/dashboard/reviews" },
+    { icon: DollarSign, label: "المعاملات", path: "/dashboard/transactions" },
+    { icon: Flag, label: "النزاعات", path: "/dashboard/disputes" },
   ];
 
   const adminTools = [
-    { icon: LayoutDashboard, label: "نظرة عامة", path: "/dashboard" },
-    { icon: Users, label: "المستخدمون", path: "users" },
-    { icon: Shield, label: "طلبات التحقق", path: "verifications" },
-    { icon: Briefcase, label: "الخدمات", path: "services" },
-    { icon: FileText, label: "التقارير", path: "reports" },
-    { icon: Settings, label: "الإعدادات", path: "settings" },
+    { icon: LayoutDashboard, label: "نظرة عامة", path: "/dashboard/admin-overview" },
+    { icon: Users, label: "المستخدمون", path: "/dashboard/users" },
+    { icon: Shield, label: "طلبات التحقق", path: "/dashboard/verifications" },
+    { icon: Briefcase, label: "الخدمات", path: "/dashboard/services" },
+    { icon: FileText, label: "التقارير", path: "/dashboard/reports" },
+    { icon: Settings, label: "الإعدادات", path: "/dashboard/settings" },
   ];
 
   let sidebarItems = [];
 
-  // Ensure user is authenticated before building sidebar items
+ // Ensure user is authenticated before building sidebar items
   if (user) {
     if (userRole === "client") {
       sidebarItems = [
-        { isTitle: true, label: "Main Tools" },
+        { isTitle: true, label: "الادوات الرئيسية" },
         ...mainTools,
       ];
     } else if (userRole === "technician") {
-      sidebarItems = [
-        { isTitle: true, label: "Main Tools" },
-        ...mainTools,
-        { isSeparator: true },
-        { isTitle: true, label: "Technician Tools" },
-        ...technicianTools,
-      ];
-    } else if (userRole === "admin") {
       sidebarItems = [
         { isTitle: true, label: "الادوات الرئيسية" },
         ...mainTools,
         { isSeparator: true },
         { isTitle: true, label: "ادوات الفني" },
         ...technicianTools,
+      ];
+    } else if (userRole === "admin") {
+      sidebarItems = [
+        { isTitle: true, label: "الادوات الرئيسية" },
+        ...mainTools,
         { isSeparator: true },
         { isTitle: true, label: "ادوات المدير" },
         ...adminTools,
@@ -140,14 +138,17 @@ export function UnifiedDashboard() {
       <Route path="disputes" element={<ClientDisputes />} />
 
       {/* Worker Routes */}
+      <Route path="overview" element={<WorkerOverview />} />
       <Route path="tasks" element={<WorkerTasks />} />
       <Route path="tasks/:taskId" element={<WorkerTaskDetails />} />
       <Route path="earnings" element={<WorkerEarnings />} />
       <Route path="reviews" element={<WorkerReviews />} />
       <Route path="client-offers" element={<WorkerClientOffers />} />
+      <Route path="disputes" element={<WorkerDisputes />} />
       <Route path="transactions" element={<WorkerTransactions />} />
       
       {/* Admin Routes */}
+      <Route path="admin-overview" element={<AdminOverview />} />
       <Route path="users" element={<AdminUsers />} />
       <Route path="verifications" element={<AdminVerifications />} />
       <Route path="services" element={<AdminServices />} />
