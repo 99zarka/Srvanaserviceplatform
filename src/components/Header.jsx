@@ -104,31 +104,19 @@ export function Header() {
       { name: "الخدمات", path: "/services", icon: Briefcase, id: "service-services" },
       { name: "طلب خدمة", path: "/order/create", icon: Plus, id: "service-order-create" },
       { name: "تصفح الفنيين", path: "/technicians/browse", icon: Wrench, id: "service-technicians-browse" },
-      { name: "طلباتي", path: "/dashboard/orders-offers", icon: Briefcase, id: "service-orders-offers" }
-
-      ];
+    ];
 
     // Add profile link
     navItems.splice(2, 0, { name: "ملفي الشخصي", path: `/profile/${user.user_id}`, icon: CircleUser });
 
-    // Add technician-specific links for technician users
-    if (userTypeName === 'technician' || userTypeName === 'admin') {
-      serviceItems.push(
-        { name: "مهامي", path: "/dashboard/tasks", icon: Briefcase, id: "service-worker-tasks" },
-        { name: "عروضي", path: "/dashboard/client-offers", icon: Mail, id: "service-worker-offers" }
-      );
-    }
-
-    // Add Services dropdown if there are service items
-    if (serviceItems.length > 0) {
-      navItems.splice(2, 0, {
-        name: "الخدمات",
-        path: "#services",
-        icon: Briefcase,
-        isDropdown: true,
-        dropdownItems: serviceItems
-      });
-    }
+    // Add Services dropdown
+    navItems.splice(2, 0, {
+      name: "الخدمات",
+      path: "#services",
+      icon: Briefcase,
+      isDropdown: true,
+      dropdownItems: serviceItems
+    });
   }
 
   return (
