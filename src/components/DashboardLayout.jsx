@@ -2,6 +2,7 @@ import { LogOut, Menu, CircleUser } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import SrvanaLogo from "../../assets/srvana-logo.svg";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
@@ -22,9 +23,11 @@ export function DashboardLayout({
       <div className="lg:hidden bg-sidebar text-sidebar-foreground p-4 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <Link to="/">
-            <div className="bg-primary rounded-lg px-3 py-1.5 cursor-pointer">
-              <span className="text-primary-foreground">Srvana</span>
-            </div>
+            <img 
+              src={SrvanaLogo} 
+              alt="Srvana Logo" 
+              className="h-8 w-auto"
+            />
           </Link>
         </div>
         <button onClick={() => setSidebarOpen(!sidebarOpen)}>
@@ -46,9 +49,11 @@ export function DashboardLayout({
             {/* Logo */}
             <div className="p-6 border-b border-sidebar-border hidden lg:block">
               <Link to="/">
-                <div className="bg-primary rounded-lg px-3 py-1.5 inline-block cursor-pointer">
-                  <span className="text-primary-foreground">Srvana</span>
-                </div>
+                <img 
+                  src={SrvanaLogo} 
+                  alt="Srvana Logo" 
+                  className="h-10 w-auto"
+                />
               </Link>
             </div>
 

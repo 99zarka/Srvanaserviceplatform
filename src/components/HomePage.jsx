@@ -214,8 +214,9 @@ export function HomePage() {
                   <h3 className="mb-2">{service.title}</h3>
                   <p className="text-muted-foreground">{service.description}</p>
                   <Button 
-                    variant="link" 
-                    className="h-auto p-0 mt-2 text-primary hover-scale"
+                    variant="default" 
+                    size="sm"
+                    className="mt-3 hover-lift ripple"
                   >
                     تعلم المزيد <ArrowRight className="w-4 h-4 mr-1" />
                   </Button>

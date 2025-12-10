@@ -1,5 +1,6 @@
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Home, Info, Briefcase, UserPlus, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
+import SrvanaLogo from "../../assets/srvana-logo.svg";
 
 export function Footer() {
   return (
@@ -8,9 +9,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1">
-            <div className="bg-primary rounded-lg px-3 py-1.5 inline-block mb-4">
-              <span className="text-primary-foreground">سرفانا</span>
-            </div>
+            <Link to="/" className="inline-block mb-4">
+              <img 
+                src={SrvanaLogo} 
+                alt="Srvana Logo" 
+                className="h-10 w-auto"
+              />
+            </Link>
             <p className="text-secondary-foreground/80 mb-4">
               ربط العملاء بالمهنيين المهرة لجميع احتياجات خدماتك المنزلية.
             </p>

@@ -16,6 +16,7 @@ import {
 } from "./ui/dropdown-menu";
 import { Badge } from "./ui/badge";
 import { ScrollArea } from "./ui/scroll-area";
+import SrvanaLogo from "../../assets/srvana-logo.svg";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -128,9 +129,11 @@ export function Header() {
             to="/"
             className="flex items-center cursor-pointer"
           >
-            <div className="bg-primary rounded-lg px-3 py-1.5">
-              <span className="text-primary-foreground">سرفانا</span>
-            </div>
+            <img 
+              src={SrvanaLogo} 
+              alt="Srvana Logo" 
+              className="h-10 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}
