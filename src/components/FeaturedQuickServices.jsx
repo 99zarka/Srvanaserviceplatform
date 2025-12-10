@@ -15,11 +15,13 @@ import {
   Plus,
 } from "lucide-react";
 
-// الصور - placeholder images
-const acCleaningImg = "https://images.unsplash.com/photo-1581244277943-fe4a9c777189?w=800";
-const plumbingImg = "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800";
-const electricalImg = "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=800";
-const paintingImg = "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=800";
+// الصور
+import acCleaningImg from "./public/FeaturedQuickServices-img/ac-cleaning.webp";
+import plumbingImg from "./public/FeaturedQuickServices-img/plumbing-leaks.webp";
+import electricalImg from "./public/FeaturedQuickServices-img/electrical-fixing.webp";
+import paintingImg from "./public/FeaturedQuickServices-img/painting.webp";
+import carpentryImg from "./public/FeaturedQuickServices-img/carpentry.webp";
+import heaterImg from "./public/FeaturedQuickServices-img/heater-installation.webp";
 
 // --- بيانات الخدمات ---
 const quickServicesData = [
@@ -79,7 +81,7 @@ const quickServicesData = [
     title: "صيانة الأجهزة",
     description: "إصلاح وصيانة جميع الأجهزة الكهربائية المنزلية.",
     icon: Wrench,
-    image: electricalImg,
+    image: heaterImg,
     features: [
       { name: "صيانة الثلاجات", slug: "/services" },
       { name: "صيانة الديب فريزر", slug: "/services" },
@@ -98,7 +100,7 @@ const quickServicesData = [
     title: "النجارة والحدادة",
     description: "أعمال نجارة وحدادة خفيفة لمنزلك ومكتبك.",
     icon: Paintbrush,
-    image: paintingImg,
+    image: carpentryImg,
     features: [
       { name: "إصلاح أبواب خشب", slug: "/services" },
       { name: "تعديل وضبط مفصلات", slug: "/services" },
@@ -116,7 +118,7 @@ const quickServicesData = [
     title: "خدمات عامة",
     description: "أعمال تركيب وصيانة سريعة لجميع احتياجاتك المنزلية.",
     icon: Wrench,
-    image: plumbingImg,
+    image: paintingImg,
     features: [
       { name: "تركيب ستائر", slug: "/services" },
       { name: "تركيب شاشة", slug: "/services" },
