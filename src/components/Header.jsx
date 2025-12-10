@@ -137,14 +137,14 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center gap-8" dir="rtl">
             {navItems.map((item) => (
               item.isDropdown ? (
                 <DropdownMenu key={item.path}>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center space-x-2">
-                      {item.icon && <item.icon className="h-5 w-5" />}
+                    <Button variant="ghost" className="flex flex-row items-center gap-2 whitespace-nowrap">
                       <span>{item.name}</span>
+                      {item.icon && <item.icon className="h-4 w-4" />}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" dir="rtl">
@@ -159,12 +159,12 @@ export function Header() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`hover:text-primary transition-colors flex items-center space-x-2 ${
+                  className={`hover:text-primary transition-colors flex flex-row items-center gap-2 whitespace-nowrap ${
                     location.pathname === item.path ? "text-primary" : "text-foreground"
                   }`}
                 >
-                  {item.icon && <item.icon className="h-5 w-5" />}
                   <span>{item.name}</span>
+                  {item.icon && <item.icon className="h-4 w-4" />}
                 </Link>
               )
             ))}
