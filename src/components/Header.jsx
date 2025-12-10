@@ -16,7 +16,7 @@ import {
 } from "./ui/dropdown-menu";
 import { Badge } from "./ui/badge";
 import { ScrollArea } from "./ui/scroll-area";
-import SrvanaLogo from "../../assets/srvana-logo.svg";
+import SrvanaLogo from "/assets/srvana-logo.svg";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -124,15 +124,15 @@ export function Header() {
     <header className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" dir="rtl">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+          {/* Logo - Always Visible */}
           <Link
             to="/"
-            className="flex items-center cursor-pointer"
+            className="flex items-center cursor-pointer shrink-0 z-10"
           >
             <img 
               src={SrvanaLogo} 
               alt="Srvana Logo" 
-              className="h-10 w-auto"
+              className="h-8 w-auto"
             />
           </Link>
 

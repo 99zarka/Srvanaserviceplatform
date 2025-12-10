@@ -5,6 +5,7 @@ import { Badge } from "./ui/badge";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { FeaturedQuickServices } from "./FeaturedQuickServices";
 
 export function HomePage() {
   const services = [
@@ -171,6 +172,9 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Featured Quick Services */}
+      <FeaturedQuickServices />
 
       {/* Featured Services */}
       <section className="py-20 bg-muted">
