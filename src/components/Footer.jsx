@@ -85,11 +85,11 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  to="/worker-dashboard"
+                  to="/dashboard"
                   className="text-secondary-foreground/80 hover:text-primary transition-colors flex items-center space-x-2"
                 >
                   <LayoutDashboard className="h-5 w-5" />
-                  <span>لوحة تحكم العمال</span>
+                  <span>لوحة التحكم</span>
                 </Link>
               </li>
             </ul>

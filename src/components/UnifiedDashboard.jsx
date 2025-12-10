@@ -13,6 +13,7 @@ import {
   Users,
   Settings,
   Shield,
+  LogIn,
 } from "lucide-react";
 import { DashboardLayout } from "./DashboardLayout";
 import { Routes, Route } from "react-router-dom";
@@ -44,7 +45,15 @@ export function UnifiedDashboard() {
   const { user } = useSelector((state) => state.auth);
   const userId = user?.user_id;
   const userName = user ? `${user.first_name} ${user.last_name}` : "اسم المستخدم";
-  const userRole = user ? user.user_type?.user_type_name : "عميل";
+  
+  // Handle different possible user type formats
+  const userRole = user ? (
+    user.user_type?.user_type_name || 
+    user.user_type?.name || 
+    user.user_type ||
+    "client" // default fallback
+  ) : "client";
+  
   const userProfileImage = user?.profile_photo || null;
 
   const mainTools = [
@@ -77,29 +86,44 @@ export function UnifiedDashboard() {
 
   let sidebarItems = [];
 
-  if (userRole === "client") {
+  // Ensure user is authenticated before building sidebar items
+  if (user) {
+    if (userRole === "client") {
+      sidebarItems = [
+        { isTitle: true, label: "Main Tools" },
+        ...mainTools,
+      ];
+    } else if (userRole === "technician") {
+      sidebarItems = [
+        { isTitle: true, label: "Main Tools" },
+        ...mainTools,
+        { isSeparator: true },
+        { isTitle: true, label: "Technician Tools" },
+        ...technicianTools,
+      ];
+    } else if (userRole === "admin") {
+      sidebarItems = [
+        { isTitle: true, label: "الادوات الرئيسية" },
+        ...mainTools,
+        { isSeparator: true },
+        { isTitle: true, label: "ادوات الفني" },
+        ...technicianTools,
+        { isSeparator: true },
+        { isTitle: true, label: "ادوات المدير" },
+        ...adminTools,
+      ];
+    } else {
+      // Fallback for unknown user types - default to client tools
+      sidebarItems = [
+        { isTitle: true, label: "الادوات الرئيسية" },
+        ...mainTools,
+      ];
+    }
+  } else {
+    // If no user is authenticated, show a message or minimal items
     sidebarItems = [
-      { isTitle: true, label: "Main Tools" },
-      ...mainTools,
-    ];
-  } else if (userRole === "technician") {
-    sidebarItems = [
-      { isTitle: true, label: "Main Tools" },
-      ...mainTools,
-      { isSeparator: true },
-      { isTitle: true, label: "Technician Tools" },
-      ...technicianTools,
-    ];
-  } else if (userRole === "admin") {
-    sidebarItems = [
-      { isTitle: true, label: "Main Tools" },
-      ...mainTools,
-      { isSeparator: true },
-      { isTitle: true, label: "Technician Tools" },
-      ...technicianTools,
-      { isSeparator: true },
-      { isTitle: true, label: "Admin Tools" },
-      ...adminTools,
+      { isTitle: true, label: "الرجاء تسجيل الدخول" },
+      { label: "تسجيل الدخول", path: "/login", icon: LogIn },
     ];
   }
 

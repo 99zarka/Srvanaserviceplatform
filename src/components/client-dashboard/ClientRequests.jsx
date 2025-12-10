@@ -89,7 +89,7 @@ export function ClientRequests() {
                   <TableCell>${request.budget || 0}</TableCell>
                   <TableCell>
                     <Button variant="ghost" size="sm" asChild className="flex items-center space-x-2">
-                      <Link to={`/client-dashboard/requests/${request.order_id}`}>
+                      <Link to={`/dashboard/requests/${request.order_id}`}>
                         <Eye className="h-4 w-4" />
                         <span>عرض التفاصيل</span>
                       </Link>

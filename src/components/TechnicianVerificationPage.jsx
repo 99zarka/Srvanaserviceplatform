@@ -211,7 +211,7 @@ export function TechnicianVerificationPage() {
   // If user is already verified, redirect to worker dashboard
   useEffect(() => {
     if (user && user.verification_status === 'approved') {
-      navigate('/worker-dashboard');
+      navigate('/dashboard');
     }
   }, [user, navigate]);
 

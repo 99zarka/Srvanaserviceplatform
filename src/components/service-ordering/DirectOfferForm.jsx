@@ -63,7 +63,7 @@ const DirectOfferForm = ({ onOfferSuccess }) => {
       toast.success(successMessage);
       dispatch(clearSuccessMessage());
       onOfferSuccess?.();
-      navigate('/client-dashboard');
+      navigate('/dashboard');
       setCurrentFormData({
         service_id: '',
         problem_description: '',

@@ -294,7 +294,7 @@ const ViewOrderPage = () => {
           )}
 
           <div className="flex justify-end gap-2">
-            <Button onClick={() => navigate('/client-dashboard/orders-offers')} variant="outline" disabled={isSubmitting}>
+            <Button onClick={() => navigate('/dashboard/orders-offers')} variant="outline" disabled={isSubmitting}>
               العودة إلى الطلبات
             </Button>
             {(currentViewingOrder.order_status === 'OPEN' ||
@@ -306,7 +306,7 @@ const ViewOrderPage = () => {
                 </Button>
               )}
             {(currentViewingOrder.order_status === 'OPEN' || currentViewingOrder.order_status === 'AWAITING_TECHNICIAN_RESPONSE') && (
-              <Button onClick={() => navigate(`/client-dashboard/orders-offers/edit/${currentViewingOrder.order_id}`)} disabled={isSubmitting}>
+              <Button onClick={() => navigate(`/dashboard/orders-offers/edit/${currentViewingOrder.order_id}`)} disabled={isSubmitting}>
                 تعديل الطلب
               </Button>
             )}

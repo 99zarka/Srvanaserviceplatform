@@ -72,7 +72,7 @@ const OrderCreateForm = () => {
       // Show success message and redirect
       if (result && !result.error) {
         // Navigate to order details or dashboard
-        navigate('/client-dashboard');
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error('Failed to create order:', error);

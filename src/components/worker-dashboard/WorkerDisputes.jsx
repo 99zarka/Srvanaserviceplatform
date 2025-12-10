@@ -117,7 +117,7 @@ export function WorkerDisputes() {
                 <TableRow key={dispute.id}>
                   <TableCell>{dispute.id}</TableCell>
                   <TableCell>
-                    <Link to={`/worker-dashboard/tasks/${dispute.order.id}`} className="text-blue-600 hover:underline">
+                    <Link to={`/dashboard/tasks/${dispute.order.id}`} className="text-blue-600 hover:underline">
                       #{dispute.order.id}
                     </Link>
                   </TableCell>

@@ -129,7 +129,7 @@ export function ClientOverview() {
               <span>طلبات الخدمة الأخيرة</span>
             </CardTitle>
             <Button variant="outline" asChild className="flex items-center space-x-2">
-              <Link to="/client-dashboard/requests">
+              <Link to="/dashboard/requests">
                 <Eye className="h-4 w-4" />
                 <span>عرض الكل</span>
               </Link>
@@ -184,7 +184,7 @@ export function ClientOverview() {
               </Link>
             </Button>
             <Button variant="outline" asChild className="flex items-center space-x-2">
-              <Link to="/client-dashboard/messages">
+              <Link to="/dashboard/messages">
                 <MessageSquare className="h-5 w-5" />
                 <span>عرض الرسائل</span>
               </Link>

@@ -148,7 +148,7 @@ export function WorkerTaskDetails() {
     <div className="space-y-6" dir="rtl">
       <div className="flex items-center space-x-4 rtl:space-x-reverse">
         <Button variant="ghost" size="icon" asChild>
-          <Link to="/worker-dashboard/tasks">
+          <Link to="/dashboard/tasks">
             <ArrowLeft className="h-5 w-5" />
           </Link>
         </Button>

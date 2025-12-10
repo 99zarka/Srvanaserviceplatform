@@ -100,7 +100,7 @@ const OrderCreateForm = () => {
         scheduled_time_end: data.scheduled_time_end,
         expected_price: data.expected_price,
       });
-      navigate('/client-dashboard/orders-offers'); // Navigate to client orders dashboard
+      navigate('/dashboard/orders-offers'); // Navigate to client orders dashboard
     } catch (backendError) {
       // Backend error occurred, map them to form fields
       console.error('Backend error during order creation:', backendError);

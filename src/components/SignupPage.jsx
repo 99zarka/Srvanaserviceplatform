@@ -100,7 +100,7 @@ export function SignupPage() {
 
         alert("تم التسجيل بنجاح باستخدام Google!");
         // The Google login flow should ideally redirect to the dashboard after successful login/signup
-        navigate("/client-dashboard");
+        navigate("/dashboard");
       } else {
         setError("root.serverError", {
           type: "manual",
@@ -123,7 +123,7 @@ export function SignupPage() {
 
     if (register.fulfilled.match(resultAction)) {
       alert("تم التسجيل بنجاح! تم تسجيل الدخول تلقائيًا.");
-      navigate("/client-dashboard");
+      navigate("/dashboard");
     } else if (register.rejected.match(resultAction)) {
       const payloadError = resultAction.payload;
       if (payloadError) {

@@ -126,7 +126,7 @@ export function DisputeDetailsPage() {
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl" dir="rtl">
       <div className="mb-6 flex items-center space-x-4 rtl:space-x-reverse">
         <Button variant="ghost" size="icon" asChild>
-          <Link to={isAdmin ? "/admin-dashboard/disputes" : "/client-dashboard/orders-offers"}> {/* Adjust back link */}
+          <Link to={isAdmin ? "/dashboard/disputes" : "/dashboard/orders-offers"}> {/* Adjust back link */}
             <ArrowLeft className="h-5 w-5" />
           </Link>
         </Button>

@@ -79,7 +79,7 @@ export function ClientMessages() {
                   )}
                 </div>
                 <Button variant="ghost" asChild>
-                  <Link to={`/client-dashboard/messages/${conv.id}`}> {/* Link to individual chat */}
+                  <Link to={`/dashboard/messages/${conv.id}`}> {/* Link to individual chat */}
                     <ArrowRight className="h-5 w-5" />
                   </Link>
                 </Button>

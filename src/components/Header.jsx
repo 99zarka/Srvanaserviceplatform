@@ -28,13 +28,13 @@ export function Header() {
   if (user) {
     switch (user.user_type) {
       case "client":
-        dashboardPath = "/client-dashboard";
+        dashboardPath = "/dashboard";
         break;
       case "technician":
-        dashboardPath = "/worker-dashboard";
+        dashboardPath = "/dashboard";
         break;
       case "admin":
-        dashboardPath = "/admin-dashboard";
+        dashboardPath = "/dashboard";
         break;
       default:
         dashboardPath = "/"; // Fallback
@@ -57,14 +57,14 @@ export function Header() {
 
     // Determine appropriate dashboard based on user type
     if (userTypeName === 'technician') {
-      userDashboardPath = "/worker-dashboard";
+      userDashboardPath = "/dashboard";
       dashboardLabel = "لوحة تحكم الفني";
     } else if (userTypeName === 'admin') {
-      userDashboardPath = "/admin-dashboard";
+      userDashboardPath = "/dashboard";
       dashboardLabel = "لوحة تحكم المدير";
     } else {
       // Default to client dashboard for clients and other user types
-      userDashboardPath = "/client-dashboard";
+      userDashboardPath = "/dashboard";
       dashboardLabel = "لوحة تحكم العميل";
     }
 
@@ -73,27 +73,27 @@ export function Header() {
     if (userTypeName === 'admin') {
       // Admins see all dashboards
       dashboardItems.push(
-        { name: "لوحة تحكم العميل", path: "/client-dashboard" },
-        { name: "لوحة تحكم الفني", path: "/worker-dashboard" },
-        { name: "لوحة تحكم المدير", path: "/admin-dashboard" }
+        { name: "لوحة تحكم العميل", path: "/dashboard", id: "dashboard-client" },
+        { name: "لوحة تحكم الفني", path: "/dashboard", id: "dashboard-worker" },
+        { name: "لوحة تحكم المدير", path: "/dashboard", id: "dashboard-admin" }
       );
     } else if (userTypeName === 'technician') {
       // Technicians see both client and technician dashboards
       dashboardItems.push(
-        { name: "لوحة تحكم العميل", path: "/client-dashboard" },
-        { name: "لوحة تحكم الفني", path: "/worker-dashboard" }
+        { name: "لوحة تحكم العميل", path: "/dashboard", id: "dashboard-client" },
+        { name: "لوحة تحكم الفني", path: "/dashboard", id: "dashboard-worker" }
       );
     } else {
       // Clients see only client dashboard
       dashboardItems.push(
-        { name: "لوحة تحكم العميل", path: "/client-dashboard" }
+        { name: "لوحة تحكم العميل", path: "/dashboard", id: "dashboard-client" }
       );
     }
 
     // Add Dashboard dropdown
     navItems.splice(1, 0, {
       name: "لوحة التحكم",
-      path: "#",
+      path: "#dashboard",
       icon: Wrench,
       isDropdown: true,
       dropdownItems: dashboardItems
@@ -101,10 +101,10 @@ export function Header() {
 
     // Create a "Services" dropdown menu to reduce horizontal space
     const serviceItems = [
-      { name: "الخدمات", path: "/services", icon: Briefcase },
-      { name: "طلب خدمة", path: "/order/create", icon: Plus },
-      { name: "تصفح الفنيين", path: "/technicians/browse", icon: Wrench },
-      { name: "طلباتي", path: "/client-dashboard/orders-offers", icon: Briefcase }
+      { name: "الخدمات", path: "/services", icon: Briefcase, id: "service-services" },
+      { name: "طلب خدمة", path: "/order/create", icon: Plus, id: "service-order-create" },
+      { name: "تصفح الفنيين", path: "/technicians/browse", icon: Wrench, id: "service-technicians-browse" },
+      { name: "طلباتي", path: "/dashboard/orders-offers", icon: Briefcase, id: "service-orders-offers" }
 
       ];
 
@@ -114,8 +114,8 @@ export function Header() {
     // Add technician-specific links for technician users
     if (userTypeName === 'technician' || userTypeName === 'admin') {
       serviceItems.push(
-        { name: "مهامي", path: "/worker-dashboard/tasks", icon: Briefcase },
-        { name: "عروضي", path: "/worker-dashboard/client-offers", icon: Mail }
+        { name: "مهامي", path: "/dashboard/tasks", icon: Briefcase, id: "service-worker-tasks" },
+        { name: "عروضي", path: "/dashboard/client-offers", icon: Mail, id: "service-worker-offers" }
       );
     }
 
@@ -123,7 +123,7 @@ export function Header() {
     if (serviceItems.length > 0) {
       navItems.splice(2, 0, {
         name: "الخدمات",
-        path: "#",
+        path: "#services",
         icon: Briefcase,
         isDropdown: true,
         dropdownItems: serviceItems
@@ -158,7 +158,7 @@ export function Header() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" dir="rtl">
                     {item.dropdownItems.map((dropdownItem) => (
-                      <DropdownMenuItem key={dropdownItem.path} asChild>
+                      <DropdownMenuItem key={dropdownItem.id || dropdownItem.path} asChild>
                         <Link to={dropdownItem.path}>{dropdownItem.name}</Link>
                       </DropdownMenuItem>
                     ))}
@@ -247,7 +247,7 @@ function AuthSection({ isMobile = false, closeMenu }) {
       const intervalId = setInterval(() => {
         // Only fetch the first page for polling to keep unread count updated
         dispatch(fetchNotifications());
-      }, 60000);
+      }, 60 * 1000);
 
       return () => clearInterval(intervalId);
     }
@@ -362,14 +362,14 @@ function NotificationDropdown({ isMobile, closeMenu }) {
         navigate(`/orders/dashboard/${notification.related_order}`);
       } else {
         // Default to worker task details if it's a technician related notification
-        navigate(`/worker-dashboard/tasks/${notification.related_order}`);
+        navigate(`/dashboard/tasks/${notification.related_order}`);
       }
     } else if (notification.related_offer) {
       // Example: Navigate to a technician's offer response page or worker offers dashboard
       if (notification.notification_type === 'new_offer' || notification.notification_type === 'offer_rejected') {
-        navigate(`/worker-dashboard/client-offers`);
+        navigate(`/dashboard/client-offers`);
       } else if (notification.notification_type === 'new_direct_offer' || notification.notification_type === 'client_offer_rejected') {
-         navigate(`/worker-dashboard/client-offers`);
+         navigate(`/dashboard/client-offers`);
       }
     } else if (notification.related_dispute) {
       // Navigate to dispute details page or relevant order page

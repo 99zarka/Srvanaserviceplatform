@@ -180,11 +180,11 @@ const ClientOrdersAndOffers = () => {
   };
 
   const handleEditOrder = (orderId) => {
-    navigate(`/client-dashboard/orders-offers/edit/${orderId}`);
+    navigate(`/dashboard/orders-offers/edit/${orderId}`);
   };
 
   const handleViewOrder = (orderId) => {
-    navigate(`/client-dashboard/orders-offers/view/${orderId}`);
+    navigate(`/dashboard/orders-offers/view/${orderId}`);
   };
 
   const getStatusColor = (status) => {

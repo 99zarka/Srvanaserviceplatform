@@ -210,7 +210,7 @@ export function WorkerTasks() {
                   <TableCell className="space-x-2 flex">
                     <> {/* Added Fragment here */}
                       <Button variant="ghost" size="sm" asChild className="flex items-center space-x-2">
-                        <Link to={`/worker-dashboard/tasks/${task.order_id}`}>
+                        <Link to={`/dashboard/tasks/${task.order_id}`}>
                           <Eye className="h-4 w-4" />
                           <span>عرض التفاصيل</span>
                         </Link>

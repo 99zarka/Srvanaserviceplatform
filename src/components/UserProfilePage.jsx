@@ -133,6 +133,27 @@ export function UserProfilePage() {
     }
   };
 
+  // Helper function to get user type display name
+  const getUserTypeDisplay = (userType) => {
+    if (!userType) return '';
+    if (typeof userType === 'string') {
+      return userType;
+    }
+    if (typeof userType === 'object' && userType.user_type_name) {
+      return userType.user_type_name;
+    }
+    if (typeof userType === 'object' && userType.user_type_id) {
+      // Map user_type_id to display name if needed
+      const typeMap = {
+        1: 'admin',
+        2: 'technician', 
+        3: 'client'
+      };
+      return typeMap[userType.user_type_id] || 'unknown';
+    }
+    return String(userType);
+  };
+
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl" dir="rtl">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
@@ -168,7 +189,7 @@ export function UserProfilePage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <CircleUser className="w-full h-full text-gray-400 p-2" />
+                    <CircleUser className="w-full h-full text-gray-40 p-2" />
                   )}
                 </div>
                 <div className="text-center">
@@ -298,7 +319,7 @@ export function UserProfilePage() {
             // View Mode
             <div className="space-y-6">
               <div className="flex flex-col items-center space-y-5 mb-8">
-                <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-primary shadow-lg flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-primary shadow-lg flex items-center justify-center bg-gray-10 dark:bg-gray-800">
                   {currentUserData?.profile_photo ? (
                     <img
                       src={currentUserData?.profile_photo}
@@ -316,7 +337,7 @@ export function UserProfilePage() {
                 )}
                 {currentUserData?.user_type && ( // Display user type prominently
                   <p className="text-xl text-primary dark:text-primary-400 font-semibold">
-                    {currentUserData.user_type === 'client' ? 'عميل' : currentUserData.user_type === 'technician' ? 'فني' : currentUserData.user_type}
+                    {getUserTypeDisplay(currentUserData.user_type) === 'client' ? 'عميل' : getUserTypeDisplay(currentUserData.user_type) === 'technician' ? 'فني' : getUserTypeDisplay(currentUserData.user_type) === 'admin' ? 'مشرف' : getUserTypeDisplay(currentUserData.user_type)}
                   </p>
                 )}
               </div>
@@ -368,7 +389,7 @@ export function UserProfilePage() {
                     <span>نوع المستخدم</span>
                   </p>
                   <p className="text-lg text-foreground font-medium">
-                    {currentUserData.user_type === 'client' ? 'عميل' : currentUserData.user_type === 'technician' ? 'فني' : currentUserData.user_type}
+                    {getUserTypeDisplay(currentUserData.user_type) === 'client' ? 'عميل' : getUserTypeDisplay(currentUserData.user_type) === 'technician' ? 'فني' : getUserTypeDisplay(currentUserData.user_type) === 'admin' ? 'مشرف' : getUserTypeDisplay(currentUserData.user_type)}
                   </p>
                 </div>
               )}

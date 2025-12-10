@@ -444,7 +444,7 @@ const DirectHireFlow = () => {
               ستتلقى تأكيدًا بمجرد قبوله الحجز.
             </p>
             <div className="flex gap-4 justify-center">
-              <Button variant="outline" onClick={() => navigate('/client-dashboard')}>
+              <Button variant="outline" onClick={() => navigate('/dashboard')}>
                 عرض طلباتي
               </Button>
               <Button onClick={() => navigate('/')}>

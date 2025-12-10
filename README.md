@@ -53,7 +53,7 @@ Srvanaserviceplatform/src/
 │   ├── UserProfilePage.jsx        # User profile management
 │   ├── BrowseUsersPage.jsx        # User directory
 │   │
-│   ├── client-dashboard/          # Client-specific components
+│   ├── dashboard/          # Client-specific components
 │   │   ├── ClientDashboard.jsx    # Main client dashboard
 │   │   └── ClientOrdersAndOffers.jsx # Orders and offers management
 │   │
@@ -61,7 +61,7 @@ Srvanaserviceplatform/src/
 │   │   ├── WorkerDashboard.jsx    # Main worker dashboard
 │   │   └── WorkerTasks.jsx        # Task management
 │   │
-│   ├── admin-dashboard/           # Admin-specific components
+│   ├── dashboard/           # Admin-specific components
 │   │   └── AdminDashboard.jsx     # Administrative interface
 │   │
 │   ├── service-ordering/          # Service ordering workflow
@@ -117,9 +117,9 @@ Srvanaserviceplatform/src/
 - **`/transactions/:transactionId`** - TransactionDetailPage: Financial transaction details
 
 #### Dashboard Routes
-- **`/client-dashboard/*`** - ClientDashboard: Client-specific interface
+- **`/dashboard/*`** - ClientDashboard: Client-specific interface
 - **`/worker-dashboard/*`** - WorkerDashboard: Technician-specific interface
-- **`/admin-dashboard/*`** - AdminDashboard: Administrative interface
+- **`/dashboard/*`** - AdminDashboard: Administrative interface
 
 ### User Flow Architecture
 

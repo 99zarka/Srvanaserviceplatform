@@ -71,7 +71,7 @@ export function LoginPage() {
         }));
 
         alert("تم تسجيل الدخول بنجاح باستخدام Google!");
-        navigate("/client-dashboard");
+        navigate("/dashboard");
       } else {
         setError("root.serverError", {
           type: "manual",
@@ -100,7 +100,7 @@ export function LoginPage() {
       console.log("Login successful!");
       // Redux will handle updating the state and localStorage
       // Navigate to dashboard
-      navigate("/client-dashboard");
+      navigate("/dashboard");
     } else if (login.rejected.match(resultAction)) {
       console.log("Login failed:", resultAction.payload);
 
@@ -257,7 +257,7 @@ export function LoginPage() {
               className="w-full flex items-center space-x-2"
               asChild
             >
-              <Link to="/client-dashboard">
+              <Link to="/dashboard">
                 <Users className="h-5 w-5" />
                 <span>تجريبي: لوحة تحكم العميل</span>
               </Link>
@@ -267,7 +267,7 @@ export function LoginPage() {
               className="w-full flex items-center space-x-2"
               asChild
             >
-              <Link to="/worker-dashboard">
+              <Link to="/dashboard">
                 <Wrench className="h-5 w-5" />
                 <span>تجريبي: لوحة تحكم العامل</span>
               </Link>
@@ -277,7 +277,7 @@ export function LoginPage() {
               className="w-full flex items-center space-x-2"
               asChild
             >
-              <Link to="/admin-dashboard">
+              <Link to="/dashboard">
                 <Shield className="h-5 w-5" />
                 <span>تجريبي: لوحة تحكم المسؤول</span>
               </Link>

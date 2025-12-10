@@ -36,13 +36,13 @@ const EditOrderPage = () => {
   useEffect(() => {
     if (successMessage) {
       console.log('EditOrderPage: successMessage received:', successMessage); // Debug log
-      console.log('EditOrderPage: navigating to:', `/client-dashboard/orders-offers/view/${orderId}`); // Debug log
+      console.log('EditOrderPage: navigating to:', `/dashboard/orders-offers/view/${orderId}`); // Debug log
       toast.success(successMessage);
       dispatch(clearSuccessMessage());
       if (successMessage.includes("cancelled")) {
-        navigate('/client-dashboard/orders-offers');
+        navigate('/dashboard/orders-offers');
       } else {
-        navigate(`/client-dashboard/orders-offers/view/${orderId}`);
+        navigate(`/dashboard/orders-offers/view/${orderId}`);
       }
     }
     if (error) {
@@ -50,7 +50,7 @@ const EditOrderPage = () => {
       toast.error(error?.detail || error?.message || error || "حدث خطأ أثناء تحديث الطلب.");
       dispatch(clearError());
       // If there's an error fetching a single order, navigate back to the list
-      // navigate('/client-dashboard/orders-offers'); // Removed this, as it might redirect too aggressively
+      // navigate('/dashboard/orders-offers'); // Removed this, as it might redirect too aggressively
     }
   }, [successMessage, error, dispatch, navigate, orderId]);
 
@@ -158,7 +158,7 @@ const EditOrderPage = () => {
   };
 
   const handleCancel = () => {
-    navigate('/client-dashboard/orders-offers');
+    navigate('/dashboard/orders-offers');
   };
 
   const handleCancelOrder = async () => {
@@ -185,7 +185,7 @@ const EditOrderPage = () => {
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
           <h1 className="text-2xl font-bold text-red-800 mb-2">لا يمكن تعديل الطلب</h1>
           <p className="text-red-600 mb-4">لا يمكن تعديل هذا الطلب لأنه ليس في حالة "مفتوحة" أو "في انتظار رد الفني". حالته الحالية هي: {currentViewingOrder.order_status}.</p>
-          <Button onClick={() => navigate('/client-dashboard/orders-offers')}>
+          <Button onClick={() => navigate('/dashboard/orders-offers')}>
             العودة إلى الطلبات
           </Button>
         </div>

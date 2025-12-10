@@ -48,7 +48,7 @@ export function WorkerOverview() {
           date: new Date(task.scheduled_date).toLocaleDateString("ar-EG"), // Assuming scheduled_date
           amount: `$${task.total_price || 0}`,
           status: task.status,
-          detailsLink: `/worker-dashboard/tasks/${task.id}`, // Placeholder
+          detailsLink: `/dashboard/tasks/${task.id}`, // Placeholder
         })));
 
         // Fetch monthly performance (example, assuming an endpoint)
@@ -139,7 +139,7 @@ export function WorkerOverview() {
               <span>المهام النشطة</span>
             </CardTitle>
             <Button variant="outline" asChild className="flex items-center space-x-2">
-              <Link to="/worker-dashboard/tasks">
+              <Link to="/dashboard/tasks">
                 <Eye className="h-4 w-4" />
                 <span>عرض الكل</span>
               </Link>
@@ -221,7 +221,7 @@ export function WorkerOverview() {
                 <span>تحديث التوفر</span>
               </Button>
               <Button variant="outline" asChild className="w-full flex items-center justify-center space-x-2">
-                <Link to="/worker-dashboard/earnings">
+                <Link to="/dashboard/earnings">
                   <CreditCard className="h-5 w-5" />
                   <span>عرض سجل الدفعات</span>
                 </Link>

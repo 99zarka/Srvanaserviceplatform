@@ -139,7 +139,7 @@ export function AdminOverview() {
               </Badge>
             </div>
             <Button variant="outline" size="sm" asChild className="flex items-center space-x-2">
-              <Link to="/admin-dashboard/pending-approvals">
+              <Link to="/dashboard/pending-approvals">
                 <Eye className="h-4 w-4" />
                 <span>عرض الكل</span>
               </Link>
@@ -170,7 +170,7 @@ export function AdminOverview() {
                           <span>مراجعة</span>
                         </Button>
                         <Button size="sm" variant="outline" asChild className="flex items-center space-x-1">
-                          <Link to={`/admin-dashboard/orders/${approval.id}`}>
+                          <Link to={`/dashboard/orders/${approval.id}`}>
                             <Search className="h-4 w-4" />
                             <span>التفاصيل</span>
                           </Link>
@@ -198,7 +198,7 @@ export function AdminOverview() {
               <span>تسجيلات المستخدمين الحديثة</span>
             </CardTitle>
             <Button variant="outline" asChild className="flex items-center space-x-2">
-              <Link to="/admin-dashboard/users">
+              <Link to="/dashboard/users">
                 <Users className="h-4 w-4" />
                 <span>عرض جميع المستخدمين</span>
               </Link>
