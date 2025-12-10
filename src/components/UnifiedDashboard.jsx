@@ -171,21 +171,23 @@ export function UnifiedDashboard() {
           <Route path="messages" element={<ClientMessages />} />
           <Route path="disputes" element={<ClientDisputes />} />
 
-      {/* Worker Routes */}
-      <Route path="tasks" element={<WorkerTasks />} />
-      <Route path="tasks/:taskId" element={<WorkerTaskDetails />} />
-      <Route path="earnings" element={<WorkerEarnings />} />
-      <Route path="reviews" element={<WorkerReviews />} />
-      <Route path="client-offers" element={<WorkerClientOffers />} />
-      <Route path="transactions" element={<WorkerTransactions />} />
-      
-      {/* Admin Routes */}
-      <Route path="users" element={<AdminUsers />} />
-      <Route path="verifications" element={<AdminVerifications />} />
-      <Route path="services" element={<AdminServices />} />
-      <Route path="reports" element={<AdminReports />} />
-      <Route path="settings" element={<AdminSettings />} />
-    </Routes>
+          {/* Worker Routes */}
+          <Route path="tasks" element={<WorkerTasks />} />
+          <Route path="tasks/:taskId" element={<WorkerTaskDetails />} />
+          <Route path="earnings" element={<WorkerEarnings />} />
+          <Route path="reviews" element={<WorkerReviews />} />
+          <Route path="client-offers" element={<WorkerClientOffers />} />
+          <Route path="transactions" element={<WorkerTransactions />} />
+          
+          {/* Admin Routes */}
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="verifications" element={<AdminVerifications />} />
+          <Route path="services" element={<AdminServices />} />
+          <Route path="reports" element={<AdminReports />} />
+          <Route path="settings" element={<AdminSettings />} />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
   );
 
   return (
