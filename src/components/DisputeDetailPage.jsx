@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getDisputeDetail, respondToDispute, clearCurrentDispute } from "../redux/disputeSlice";
+import { clearCurrentDispute, useGetDisputeDetailQuery, useUpdateDisputeMutation } from "../redux/disputeSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -15,28 +15,34 @@ export function DisputeDetailPage() {
   const { currentDispute, loading, error, successMessage } = useSelector((state) => state.disputes);
   const { user } = useSelector((state) => state.auth); // Assuming user object has id and user_type
 
+  // Use RTK Query hooks
+  const { data: disputeData, isLoading: isQueryLoading, error: queryError } = useGetDisputeDetailQuery(disputeId, {
+    skip: !disputeId
+  });
+  const [updateDispute] = useUpdateDisputeMutation();
+
   const [responseMessage, setResponseMessage] = useState("");
   const [showResponseInput, setShowResponseInput] = useState(false);
 
   useEffect(() => {
-    if (disputeId) {
-      dispatch(getDisputeDetail(disputeId));
-    }
     return () => {
       dispatch(clearCurrentDispute()); // Clear dispute details on unmount
     };
-  }, [disputeId, dispatch]);
+  }, [dispatch]);
 
   const handleRespondToDispute = async () => {
     if (responseMessage.trim() && currentDispute) {
-      await dispatch(respondToDispute({
-        disputeId: currentDispute.id,
-        responseData: { message: responseMessage },
-      }));
-      setResponseMessage("");
-      setShowResponseInput(false);
-      // Re-fetch dispute to show updated conversation
-      dispatch(getDisputeDetail(disputeId));
+      try {
+        await updateDispute({
+          disputeId: currentDispute.id,
+          responseData: { message: responseMessage },
+        }).unwrap();
+        setResponseMessage("");
+        setShowResponseInput(false);
+        // The RTK Query cache will automatically update
+      } catch (error) {
+        console.error("Failed to update dispute:", error);
+      }
     }
   };
 
