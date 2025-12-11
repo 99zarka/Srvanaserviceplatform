@@ -114,6 +114,39 @@ export const api = createApi({
       }),
       invalidatesTags: (result, error, { disputeId }) => [{ type: 'Dispute', id: disputeId }],
     }),
+
+    // Add response to dispute
+    addDisputeResponse: builder.mutation({
+      query: ({ disputeId, message, file_url }) => {
+        if (file_url instanceof File) {
+          // If file_url is a File object, use FormData
+          const formData = new FormData();
+          formData.append('message', message);
+          formData.append('file_url', file_url);
+          return {
+            url: `/disputes/disputes/${disputeId}/add_response/`,
+            method: 'POST',
+            body: formData,
+            // Don't set Content-Type header - let fetch set it automatically with boundary
+          };
+        } else {
+          // If no file, send as JSON
+          const body = { message };
+          if (file_url) {
+            body.file_url = file_url;
+          }
+          return {
+            url: `/disputes/disputes/${disputeId}/add_response/`,
+            method: 'POST',
+            body: body,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          };
+        }
+      },
+      invalidatesTags: (result, error, { disputeId }) => [{ type: 'Dispute', id: disputeId }],
+    }),
   }),
 });
 
