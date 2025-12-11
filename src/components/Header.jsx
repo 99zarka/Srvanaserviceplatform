@@ -107,9 +107,6 @@ export function Header() {
       { name: "تصفح الفنيين", path: "/technicians/browse", icon: Wrench, id: "service-technicians-browse" },
     ];
 
-    // Add profile link
-    navItems.splice(2, 0, { name: "ملفي الشخصي", path: `/profile/${user.user_id}`, icon: CircleUser });
-
     // Add Services dropdown
     navItems.splice(2, 0, {
       name: "الخدمات",
@@ -123,22 +120,33 @@ export function Header() {
   return (
     <header className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" dir="rtl">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo - Always Visible */}
-          <Link
-            to="/"
-            className="flex items-center cursor-pointer shrink-0 z-10"
-          >
-            <img 
-              src={SrvanaLogo} 
-              alt="Srvana Logo" 
-              className="h-8 w-auto"
-            />
-          </Link>
+        <div className="flex items-center h-16 gap-4">
+          {/* Right Side: Logo + Home Link */}
+          <div className="flex items-center gap-6 shrink-0">
+            <Link
+              to="/"
+              className="flex items-center cursor-pointer"
+            >
+              <img 
+                src={SrvanaLogo} 
+                alt="Srvana Logo" 
+                className="h-8 w-auto"
+              />
+            </Link>
+            <Link
+              to="/"
+              className={`hidden md:flex hover:text-primary transition-colors flex-row items-center gap-2 whitespace-nowrap ${
+                location.pathname === "/" ? "text-primary" : "text-foreground"
+              }`}
+            >
+              <span>الرئيسية</span>
+              <Home className="h-4 w-4" />
+            </Link>
+          </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8" dir="rtl">
-            {navItems.map((item) => (
+          {/* Center: Navigation Links */}
+          <nav className="hidden md:flex items-center gap-8 flex-1 justify-center" dir="rtl">
+            {navItems.filter(item => item.path !== "/").map((item) => (
               item.isDropdown ? (
                 <DropdownMenu key={item.path}>
                   <DropdownMenuTrigger asChild>
@@ -170,12 +178,14 @@ export function Header() {
             ))}
           </nav>
 
-          {/* Desktop CTA Buttons */}
-          <AuthSection />
+          {/* Left Side: Auth Buttons */}
+          <div className="hidden md:flex items-center shrink-0">
+            <AuthSection />
+          </div>
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden"
+            className="md:hidden mr-auto"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
@@ -257,15 +267,7 @@ function AuthSection({ isMobile = false, closeMenu }) {
 
   if (isAuthenticated && user) {
     return (
-      <div className={`${isMobile ? "flex flex-col space-y-2" : "hidden md:flex"} items-center space-x-2`}>
-        {/* Welcome Message - more compact */}
-        <span className="text-foreground flex items-center space-x-1 text-sm">
-          <Smile className="h-4 w-4" />
-          <span>
-            مرحبًا, {user.first_name ? user.first_name.split(' ')[0] : user.username || "مستخدم"}
-          </span>
-        </span>
-
+      <div className={`${isMobile ? "flex flex-col space-y-2" : "flex"} items-center gap-2`}>
         {/* Notification Dropdown */}
         <NotificationDropdown isMobile={isMobile} closeMenu={closeMenu} />
 
@@ -283,19 +285,45 @@ function AuthSection({ isMobile = false, closeMenu }) {
         {user.user_type?.user_type_name !== 'technician' && user.user_type?.user_type_name !== 'admin' && (
           <Button
             onClick={handleBecomeTechnician}
-            className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white p-1 h-8"
+            className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white h-9 px-3"
             size="sm"
           >
             <Wrench className="h-4 w-4" />
-            <span className="text-sm">فني</span>
+            <span className="text-sm">كن فني</span>
           </Button>
         )}
 
-        {/* Logout Button - more compact */}
+        {/* User Dropdown Menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="flex items-center gap-1 h-9 px-2">
+              <CircleUser className="h-5 w-5" />
+              <span className="text-sm max-w-[80px] truncate">
+                {user.first_name ? user.first_name.split(' ')[0] : user.username || "مستخدم"}
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" dir="rtl">
+            <DropdownMenuLabel>حسابي</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to={`/profile/${user.user_id}`} className="flex items-center gap-2">
+                <CircleUser className="h-4 w-4" />
+                <span>الملف الشخصي</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+              <LogOut className="h-4 w-4 ml-2" />
+              <span>تسجيل الخروج</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Logout Button - Yellow */}
         <Button
-          variant="ghost"
           onClick={handleLogout}
-          className="flex items-center space-x-1 p-1 h-8"
+          className="flex items-center gap-1 bg-primary hover:bg-primary/90 text-primary-foreground h-9 px-3"
           size="sm"
         >
           <LogOut className="h-4 w-4" />
@@ -306,12 +334,11 @@ function AuthSection({ isMobile = false, closeMenu }) {
   }
 
   return (
-    <div className={`${isMobile ? "flex flex-col space-y-2" : "hidden md:flex"} items-center space-x-4`}>
+    <div className={`${isMobile ? "flex flex-col space-y-2" : "flex"} items-center gap-3`}>
       <Button
-        variant="ghost"
         asChild
+        className="bg-[#1e3a5f] hover:bg-[#2c4a6f] text-white flex items-center gap-2"
         onClick={isMobile ? closeMenu : undefined}
-        className="flex items-center space-x-2"
       >
         <Link to="/login">
           <LogIn className="h-5 w-5" />
@@ -319,8 +346,9 @@ function AuthSection({ isMobile = false, closeMenu }) {
         </Link>
       </Button>
       <Button
+        variant="outline"
         asChild
-        className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center space-x-2"
+        className="flex items-center gap-2 border-foreground/30"
         onClick={isMobile ? closeMenu : undefined}
       >
         <Link to="/signup">
