@@ -76,7 +76,7 @@ export function HomePage() {
   return (
     <div className="min-h-screen" dir="rtl">
       {/* Hero Section */}
-      <section className="py-20 bg-linear-to-br from-secondary to-secondary/90 text-secondary-foreground md:py-32">
+      <section className="py-20 bg-white text-foreground md:py-32">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="grid items-center gap-12 md:grid-cols-2">
             <motion.div
@@ -90,7 +90,7 @@ export function HomePage() {
               <h1 className="mb-6 animate-fade-in-up">
                 تواصل مع المهنيين المهرة لكل خدمة منزلية
               </h1>
-              <p className="mb-8 text-secondary-foreground/90 animate-fade-in-up">
+              <p className="mb-8 text-muted-foreground animate-fade-in-up">
                 سرفانا تجعل من السهل العثور على عمال موثوقين لأعمال النجارة، السباكة،
                 الأعمال الكهربائية، والمزيد. خدمة عالية الجودة، مضمونة.
               </p>
@@ -107,9 +107,8 @@ export function HomePage() {
                 </Button>
                 <Button
                   size="lg"
-                  variant="outline"
                   asChild
-                  className="flex items-center space-x-2 border-secondary-foreground/30 hover:text-secondary-foreground hover:bg-secondary-foreground/10 hover-lift"
+                  className="flex items-center space-x-2 bg-[#1e3a5f] hover:bg-[#2c4a6f] text-white hover-lift"
                 >
                   <Link to="/signup">
                     <span>انضم كعامل</span>
@@ -175,62 +174,6 @@ export function HomePage() {
 
       {/* Featured Quick Services */}
       <FeaturedQuickServices />
-
-      {/* Featured Services */}
-      <section className="py-20 bg-muted">
-        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <motion.div 
-            className="mb-12 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="flex items-center justify-center mb-4 space-x-2">
-              <Sparkles className="h-7 w-7 text-primary" />
-              <span>خدمات مميزة</span>
-            </h2>
-            <p className="max-w-2xl mx-auto text-muted-foreground">
-              مهنيون خبراء مستعدون للمساعدة في مشاريع منزلك
-            </p>
-          </motion.div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {services.map((service, index) => (
-              <motion.div
-                key={service.title}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-              >
-                <Link 
-                  to="/services"
-                  className="overflow-hidden transition-shadow cursor-pointer hover:shadow-lg group card-enter"
-                >
-                  <div className="overflow-hidden aspect-video">
-                  <ImageWithFallback
-                    src={service.image}
-                    alt={service.title}
-                    className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
-                  />
-                </div>
-                <CardContent className="pt-4">
-                  <h3 className="mb-2">{service.title}</h3>
-                  <p className="text-muted-foreground">{service.description}</p>
-                  <Button 
-                    variant="default" 
-                    size="sm"
-                    className="mt-3 hover-lift ripple"
-                  >
-                    تعلم المزيد <ArrowRight className="w-4 h-4 mr-1" />
-                  </Button>
-                </CardContent>
-              </Link>
-            </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Testimonials */}
       <section className="py-20 bg-white">

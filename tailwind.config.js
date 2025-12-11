@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Noto Kufi Arabic', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        arabic: ['Noto Kufi Arabic', 'sans-serif'],
+      },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
         'fade-in-up': 'fadeInUp 0.6s ease-out',
