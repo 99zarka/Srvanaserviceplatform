@@ -24,8 +24,8 @@ import {
   cancelOrder,
   acceptOffer,
   releaseFunds, // Import releaseFunds
-  initiateDispute, // Import initiateDispute
 } from '../../redux/orderSlice';
+import { useCreateDisputeMutation } from '../../redux/disputeSlice';
 
 const ViewOrderPage = () => {
   const { orderId } = useParams();
@@ -98,6 +98,8 @@ const ViewOrderPage = () => {
     }
   };
 
+  const [createDispute] = useCreateDisputeMutation();
+
   const handleInitiateDispute = async () => {
     if (!disputeReason.trim()) {
       toast.error("الرجاء تقديم سبب للنزاع.");
@@ -105,7 +107,10 @@ const ViewOrderPage = () => {
     }
     setIsSubmitting(true);
     try {
-      await dispatch(initiateDispute({ orderId, argument: disputeReason })).unwrap();
+      await createDispute({
+        order: orderId,
+        client_argument: disputeReason
+      }).unwrap();
       toast.success("تم فتح نزاع بنجاح.");
       setShowDisputeDialog(false);
       setDisputeReason("");

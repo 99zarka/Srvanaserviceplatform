@@ -15,24 +15,24 @@ const baseQuery = fetchBaseQuery({
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQuery,
-  tagTypes: ['Order', 'Technician', 'User', 'Offer'],
+  tagTypes: ['Order', 'Technician', 'User', 'Offer', 'Dispute'],
   endpoints: (builder) => ({
     // Order endpoints
     getClientOrders: builder.query({
       query: () => '/orders/orders/?role=client',
       providesTags: ['Order'],
     }),
-    
+
     getAvailableOrders: builder.query({
       query: () => '/orders/orders/available_for_offer/',
       providesTags: ['Order'],
     }),
-    
+
     getOrderOffers: builder.query({
       query: (orderId) => `/orders/orders/${orderId}/offers/`,
       providesTags: (result, error, orderId) => [{ type: 'Offer', id: orderId }],
     }),
-    
+
     createOrder: builder.mutation({
       query: (newOrder) => ({
         url: '/orders/orders/',
@@ -41,7 +41,7 @@ export const api = createApi({
       }),
       invalidatesTags: ['Order'],
     }),
-    
+
     acceptOffer: builder.mutation({
       query: ({ orderId, offerId }) => ({
         url: `/orders/orders/${orderId}/accept-offer/${offerId}/`,
@@ -49,7 +49,7 @@ export const api = createApi({
       }),
       invalidatesTags: ['Order', 'Offer'],
     }),
-    
+
     // Project offer endpoints
     createProjectOffer: builder.mutation({
       query: (newOffer) => ({
@@ -59,7 +59,7 @@ export const api = createApi({
       }),
       invalidatesTags: ['Offer'],
     }),
-    
+
     // Technician endpoints
     getTechnicians: builder.query({
       query: (params = {}) => {
@@ -71,10 +71,48 @@ export const api = createApi({
       },
       providesTags: ['Technician'],
     }),
-    
+
     getTechnicianDetail: builder.query({
       query: (technicianId) => `/users/users/${technicianId}/technician_detail/`,
       providesTags: (result, error, technicianId) => [{ type: 'Technician', id: technicianId }],
+    }),
+
+    // Dispute endpoints
+    getDisputes: builder.query({
+      query: () => '/disputes/disputes/',
+      providesTags: ['Dispute'],
+    }),
+
+    getDisputeDetail: builder.query({
+      query: (disputeId) => `/disputes/disputes/${disputeId}/`,
+      providesTags: (result, error, disputeId) => [{ type: 'Dispute', id: disputeId }],
+    }),
+
+    createDispute: builder.mutation({
+      query: (disputeData) => ({
+        url: '/disputes/disputes/',
+        method: 'POST',
+        body: disputeData,
+      }),
+      invalidatesTags: ['Dispute'],
+    }),
+
+    updateDispute: builder.mutation({
+      query: ({ disputeId, ...patch }) => ({
+        url: `/disputes/disputes/${disputeId}/`,
+        method: 'PATCH',
+        body: patch,
+      }),
+      invalidatesTags: (result, error, { disputeId }) => [{ type: 'Dispute', id: disputeId }],
+    }),
+
+    resolveDispute: builder.mutation({
+      query: ({ disputeId, resolutionData }) => ({
+        url: `/disputes/disputes/${disputeId}/resolve/`,
+        method: 'POST',
+        body: resolutionData,
+      }),
+      invalidatesTags: (result, error, { disputeId }) => [{ type: 'Dispute', id: disputeId }],
     }),
   }),
 });
@@ -89,4 +127,10 @@ export const {
   useCreateProjectOfferMutation,
   useGetTechniciansQuery,
   useGetTechnicianDetailQuery,
+  // Dispute hooks
+  useGetDisputesQuery,
+  useGetDisputeDetailQuery,
+  useCreateDisputeMutation,
+  useUpdateDisputeMutation,
+  useResolveDisputeMutation,
 } = api;

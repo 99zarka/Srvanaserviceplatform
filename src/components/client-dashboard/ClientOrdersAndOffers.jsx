@@ -14,7 +14,7 @@ import {
   clearError, 
   clearSuccessMessage,
 } from '../../redux/orderSlice';
-import { initiateDispute } from '../../redux/disputeSlice';
+import { useCreateDisputeMutation } from '../../redux/disputeSlice';
 import { Clock, CheckCircle, XCircle, DollarSign, User, MapPin, Calendar, Loader2, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -122,16 +122,18 @@ const ClientOrdersAndOffers = () => {
     setIsDisputeModalOpen(true);
   };
 
+  const [createDispute] = useCreateDisputeMutation();
+
   const handleConfirmDispute = async () => {
     if (!disputeDescription) { // Only disputeDescription is sent to backend as client_argument
       toast.error('الرجاء إدخال وصف النزاع.');
       return;
     }
     try {
-      await dispatch(initiateDispute({ 
-        orderId: selectedOrderId, 
-        clientArgument: disputeDescription 
-      })).unwrap();
+      await createDispute({
+        order: selectedOrderId,
+        client_argument: disputeDescription
+      }).unwrap();
       setIsDisputeModalOpen(false);
       setDisputeReason('');
       setDisputeDescription('');

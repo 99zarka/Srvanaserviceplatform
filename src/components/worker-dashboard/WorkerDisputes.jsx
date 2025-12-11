@@ -7,17 +7,19 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Flag, Eye } from "lucide-react";
 import { getTechnicianOrders } from "../../redux/orderSlice";
-import { getOrderDisputes } from "../../redux/disputeSlice";
+import { useGetDisputesQuery } from "../../redux/disputeSlice";
 
 export function WorkerDisputes() {
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.auth);
   const { technicianOrders, loading: ordersLoading, error: ordersError } = useSelector((state) => state.orders);
-  // Using a local state for disputes as getOrderDisputes is called per order,
-  // and we want to aggregate them here.
-  const [allDisputes, setAllDisputes] = useState([]);
-  const [disputesLoading, setDisputesLoading] = useState(false);
-  const [disputesError, setDisputesError] = useState(null);
+  // Use RTK Query hook for disputes
+  const { data: disputesData, isLoading: disputesLoading, error: disputesError } = useGetDisputesQuery(undefined, {
+    skip: !token
+  });
+
+  // Filter disputes to only show those related to the technician's orders
+  const [filteredDisputes, setFilteredDisputes] = useState([]);
 
   useEffect(() => {
     if (token) {
@@ -26,34 +28,17 @@ export function WorkerDisputes() {
   }, [token, dispatch]);
 
   useEffect(() => {
-    const fetchAllDisputes = async () => {
-      if (technicianOrders.length > 0 && token) {
-        setDisputesLoading(true);
-        setDisputesError(null);
-        let fetchedDisputes = [];
-        for (const order of technicianOrders) {
-          try {
-            const result = await dispatch(getOrderDisputes(order.id)).unwrap();
-            // Assuming result is an array of disputes or has a results property
-            const disputesForOrder = result.results || result; 
-            fetchedDisputes = fetchedDisputes.concat(disputesForOrder);
-          } catch (err) {
-            console.error(`Failed to fetch disputes for order ${order.id}:`, err);
-            setDisputesError(err.message || "فشل في جلب بعض النزاعات.");
-          }
-        }
-        // Ensure uniqueness if the same dispute could be returned by different means
-        const uniqueDisputes = Array.from(new Map(fetchedDisputes.map(d => [d.id, d])).values());
-        setAllDisputes(uniqueDisputes);
-        setDisputesLoading(false);
-      } else if (technicianOrders.length === 0 && !ordersLoading && !ordersError) {
-        setAllDisputes([]); // No orders, no disputes
-        setDisputesLoading(false);
-      }
-    };
-
-    fetchAllDisputes();
-  }, [technicianOrders, token, dispatch, ordersLoading, ordersError]);
+    if (disputesData && technicianOrders.length > 0) {
+      // Filter disputes to only show those related to the technician's orders
+      const technicianOrderIds = new Set(technicianOrders.map(order => order.id));
+      const filtered = disputesData.filter(dispute =>
+        technicianOrderIds.has(dispute.order?.id)
+      );
+      setFilteredDisputes(filtered);
+    } else if (technicianOrders.length === 0 && !ordersLoading && !ordersError) {
+      setFilteredDisputes([]); // No orders, no disputes
+    }
+  }, [disputesData, technicianOrders, ordersLoading, ordersError]);
 
   const getStatusBadge = (status) => {
     let translatedStatus = status;
@@ -84,9 +69,9 @@ export function WorkerDisputes() {
   };
 
   if (ordersLoading || disputesLoading) return <div className="text-center p-8" dir="rtl">جاري تحميل النزاعات...</div>;
-  if (ordersError || disputesError) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ: {ordersError || disputesError}</div>;
+  if (ordersError || disputesError) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ: {ordersError || disputesError?.message || disputesError}</div>;
 
-  if (allDisputes.length === 0) {
+  if (filteredDisputes.length === 0) {
     return <div className="text-center p-8" dir="rtl">لا توجد نزاعات حاليًا.</div>;
   }
 
@@ -113,12 +98,12 @@ export function WorkerDisputes() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {allDisputes.map((dispute) => (
+              {filteredDisputes.map((dispute) => (
                 <TableRow key={dispute.id}>
                   <TableCell>{dispute.id}</TableCell>
                   <TableCell>
-                    <Link to={`/dashboard/tasks/${dispute.order.id}`} className="text-blue-600 hover:underline">
-                      #{dispute.order.id}
+                    <Link to={`/dashboard/tasks/${dispute.order?.id}`} className="text-blue-600 hover:underline">
+                      #{dispute.order?.id}
                     </Link>
                   </TableCell>
                   <TableCell>{dispute.reason}</TableCell>
