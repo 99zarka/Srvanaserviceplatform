@@ -28,15 +28,30 @@ export function WorkerDisputes() {
   }, [token, dispatch]);
 
   useEffect(() => {
-    if (disputesData && technicianOrders.length > 0) {
+    // Handle both paginated (with results) and direct array responses
+    let disputesArray = [];
+    if (disputesData) {
+      if (Array.isArray(disputesData)) {
+        disputesArray = disputesData;
+      } else if (disputesData.results && Array.isArray(disputesData.results)) {
+        disputesArray = disputesData.results;
+      } else if (disputesData.results !== undefined) {
+        // If results exists but is not an array, handle gracefully
+        disputesArray = Array.isArray(disputesData.results) ? disputesData.results : [];
+      }
+    }
+
+    if (disputesArray.length > 0 && technicianOrders.length > 0) {
       // Filter disputes to only show those related to the technician's orders
       const technicianOrderIds = new Set(technicianOrders.map(order => order.id));
-      const filtered = disputesData.filter(dispute =>
+      const filtered = disputesArray.filter(dispute =>
         technicianOrderIds.has(dispute.order?.id)
       );
       setFilteredDisputes(filtered);
     } else if (technicianOrders.length === 0 && !ordersLoading && !ordersError) {
       setFilteredDisputes([]); // No orders, no disputes
+    } else if (disputesArray.length === 0) {
+      setFilteredDisputes([]);
     }
   }, [disputesData, technicianOrders, ordersLoading, ordersError]);
 

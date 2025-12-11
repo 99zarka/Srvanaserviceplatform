@@ -85,7 +85,7 @@ export function UnifiedDashboard() {
     { icon: DollarSign, label: "الأرباح", path: "/dashboard/earnings" },
     { icon: Star, label: "التقييمات", path: "/dashboard/reviews" },
     { icon: DollarSign, label: "المعاملات", path: "/dashboard/transactions" },
-    { icon: Flag, label: "النزاعات", path: "/dashboard/disputes" },
+    { icon: Flag, label: "النزاعات", path: "/dashboard/worker-disputes" },
   ];
 
   const adminTools = [
@@ -188,8 +188,11 @@ export function UnifiedDashboard() {
           <Route path="reviews" element={<WorkerReviews />} />
           <Route path="client-offers" element={<WorkerClientOffers />} />
           <Route path="transactions" element={<WorkerTransactions />} />
+          <Route path="overview" element={<WorkerOverview />} />
+          <Route path="worker-disputes" element={<WorkerDisputes />} />
           
           {/* Admin Routes */}
+          <Route path="admin-overview" element={<AdminOverview />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="verifications" element={<AdminVerifications />} />
           <Route path="services" element={<AdminServices />} />

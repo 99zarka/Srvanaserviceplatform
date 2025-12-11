@@ -28,15 +28,30 @@ export function ClientDisputes() {
   }, [token, dispatch]);
 
   useEffect(() => {
-    if (disputesData && clientOrders.length > 0) {
+    // Handle both paginated (with results) and direct array responses
+    let disputesArray = [];
+    if (disputesData) {
+      if (Array.isArray(disputesData)) {
+        disputesArray = disputesData;
+      } else if (disputesData.results && Array.isArray(disputesData.results)) {
+        disputesArray = disputesData.results;
+      } else if (disputesData.results !== undefined) {
+        // If results exists but is not an array, handle gracefully
+        disputesArray = Array.isArray(disputesData.results) ? disputesData.results : [];
+      }
+    }
+
+    if (disputesArray.length > 0 && clientOrders.length > 0) {
       // Filter disputes to only show those related to the client's orders
       const clientOrderIds = new Set(clientOrders.map(order => order.id));
-      const filtered = disputesData.filter(dispute =>
+      const filtered = disputesArray.filter(dispute =>
         clientOrderIds.has(dispute.order?.id)
       );
       setFilteredDisputes(filtered);
     } else if (clientOrders.length === 0 && !ordersLoading && !ordersError) {
       setFilteredDisputes([]); // No orders, no disputes
+    } else if (disputesArray.length === 0) {
+      setFilteredDisputes([]);
     }
   }, [disputesData, clientOrders, ordersLoading, ordersError]);
 
@@ -69,7 +84,7 @@ export function ClientDisputes() {
   };
 
   if (ordersLoading || disputesLoading) return <div className="text-center p-8" dir="rtl">جاري تحميل النزاعات...</div>;
-  if (ordersError || disputesError) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ: {ordersError || disputesError?.message || disputesError}</div>;
+ if (ordersError || disputesError) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ: {ordersError || disputesError?.message || disputesError}</div>;
 
   if (filteredDisputes.length === 0) {
     return <div className="text-center p-8" dir="rtl">لا توجد نزاعات حاليًا.</div>;
