@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSingleOrder, clearCurrentViewingOrder } from "../redux/orderSlice";
-import { useAddDisputeResponseMutation } from "../redux/disputeSlice";
+import { useAddDisputeResponseMutation, useResolveDisputeMutation } from "../redux/disputeSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
-import { ArrowLeft, MessageSquare, User, Calendar, MapPin, FileText, Coins } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { ArrowLeft, MessageSquare, User, Calendar, MapPin, FileText, Coins, CheckCircle, AlertCircle, DollarSign } from "lucide-react";
 
 export function DisputeDetailPage() {
   const { orderId } = useParams();
@@ -21,6 +22,14 @@ export function DisputeDetailPage() {
   const [filePreview, setFilePreview] = useState("");
   const [showResponseInput, setShowResponseInput] = useState(false);
   const [addDisputeResponse, { isLoading: isAddingResponse }] = useAddDisputeResponseMutation();
+  const [resolveDispute, { isLoading: isResolving, isSuccess: isResolved, isError: resolveError }] = useResolveDisputeMutation();
+
+  // Admin resolution state
+  const [resolutionType, setResolutionType] = useState("");
+  const [clientRefundAmount, setClientRefundAmount] = useState("");
+  const [technicianPayoutAmount, setTechnicianPayoutAmount] = useState("");
+  const [adminNotes, setAdminNotes] = useState("");
+  const [showResolutionForm, setShowResolutionForm] = useState(false);
 
   useEffect(() => {
     console.log('DisputeDetailPage useEffect triggered, orderId:', orderId);
@@ -73,6 +82,48 @@ export function DisputeDetailPage() {
     }
   };
 
+  const handleResolveDispute = async () => {
+    if (!resolutionType || !adminNotes) {
+      alert("يرجى تحديد نوع القرار وملاحظات المشرف");
+      return;
+    }
+
+    if (resolutionType === "SPLIT_PAYMENT" && (!clientRefundAmount || !technicianPayoutAmount)) {
+      alert("يرجى إدخال المبالغ عند اختيار تقسيم الدفع");
+      return;
+    }
+
+    try {
+      const resolutionData = {
+        resolution: resolutionType,
+        admin_notes: adminNotes
+      };
+
+      if (resolutionType === "SPLIT_PAYMENT") {
+        resolutionData.client_refund_amount = parseFloat(clientRefundAmount);
+        resolutionData.technician_payout_amount = parseFloat(technicianPayoutAmount);
+      }
+
+      await resolveDispute({
+        disputeId: currentViewingOrder.dispute.dispute_id,
+        resolutionData
+      }).unwrap();
+
+      // Clear form
+      setResolutionType("");
+      setClientRefundAmount("");
+      setTechnicianPayoutAmount("");
+      setAdminNotes("");
+      setShowResolutionForm(false);
+      
+      // Refetch the order data to update the UI with the resolution
+      await dispatch(fetchSingleOrder(orderId));
+    } catch (error) {
+      console.error("Failed to resolve dispute:", error);
+      alert("فشل في حل النزاع: " + (error.data?.detail || error.message));
+    }
+  };
+
   const getStatusBadge = (status) => {
     let translatedStatus = status;
     let className = "bg-gray-100 text-gray-800";
@@ -109,7 +160,9 @@ export function DisputeDetailPage() {
   const order = currentViewingOrder;
   const isClient = user?.user_id === order.client_user?.user_id;
   const isTechnician = user?.user_id === order.technician_user;
+  const isAdmin = user?.user_type === 'admin';
   const canRespond = (isClient || isTechnician) && (dispute.status === "OPEN" || dispute.status === "IN_REVIEW");
+  const canResolve = isAdmin && (dispute.status === "OPEN" || dispute.status === "IN_REVIEW");
 
   return (
     <div className="min-h-screen bg-gray-50 p-4" dir="rtl">
@@ -146,7 +199,7 @@ export function DisputeDetailPage() {
                 {/* Order Details */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                   <div className="space-y-2">
-                    <div className="flex items-center text-gray-600">
+                    <div className="flex items-center text-gray-60">
                       <User className="h-4 w-4 ml-2" />
                       <span className="font-medium">نوع الطلب:</span>
                     </div>
@@ -160,11 +213,11 @@ export function DisputeDetailPage() {
                     <p className="text-gray-800">{new Date(order.creation_timestamp).toLocaleDateString("ar-EG")}</p>
                   </div>
                   <div className="space-y-2">
-                    <div className="flex items-center text-gray-60">
+                    <div className="flex items-center text-gray-600">
                       <MapPin className="h-4 w-4 ml-2" />
                       <span className="font-medium">الموقع:</span>
                     </div>
-                    <p className="text-gray-800">{order.requested_location}</p>
+                    <p className="text-gray-80">{order.requested_location}</p>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center text-gray-600">
@@ -181,7 +234,7 @@ export function DisputeDetailPage() {
                     <FileText className="h-5 w-5 ml-2" />
                     معلومات الخدمة
                   </h3>
-                  <div className="space-y-2 text-gray-700">
+                  <div className="space-y-2 text-gray-70">
                     <p><strong>الخدمة:</strong> {order.service?.service_name}</p>
                     <p><strong>التصنيف:</strong> {order.service?.category?.category_name}</p>
                     <p><strong>الوصف:</strong> {order.service?.description}</p>
@@ -197,7 +250,7 @@ export function DisputeDetailPage() {
                 {/* Dispute Details */}
                 <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                   <h3 className="text-lg font-semibold text-yellow-900 mb-3">تفاصيل النزاع</h3>
-                  <div className="space-y-3 text-gray-70">
+                  <div className="space-y-3 text-gray-700">
                     <div>
                       <strong>المُبادر:</strong> {dispute.initiator?.first_name} {dispute.initiator?.last_name}
                     </div>
@@ -268,13 +321,15 @@ export function DisputeDetailPage() {
 
                 {/* Resolution (if exists) */}
                 {dispute.resolution && (
-                  <div className="p-4 bg-green-50 rounded-lg border border-green-20">
-                    <h3 className="text-lg font-semibold text-green-900 mb-3">الحل</h3>
+                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                    <h3 className="text-lg font-semibold text-green-900 mb-3 flex items-center">
+                      <CheckCircle className="h-5 w-5 ml-2" />
+                      الحل
+                    </h3>
                     <div className="space-y-2 text-gray-700">
-                      <p><strong>القرار:</strong> {dispute.resolution.decision || "غير متوفر"}</p>
-                      <p><strong>المبلغ للعميل:</strong> ${dispute.resolution.amount_to_client || 0}</p>
-                      <p><strong>المبلغ للفني:</strong> ${dispute.resolution.amount_to_technician || 0}</p>
-                      <p><strong>تاريخ الحل:</strong> {dispute.resolution.resolution_date ? new Date(dispute.resolution.resolution_date).toLocaleString("ar-EG") : "غير متوفر"}</p>
+                      <p><strong>القرار:</strong> {dispute.resolution}</p>
+                      <p><strong>ملاحظات المشرف:</strong> {dispute.admin_notes || "غير متوفر"}</p>
+                      <p><strong>تاريخ الحل:</strong> {dispute.resolution_date ? new Date(dispute.resolution_date).toLocaleString("ar-EG") : "غير متوفر"}</p>
                     </div>
                   </div>
                 )}
@@ -302,6 +357,112 @@ export function DisputeDetailPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Admin Resolution Section */}
+            {canResolve && (
+              <Card className="shadow-lg border-0 rounded-xl overflow-hidden">
+                <CardHeader className="bg-red-600 text-white p-4">
+                  <CardTitle className="text-lg font-semibold flex items-center">
+                    <AlertCircle className="h-5 w-5 ml-2" />
+                    حل النزاع
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 space-y-4">
+                  <Button 
+                    onClick={() => setShowResolutionForm(!showResolutionForm)} 
+                    className="w-full bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    {showResolutionForm ? "إلغاء" : "حل النزاع"}
+                  </Button>
+                  {showResolutionForm && (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="resolutionType">نوع القرار</Label>
+                        <Select value={resolutionType} onValueChange={setResolutionType}>
+                          <SelectTrigger id="resolutionType" className="w-full">
+                            <SelectValue placeholder="اختر نوع القرار" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="REFUND_CLIENT">رد الأموال للعميل</SelectItem>
+                            <SelectItem value="PAY_TECHNICIAN">دفع الأموال للفني</SelectItem>
+                            <SelectItem value="SPLIT_PAYMENT">تقسيم الدفع</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {resolutionType === "SPLIT_PAYMENT" && (
+                        <>
+                          <div className="space-y-2">
+                            <Label htmlFor="clientRefundAmount">مبلغ رد العميل ($)</Label>
+                            <div className="flex items-center space-x-2">
+                              <DollarSign className="h-4 w-4 text-gray-500" />
+                              <input
+                                type="number"
+                                id="clientRefundAmount"
+                                placeholder="0.00"
+                                value={clientRefundAmount}
+                                onChange={(e) => setClientRefundAmount(e.target.value)}
+                                className="flex-1 border border-gray-300 rounded-md p-2 text-right"
+                                step="0.01"
+                                min="0"
+                                max={order.final_price || 0}
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="technicianPayoutAmount">مبلغ دفع الفني ($)</Label>
+                            <div className="flex items-center space-x-2">
+                              <DollarSign className="h-4 w-4 text-gray-500" />
+                              <input
+                                type="number"
+                                id="technicianPayoutAmount"
+                                placeholder="0.00"
+                                value={technicianPayoutAmount}
+                                onChange={(e) => setTechnicianPayoutAmount(e.target.value)}
+                                className="flex-1 border border-gray-300 rounded-md p-2 text-right"
+                                step="0.01"
+                                min="0"
+                                max={order.final_price || 0}
+                              />
+                            </div>
+                          </div>
+                        </>
+                      )}
+
+                      <div className="space-y-2">
+                        <Label htmlFor="adminNotes">ملاحظات المشرف</Label>
+                        <Textarea
+                          id="adminNotes"
+                          placeholder="اكتب قرارك وملاحظاتك هنا..."
+                          value={adminNotes}
+                          onChange={(e) => setAdminNotes(e.target.value)}
+                          rows={4}
+                          className="resize-none"
+                        />
+                      </div>
+
+                      <Button 
+                        onClick={handleResolveDispute} 
+                        disabled={isResolving || !resolutionType || !adminNotes}
+                        className="w-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center space-x-2"
+                      >
+                        {isResolving ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            <span>جاري الحل...</span>
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="h-4 w-4" />
+                            <span>حل النزاع</span>
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Response Section */}
             {canRespond && (
@@ -349,7 +510,7 @@ export function DisputeDetailPage() {
                         
                         {/* File Preview */}
                         {filePreview && (
-                          <div className="mt-2 p-2 bg-gray-50 rounded-lg border border-gray-20">
+                          <div className="mt-2 p-2 bg-gray-50 rounded-lg border border-gray-200">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-2 text-sm text-gray-600">
                                 <FileText className="h-4 w-4" />

@@ -38,54 +38,65 @@ export const getPendingVerifications = createAsyncThunk(
 
       const rawDocs = data.results || data;
       
-      // Group documents by user and aggregate data to match frontend expectation
-      const userDocsMap = {};
+      // Process individual documents instead of grouping by user
+      const processedDocs = [];
       
       if (Array.isArray(rawDocs)) {
-        rawDocs.forEach(doc => {
-          // technician_user is now a nested object with user details
-          const user = doc.technician_user;
-          const uid = user.user_id || user.id; // Handle potential ID field name difference
+        for (const doc of rawDocs) {
+          // technician_user is just an ID, we need to fetch user details
+          const userId = doc.technician_user;
           
-          if (!userDocsMap[uid]) {
-            userDocsMap[uid] = {
-              id: doc.doc_id, // Use one doc ID as reference key
-              technician_user_id: uid,
-              documents: [],
-              verification_status: doc.verification_status?.toLowerCase(),
-              submitted_at: doc.upload_date,
-              rejection_reason: doc.rejection_reason,
-              
-              // User details directly from nested object
-              user: user,
-              address: user.address,
-              description: user.bio,
-              specialization: user.specialization,
-              skills: user.skills_text,
-              experience_years: user.experience_years,
-              hourly_rate: user.hourly_rate
-            };
+          // Fetch user details for this technician
+          const userResponse = await fetch(`${BASE_URL}/users/${userId}/`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+          
+          let userDetail = {
+            id: userId,
+            first_name: "",
+            last_name: "",
+            email: "",
+            address: "",
+            bio: "",
+            specialization: "",
+            skills_text: "",
+            experience_years: null,
+            hourly_rate: null
+          };
+          
+          if (userResponse.ok) {
+            userDetail = await userResponse.json();
           }
           
-          // Map document types to specific fields
-          if (doc.document_type === 'ID Card') {
-            userDocsMap[uid].id_document = doc.document_url;
-          } else if (doc.document_type === 'Certificate') {
-            userDocsMap[uid].certificate_document = doc.document_url;
-          } else if (doc.document_type === 'Portfolio') {
-            userDocsMap[uid].portfolio_document = doc.document_url;
-          }
+          const processedDoc = {
+            id: doc.doc_id, // Use the actual document ID
+            doc_id: doc.doc_id, // Keep the original doc_id
+            document_type: doc.document_type,
+            document_url: doc.document_url,
+            upload_date: doc.upload_date,
+            verification_status: doc.verification_status?.toLowerCase(),
+            rejection_reason: doc.rejection_reason,
+            technician_user_id: userId, // This is just the user ID
+            
+            // User details from the user API call
+            user: userDetail,
+            address: userDetail.address,
+            description: userDetail.bio,
+            specialization: userDetail.specialization,
+            skills: userDetail.skills_text,
+            experience_years: userDetail.experience_years,
+            hourly_rate: userDetail.hourly_rate
+          };
           
-          userDocsMap[uid].documents.push(doc);
-          
-          // Prioritize 'pending' status if any document is pending
-          if (doc.verification_status === 'Pending' || doc.verification_status === 'pending') {
-            userDocsMap[uid].verification_status = 'pending';
-          }
-        });
+          processedDocs.push(processedDoc);
+        }
       }
 
-      return Object.values(userDocsMap);
+      return processedDocs;
     } catch (error) {
       console.error('Verification fetch error:', error);
       return rejectWithValue('خطأ في الشبكة أثناء جلب طلبات التحقق.');

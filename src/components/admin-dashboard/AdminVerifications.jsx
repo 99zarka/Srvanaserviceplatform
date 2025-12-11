@@ -206,10 +206,10 @@ export function AdminVerifications() {
                     </div>
                     <div>
                       <CardTitle className="text-lg">
-                        {verification.user?.first_name} {verification.user?.last_name}
+                        {verification.user?.first_name || "غير محدد"} {verification.user?.last_name || ""}
                       </CardTitle>
                       <CardDescription>
-                        {verification.user?.email}
+                        {verification.user?.email || "بريد إلكتروني غير محدد"}
                       </CardDescription>
                     </div>
                   </div>
@@ -256,25 +256,25 @@ export function AdminVerifications() {
                       المعلومات الشخصية
                     </h4>
 
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Wrench className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">التخصص:</span>
-                        <span>{verification.specialization || "غير محدد"}</span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">سنوات الخبرة:</span>
-                        <span>{verification.experience_years || "غير محدد"}</span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">العنوان:</span>
-                        <span className="truncate">{verification.address || "غير محدد"}</span>
-                      </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Wrench className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">التخصص:</span>
+                      <span>{verification.specialization || "غير محدد"}</span>
                     </div>
+
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">سنوات الخبرة:</span>
+                      <span>{verification.experience_years || "غير محدد"}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">العنوان:</span>
+                      <span className="truncate">{verification.address || "غير محدد"}</span>
+                    </div>
+                  </div>
                   </div>
 
                   {/* Service Details */}
@@ -307,70 +307,40 @@ export function AdminVerifications() {
                     </div>
                   </div>
 
-                  {/* Documents and Timestamps */}
-                  <div className="space-y-3">
-                    <h4 className="font-semibold flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      المستندات والتوقيت
-                    </h4>
+                {/* Documents and Timestamps */}
+                <div className="space-y-3">
+                  <h4 className="font-semibold flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    المستندات والتوقيت
+                  </h4>
 
-                    <div className="space-y-2 text-sm">
-                      {verification.id_document && (
-                        <div>
-                          <span className="font-medium">وثيقة الهوية:</span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="ml-2"
-                            onClick={() => window.open(verification.id_document, '_blank')}
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
-                            عرض
-                          </Button>
-                        </div>
-                      )}
+                  <div className="space-y-2 text-sm">
+                    {/* Show the specific document for this verification */}
+                    <div>
+                      <span className="font-medium">نوع المستند:</span>
+                      <span className="ml-2">{verification.document_type}</span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="ml-2"
+                        onClick={() => window.open(verification.document_url, '_blank')}
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        عرض المستند
+                      </Button>
+                    </div>
 
-                      {verification.certificate_document && (
-                        <div>
-                          <span className="font-medium">الشهادات:</span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="ml-2"
-                            onClick={() => window.open(verification.certificate_document, '_blank')}
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
-                            عرض
-                          </Button>
-                        </div>
-                      )}
-
-                      {verification.portfolio_document && (
-                        <div>
-                          <span className="font-medium">معرض الأعمال:</span>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="ml-2"
-                            onClick={() => window.open(verification.portfolio_document, '_blank')}
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
-                            عرض
-                          </Button>
-                        </div>
-                      )}
-
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">تاريخ التقديم:</span>
-                        <span>
-                          {verification.submitted_at
-                            ? new Date(verification.submitted_at).toLocaleDateString('ar-EG')
-                            : "غير محدد"}
-                        </span>
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">تاريخ التحميل:</span>
+                      <span>
+                        {verification.upload_date
+                          ? new Date(verification.upload_date).toLocaleDateString('ar-EG')
+                          : "غير محدد"}
+                      </span>
                     </div>
                   </div>
+                </div>
                 </div>
 
                 {/* Rejection Reason */}
@@ -398,7 +368,7 @@ export function AdminVerifications() {
                 رفض طلب التحقق
               </CardTitle>
               <CardDescription>
-                {selectedVerification.user?.first_name} {selectedVerification.user?.last_name}
+                {selectedVerification.user?.first_name || "غير محدد"} {selectedVerification.user?.last_name || ""}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
