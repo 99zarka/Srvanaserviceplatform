@@ -111,7 +111,7 @@ export function ClientDisputes() {
                   <TableCell>{new Date(dispute.created_at).toLocaleDateString("ar-EG")}</TableCell>
                   <TableCell>
                     <Button variant="ghost" size="sm" asChild className="flex items-center space-x-2">
-                      <Link to={`/disputes/${dispute.id}`}>
+                      <Link to={`/disputes/${dispute.order?.id}`}>
                         <Eye className="h-4 w-4" />
                         <span>عرض التفاصيل</span>
                       </Link>

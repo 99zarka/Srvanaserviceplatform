@@ -179,4 +179,5 @@ export const {
   useCreateDisputeMutation,
   useUpdateDisputeMutation,
   useResolveDisputeMutation,
+  useAddDisputeResponseMutation,
 } = api;
