@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { getVerificationStatus, uploadVerificationDocuments } from "../redux/verificationSlice";
 
-export function TechnicianVerificationPage() {
+export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
   const [documents, setDocuments] = useState({
     id_document: null,
     certificate_document: null,
@@ -160,9 +160,18 @@ export function TechnicianVerificationPage() {
     if (uploadVerificationDocuments.fulfilled.match(resultAction)) {
       // Success - verification status will be updated automatically by Redux
       console.log('Verification submitted successfully');
+      
+      // Show success message
+      alert('تم تقديم طلب التحقق بنجاح! سيقوم المسؤول بمراجعة طلبك قريباً.');
+      
       // If we have user data, fetch updated verification status
       if (userId) {
         dispatch(getVerificationStatus(userId));
+      }
+      
+      // If this is a dialog and onSuccess callback provided, call it
+      if (isDialog && onSuccess) {
+        onSuccess();
       }
     } else {
       console.log('Verification submission failed:', resultAction.error);
@@ -208,12 +217,12 @@ export function TechnicianVerificationPage() {
     }
   };
 
-  // If user is already verified, redirect to worker dashboard
+  // If user is already verified, redirect to worker dashboard (only if not in dialog mode)
   useEffect(() => {
-    if (user && user.verification_status === 'approved') {
+    if (!isDialog && user && user.verification_status === 'approved') {
       navigate('/dashboard');
     }
-  }, [user, navigate]);
+  }, [user, navigate, isDialog]);
 
   // Simplified authentication check - just check for token
   const isUserAuthenticated = isAuthenticated && token;
@@ -222,8 +231,8 @@ export function TechnicianVerificationPage() {
   // Users can apply for technician upgrade if they have a token (authenticated)
   const canApplyForTechnician = isUserAuthenticated && token;
 
-  // Show login requirement only if not authenticated at all
-  if (!token) {
+  // Show login requirement only if not authenticated at all (skip in dialog mode)
+  if (!isDialog && !token) {
     return (
       <div className="min-h-screen bg-muted py-8">
         <div className="container mx-auto px-4 max-w-2xl">
@@ -244,8 +253,8 @@ export function TechnicianVerificationPage() {
     );
   }
 
-  // If user is already a technician, show message and button to go home
-  if (effectiveUser && effectiveUser.user_type === 'technician') {
+  // If user is already a technician, show message and button to go home (skip in dialog mode)
+  if (!isDialog && effectiveUser && effectiveUser.user_type === 'technician') {
     return (
       <div className="min-h-screen bg-muted py-8">
         <div className="container mx-auto px-4 max-w-2xl">
@@ -266,15 +275,17 @@ export function TechnicianVerificationPage() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-muted py-8" dir="rtl">
-      <div className="container mx-auto px-4 max-w-2xl">
+  // Main content component
+  const formContent = (
+    <div dir="rtl">
+      {!isDialog && (
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">طلب التحقق من الهوية</h1>
           <p className="text-muted-foreground">
             قدم المستندات المطلوبة لتحويل حسابك إلى فني وتقديم خدماتك
           </p>
         </div>
+      )}
 
         {/* User Info Card */}
         {effectiveUser && (
@@ -576,6 +587,19 @@ export function TechnicianVerificationPage() {
             </AlertDescription>
           </Alert>
         )}
+    </div>
+  );
+
+  // If in dialog mode, return only the form content
+  if (isDialog) {
+    return formContent;
+  }
+
+  // Otherwise, wrap in full page layout
+  return (
+    <div className="min-h-screen bg-muted py-8">
+      <div className="container mx-auto px-4 max-w-2xl">
+        {formContent}
       </div>
     </div>
   );

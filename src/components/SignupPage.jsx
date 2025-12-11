@@ -15,6 +15,14 @@ import BASE_URL from "../config/api";
 import { useDispatch, useSelector } from "react-redux";
 import { register, clearError, setSocialLoginData } from "../redux/authSlice";
 import { BubbleBackground } from "./ui/bubble-background";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import { TechnicianVerificationPage } from "./TechnicianVerificationPage";
 
 const signupSchema = z
   .object({
@@ -42,6 +50,7 @@ const signupSchema = z
 
 export function SignupPage() {
   const [userType, setUserType] = useState("client");
+  const [showTechnicianForm, setShowTechnicianForm] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isLoading, error } = useSelector((state) => state.auth); // Get isLoading and error from Redux state
@@ -120,12 +129,22 @@ export function SignupPage() {
 
   const onSubmit = async (data) => {
     console.log("Signup Payload:", JSON.stringify(data)); // Log payload for debugging
-    // Dispatch the register thunk
-    const resultAction = await dispatch(register({ ...data, user_type: userType }));
+    
+    // Store the selected user type for later use
+    const selectedUserType = userType;
+    
+    // Always register as "client" but remember if they wanted to be a worker
+    const resultAction = await dispatch(register({ ...data, user_type: "client" }));
 
     if (register.fulfilled.match(resultAction)) {
-      alert("تم التسجيل بنجاح! تم تسجيل الدخول تلقائيًا.");
-      navigate("/dashboard");
+      // If user selected "worker", show the technician verification form
+      if (selectedUserType === "worker") {
+        setShowTechnicianForm(true);
+      } else {
+        // If regular client, just navigate to dashboard
+        alert("تم التسجيل بنجاح! تم تسجيل الدخول تلقائيًا.");
+        navigate("/dashboard");
+      }
     } else if (register.rejected.match(resultAction)) {
       const payloadError = resultAction.payload;
       if (payloadError) {
@@ -149,6 +168,12 @@ export function SignupPage() {
         setError("root.serverError", { type: "manual", message: "حدث خطأ غير متوقع أثناء التسجيل." });
       }
     }
+  };
+
+  const handleTechnicianFormClose = () => {
+    setShowTechnicianForm(false);
+    // Navigate to dashboard after closing the form
+    navigate("/dashboard");
   };
 
   return (
@@ -421,6 +446,24 @@ export function SignupPage() {
           </Link>
         </div>
       </div>
+
+      {/* Technician Verification Dialog */}
+      <Dialog open={showTechnicianForm} onOpenChange={setShowTechnicianForm}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">طلب أن تصبح فني</DialogTitle>
+            <DialogDescription>
+              يرجى ملء النموذج أدناه لتقديم طلبك ليصبح فني. سيقوم المسؤول بمراجعة طلبك والموافقة عليه.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            <TechnicianVerificationPage 
+              isDialog={true} 
+              onSuccess={handleTechnicianFormClose}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </BubbleBackground>
   );
 }

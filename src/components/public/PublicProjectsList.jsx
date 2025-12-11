@@ -43,12 +43,20 @@ const PublicProjectsList = () => {
                   السعر المتوقع: ${order.expected_price}
                 </div>
               )}
-              <Link
-                to={`/projects/${order.order_id}`}
-                className="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300"
-              >
-                عرض التفاصيل
-              </Link>
+              <div className="flex gap-3">
+                <Link
+                  to={`/projects/${order.order_id}`}
+                  className="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded transition duration-300 hover:scale-105 hover:shadow-lg transform text-center"
+                >
+                  عرض التفاصيل
+                </Link>
+                <Link
+                  to={`/projects/${order.order_id}/offer`}
+                  className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded transition duration-300 hover:scale-105 hover:shadow-lg transform text-center"
+                >
+                  قدم عرض
+                </Link>
+              </div>
             </div>
           ))}
         </div>
