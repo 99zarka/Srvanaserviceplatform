@@ -13,6 +13,7 @@ import BASE_URL from "../config/api";
 import { useDispatch, useSelector } from "react-redux";
 import { login, clearError, setSocialLoginData } from "../redux/authSlice";
 import SrvanaLogo from "/assets/srvana-logo.svg";
+import { BubbleBackground } from "./ui/bubble-background";
 
 const loginSchema = z.object({
   email: z.string().email("صيغة البريد الإلكتروني غير صحيحة").min(1, "البريد الإلكتروني مطلوب"),
@@ -127,34 +128,29 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-block mb-4">
+    <BubbleBackground
+      interactive
+      className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+    >
+      <div className="w-full max-w-md" dir="rtl">
+        <div className="flex items-center justify-center gap-4 mb-8">
+          <Link to="/">
             <img 
               src={SrvanaLogo} 
               alt="Srvana Logo" 
-              className="h-12 w-auto mx-auto"
+              className="h-12 w-auto"
             />
           </Link>
-          <h1 className="mb-2 flex items-center justify-center space-x-2">
-            <LogIn className="h-7 w-7" />
+          <Button
+            size="lg"
+            className="bg-[#1e3a5f] hover:bg-[#2c4a6f] text-white text-lg px-8 py-6"
+          >
             <span>مرحبًا بعودتك</span>
-          </h1>
-          <p className="text-muted-foreground">سجل الدخول إلى حسابك للمتابعة</p>
+          </Button>
         </div>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <LogIn className="h-6 w-6" />
-              <span>تسجيل الدخول</span>
-            </CardTitle>
-            <CardDescription>
-              أدخل بريدك الإلكتروني وكلمة المرور للوصول إلى حسابك
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
                 <Label htmlFor="email">البريد الإلكتروني</Label>
@@ -239,55 +235,20 @@ export function LoginPage() {
                 <p className="text-muted-foreground">أو</p>
                 <div
                   id="google-signin-button"
-                  className="flex justify-center"
+                  className="flex justify-center w-full"
                 ></div>
-                <div className="mt-6">
-                  <p className="text-muted-foreground">
-                    ليس لديك حساب؟{" "}
-                    <Link
-                      to="/signup"
-                      className="text-primary hover:underline flex items-center space-x-1"
-                    >
-                      <UserPlus className="h-4 w-4" />
-                      <span>إنشاء حساب</span>
-                    </Link>
-                  </p>
+                <div className="mt-6 flex items-center justify-center gap-2">
+                  <span className="text-muted-foreground">ليس لديك حساب؟</span>
+                  <Link
+                    to="/signup"
+                    className="text-primary hover:underline font-medium"
+                  >
+                    إنشاء حساب
+                  </Link>
                 </div>
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-2">
-            <Button
-              variant="outline"
-              className="w-full flex items-center space-x-2"
-              asChild
-            >
-              <Link to="/dashboard">
-                <Users className="h-5 w-5" />
-                <span>تجريبي: لوحة تحكم العميل</span>
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full flex items-center space-x-2"
-              asChild
-            >
-              <Link to="/dashboard">
-                <Wrench className="h-5 w-5" />
-                <span>تجريبي: لوحة تحكم العامل</span>
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full flex items-center space-x-2"
-              asChild
-            >
-              <Link to="/dashboard">
-                <Shield className="h-5 w-5" />
-                <span>تجريبي: لوحة تحكم المسؤول</span>
-              </Link>
-            </Button>
-          </CardFooter>
         </Card>
 
         <div className="mt-6 text-center">
@@ -300,6 +261,6 @@ export function LoginPage() {
           </Link>
         </div>
       </div>
-    </div>
+    </BubbleBackground>
   );
 }

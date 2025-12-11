@@ -14,6 +14,7 @@ import * as z from "zod";
 import BASE_URL from "../config/api";
 import { useDispatch, useSelector } from "react-redux";
 import { register, clearError, setSocialLoginData } from "../redux/authSlice";
+import { BubbleBackground } from "./ui/bubble-background";
 
 const signupSchema = z
   .object({
@@ -151,8 +152,11 @@ export function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
-      <div className="w-full max-w-md">
+    <BubbleBackground
+      interactive
+      className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+    >
+      <div className="w-full max-w-md" dir="rtl">
         <div className="text-center mb-8">
           <Link to="/" className="inline-block mb-4">
             <img 
@@ -417,6 +421,6 @@ export function SignupPage() {
           </Link>
         </div>
       </div>
-    </div>
+    </BubbleBackground>
   );
 }

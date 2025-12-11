@@ -104,7 +104,7 @@ export function HomePage() {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 animate-fade-in-up">
                 تواصل مع المهنيين المهرة لكل خدمة منزلية
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-10 animate-fade-in-up max-w-xl">
+              <p className="text-lg md:text-xl text-gray-700 leading-relaxed mb-10 animate-fade-in-up max-w-xl">
                 سرفانا تجعل من السهل العثور على عمال موثوقين لأعمال النجارة، السباكة،
                 الأعمال الكهربائية، والمزيد. خدمة عالية الجودة، مضمونة.
               </p>
