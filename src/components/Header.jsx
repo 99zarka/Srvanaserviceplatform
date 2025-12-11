@@ -69,35 +69,11 @@ export function Header() {
       dashboardLabel = "لوحة تحكم العميل";
     }
 
-    // Create dashboard dropdown items based on user type
-    const dashboardItems = [];
-    if (userTypeName === 'admin') {
-      // Admins see all dashboards
-      dashboardItems.push(
-        { name: "لوحة تحكم العميل", path: "/dashboard", id: "dashboard-client" },
-        { name: "لوحة تحكم الفني", path: "/dashboard", id: "dashboard-worker" },
-        { name: "لوحة تحكم المدير", path: "/dashboard", id: "dashboard-admin" }
-      );
-    } else if (userTypeName === 'technician') {
-      // Technicians see both client and technician dashboards
-      dashboardItems.push(
-        { name: "لوحة تحكم العميل", path: "/dashboard", id: "dashboard-client" },
-        { name: "لوحة تحكم الفني", path: "/dashboard", id: "dashboard-worker" }
-      );
-    } else {
-      // Clients see only client dashboard
-      dashboardItems.push(
-        { name: "لوحة تحكم العميل", path: "/dashboard", id: "dashboard-client" }
-      );
-    }
-
-    // Add Dashboard dropdown
+    // Add Dashboard link (not a dropdown anymore)
     navItems.splice(1, 0, {
       name: "لوحة التحكم",
-      path: "#dashboard",
-      icon: Wrench,
-      isDropdown: true,
-      dropdownItems: dashboardItems
+      path: "/dashboard",
+      icon: Wrench
     });
 
     // Create a "Services" dropdown menu to reduce horizontal space
@@ -518,7 +494,7 @@ function VerificationStatusWidget({ verificationStatus, onBecomeTechnician, isMo
   const statusConfig = {
     pending: {
       icon: Clock,
-      color: "text-yellow-600 bg-yellow-50 border-yellow-200",
+      color: "text-yellow-600 bg-yellow-50 border-yellow-20",
       text: "قيد المراجعة",
       showButton: false
     },

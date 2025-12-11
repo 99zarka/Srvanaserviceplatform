@@ -48,13 +48,23 @@ export function UnifiedDashboard() {
   const userId = user?.user_id;
   const userName = user ? `${user.first_name} ${user.last_name}` : "اسم المستخدم";
   
-  // Handle different possible user type formats
-  const userRole = user ? (
+  // Handle different possible user type formats and convert to Arabic
+  const userRoleEnglish = user ? (
     user.user_type?.user_type_name || 
     user.user_type?.name || 
     user.user_type ||
     "client" // default fallback
   ) : "client";
+  
+  // Convert English user role to Arabic
+  const userRoleArabic = {
+    "client": "عميل",
+    "technician": "فني",
+    "admin": "مدير",
+    "worker": "فني" // in case worker is used instead of technician
+  }[userRoleEnglish] || userRoleEnglish; // fallback to original if not found
+  
+  const userRole = userRoleArabic;
   
   const userProfileImage = user?.profile_photo || null;
 
@@ -91,12 +101,12 @@ export function UnifiedDashboard() {
 
  // Ensure user is authenticated before building sidebar items
   if (user) {
-    if (userRole === "client") {
+    if (userRoleEnglish === "client") {
       sidebarItems = [
         { isTitle: true, label: "الادوات الرئيسية" },
         ...mainTools,
       ];
-    } else if (userRole === "technician") {
+    } else if (userRoleEnglish === "technician") {
       sidebarItems = [
         { isTitle: true, label: "الادوات الرئيسية" },
         ...mainTools,
@@ -104,7 +114,7 @@ export function UnifiedDashboard() {
         { isTitle: true, label: "ادوات الفني" },
         ...technicianTools,
       ];
-    } else if (userRole === "admin") {
+    } else if (userRoleEnglish === "admin") {
       sidebarItems = [
         { isTitle: true, label: "الادوات الرئيسية" },
         ...mainTools,
@@ -128,7 +138,7 @@ export function UnifiedDashboard() {
   }
 
   // Animation variants for page transitions
-  const pageVariants = {
+ const pageVariants = {
     initial: {
       opacity: 0,
       x: 20,
