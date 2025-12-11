@@ -268,32 +268,10 @@ function AuthSection({ isMobile = false, closeMenu }) {
   if (isAuthenticated && user) {
     return (
       <div className={`${isMobile ? "flex flex-col space-y-2" : "flex"} items-center gap-2`}>
-        {/* Notification Dropdown */}
+        {/* Notification Dropdown - First */}
         <NotificationDropdown isMobile={isMobile} closeMenu={closeMenu} />
 
-        {/* Verification Status Widget for Technicians - compact version */}
-        {user.user_type?.user_type_name === 'technician' && (
-          <VerificationStatusWidget
-            verificationStatus={verificationState.verificationStatus}
-            onBecomeTechnician={handleBecomeTechnician}
-            isMobile={isMobile}
-            compact={true}
-          />
-        )}
-
-        {/* Become Technician Button for non-technician users - more compact */}
-        {user.user_type?.user_type_name !== 'technician' && user.user_type?.user_type_name !== 'admin' && (
-          <Button
-            onClick={handleBecomeTechnician}
-            className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white h-9 px-3"
-            size="sm"
-          >
-            <Wrench className="h-4 w-4" />
-            <span className="text-sm">كن فني</span>
-          </Button>
-        )}
-
-        {/* User Dropdown Menu */}
+        {/* User Dropdown Menu - Second */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="flex items-center gap-1 h-9 px-2">
@@ -320,15 +298,27 @@ function AuthSection({ isMobile = false, closeMenu }) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Logout Button - Yellow */}
-        <Button
-          onClick={handleLogout}
-          className="flex items-center gap-1 bg-primary hover:bg-primary/90 text-primary-foreground h-9 px-3"
-          size="sm"
-        >
-          <LogOut className="h-4 w-4" />
-          <span className="text-sm">خروج</span>
-        </Button>
+        {/* Become Technician Button - Third (Leftmost) */}
+        {user.user_type?.user_type_name !== 'technician' && user.user_type?.user_type_name !== 'admin' && (
+          <Button
+            onClick={handleBecomeTechnician}
+            className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white h-9 px-3"
+            size="sm"
+          >
+            <Wrench className="h-4 w-4" />
+            <span className="text-sm">كن فني</span>
+          </Button>
+        )}
+
+        {/* Verification Status Widget for Technicians */}
+        {user.user_type?.user_type_name === 'technician' && (
+          <VerificationStatusWidget
+            verificationStatus={verificationState.verificationStatus}
+            onBecomeTechnician={handleBecomeTechnician}
+            isMobile={isMobile}
+            compact={true}
+          />
+        )}
       </div>
     );
   }

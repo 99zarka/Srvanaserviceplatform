@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import BASE_URL from "../config/api";
 import { useDispatch, useSelector } from "react-redux";
 import { login, clearError, setSocialLoginData } from "../redux/authSlice";
+import SrvanaLogo from "/assets/srvana-logo.svg";
 
 const loginSchema = z.object({
   email: z.string().email("صيغة البريد الإلكتروني غير صحيحة").min(1, "البريد الإلكتروني مطلوب"),
@@ -129,9 +130,13 @@ export function LoginPage() {
     <div className="min-h-screen bg-muted flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="bg-primary rounded-lg px-4 py-2 inline-block mb-4">
-            <span className="text-primary-foreground">سرفانا</span>
-          </div>
+          <Link to="/" className="inline-block mb-4">
+            <img 
+              src={SrvanaLogo} 
+              alt="Srvana Logo" 
+              className="h-12 w-auto mx-auto"
+            />
+          </Link>
           <h1 className="mb-2 flex items-center justify-center space-x-2">
             <LogIn className="h-7 w-7" />
             <span>مرحبًا بعودتك</span>

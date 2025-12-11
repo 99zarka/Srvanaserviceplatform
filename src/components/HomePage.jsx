@@ -77,11 +77,23 @@ export function HomePage() {
   return (
     <div className="min-h-screen" dir="rtl">
       {/* Hero Section */}
-      <section className="py-24 bg-white text-foreground md:py-40">
-        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="grid items-center gap-20 lg:gap-24 lg:grid-cols-2">
+      <section className="relative py-24 text-foreground md:py-40 overflow-hidden">
+        {/* Background Image with Gradient Overlay */}
+        <div
+          className="absolute inset-0 bg-cover bg-left bg-no-repeat z-0"
+          style={{ 
+            backgroundImage: `url(https://images.unsplash.com/photo-1581578949510-fa7315c4c350?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxob21lJTIwc2VydmljZXMlMjBoYW5keW1hbnxlbnwxfHx8fDE3NjI0MzA2MDV8MA&ixlib=rb-4.1.0&q=80&w=1080)` 
+          }}
+        >
+          {/* Gradient overlay - from left to right (man on left, text on right) */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-white/95"></div>
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="grid items-center lg:grid-cols-2">
             <motion.div
-              className="space-y-8"
+              className="space-y-8 max-w-2xl"
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
@@ -119,18 +131,8 @@ export function HomePage() {
                 </Button>
               </div>
             </motion.div>
-            <motion.div 
-              className="relative"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <ImageWithFallback
-                src="https://images.unsplash.com/photo-1581578949510-fa7315c4c350?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxob21lJTIwc2VydmljZXMlMjBoYW5keW1hbnxlbnwxfHx8fDE3NjI0MzA2MDV8MA&ixlib=rb-4.1.0&q=80&w=1080"
-                alt="Professional worker"
-                className="w-full rounded-lg shadow-2xl hover-scale"
-              />
-            </motion.div>
+            {/* Empty column for spacing on large screens */}
+            <div className="hidden lg:block"></div>
           </div>
         </div>
       </section>

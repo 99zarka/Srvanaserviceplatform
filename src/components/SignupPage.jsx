@@ -8,6 +8,7 @@ import { Separator } from "./ui/separator";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Link, useNavigate } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
+import SrvanaLogo from "/assets/srvana-logo.svg";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import BASE_URL from "../config/api";
@@ -153,9 +154,13 @@ export function SignupPage() {
     <div className="min-h-screen bg-muted flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" dir="rtl">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="bg-primary rounded-lg px-4 py-2 inline-block mb-4">
-            <span className="text-primary-foreground">سرفانا</span>
-          </div>
+          <Link to="/" className="inline-block mb-4">
+            <img 
+              src={SrvanaLogo} 
+              alt="Srvana Logo" 
+              className="h-12 w-auto mx-auto"
+            />
+          </Link>
           <h1 className="mb-2 flex items-center justify-center space-x-2">
             <UserPlus className="h-7 w-7" />
             <span>إنشاء حساب</span>
