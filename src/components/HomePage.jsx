@@ -6,6 +6,7 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FeaturedQuickServices } from "./FeaturedQuickServices";
+import { FaqSection } from "./FaqSection";
 
 export function HomePage() {
   const services = [
@@ -76,21 +77,22 @@ export function HomePage() {
   return (
     <div className="min-h-screen" dir="rtl">
       {/* Hero Section */}
-      <section className="py-20 bg-white text-foreground md:py-32">
+      <section className="py-24 bg-white text-foreground md:py-40">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="grid items-center gap-12 md:grid-cols-2">
+          <div className="grid items-center gap-20 lg:gap-24 lg:grid-cols-2">
             <motion.div
+              className="space-y-8"
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <Badge className="mb-4 bg-primary text-primary-foreground hover:bg-primary/90 animate-fade-in">
+              <Badge className="mb-6 bg-primary text-primary-foreground hover:bg-primary/90 animate-fade-in text-base px-4 py-2">
                 موثوق به من قبل أكثر من 10,000 مستخدم
               </Badge>
-              <h1 className="mb-6 animate-fade-in-up">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 animate-fade-in-up">
                 تواصل مع المهنيين المهرة لكل خدمة منزلية
               </h1>
-              <p className="mb-8 text-muted-foreground animate-fade-in-up">
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-10 animate-fade-in-up max-w-xl">
                 سرفانا تجعل من السهل العثور على عمال موثوقين لأعمال النجارة، السباكة،
                 الأعمال الكهربائية، والمزيد. خدمة عالية الجودة، مضمونة.
               </p>
@@ -98,7 +100,7 @@ export function HomePage() {
                 <Button
                   size="lg"
                   asChild
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground hover-lift"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground hover-lift text-lg px-8 py-6"
                 >
                   <Link to="/services" className="flex items-center space-x-2">
                     <span>ابحث عن خدمة</span>
@@ -108,7 +110,7 @@ export function HomePage() {
                 <Button
                   size="lg"
                   asChild
-                  className="flex items-center space-x-2 bg-[#1e3a5f] hover:bg-[#2c4a6f] text-white hover-lift"
+                  className="flex items-center space-x-2 bg-[#1e3a5f] hover:bg-[#2c4a6f] text-white hover-lift text-lg px-8 py-6"
                 >
                   <Link to="/signup">
                     <span>انضم كعامل</span>
@@ -243,6 +245,9 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <FaqSection />
     </div>
   );
 }
