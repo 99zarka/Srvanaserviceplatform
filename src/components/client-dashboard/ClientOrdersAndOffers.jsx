@@ -6,7 +6,6 @@ import { Badge } from '../ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { 
   getClientOrders, 
-  getOrderOffers, 
   acceptOffer, 
   cancelOrder, 
   releaseFunds, 
@@ -30,7 +29,6 @@ const ClientOrdersAndOffers = () => {
   const navigate = useNavigate();
   const { 
     clientOrders, 
-    currentOrderOffers, 
     loading, 
     error, 
     successMessage 
@@ -38,13 +36,14 @@ const ClientOrdersAndOffers = () => {
   const { user } = useSelector((state) => state.auth);
 
   const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [cancellationReason, setCancellationReason] = useState('');
   const [isCancelling, setIsCancelling] = useState(false); // Local loading state for cancellation
   const [isDisputeModalOpen, setIsDisputeModalOpen] = useState(false);
   const [disputeReason, setDisputeReason] = useState(''); // Keep for UI, but not sent to backend
   const [disputeDescription, setDisputeDescription] = useState('');
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+ const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewRating, setReviewRating] = useState('');
   const [reviewComment, setReviewComment] = useState('');
   const [reviewTechnicianId, setReviewTechnicianId] = useState(null);
@@ -70,8 +69,9 @@ const ClientOrdersAndOffers = () => {
   }, [successMessage, error, dispatch]);
 
   const handleViewOffers = (orderId) => {
+    const order = clientOrders.find(o => o.order_id === orderId);
     setSelectedOrderId(orderId);
-    dispatch(getOrderOffers(orderId));
+    setSelectedOrder(order);
   };
 
   const handleAcceptOffer = async (orderId, offerId) => {
@@ -474,19 +474,18 @@ const ClientOrdersAndOffers = () => {
                   <div className="text-center py-8 text-gray-500">
                     اختر طلبًا لعرض العروض
                   </div>
-                ) : loading && (!currentOrderOffers || currentOrderOffers.length === 0) ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin" />
-                    <span className="ml-2">جاري تحميل العروض...</span>
-                  </div>
-                ) : (!currentOrderOffers || currentOrderOffers.length === 0) ? (
+                ) : !selectedOrder ? (
                   <div className="text-center py-8 text-gray-500">
+                    <p>لم يتم العثور على الطلب</p>
+                  </div>
+                ) : (!selectedOrder.project_offers || selectedOrder.project_offers.length === 0) ? (
+                  <div className="text-center py-8 text-gray-50">
                     <p>لم يتم استلام عروض بعد</p>
                     <p className="text-sm">سيقدم الفنيون عروضهم على طلبك قريبًا</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {currentOrderOffers.map((offer) => (
+                    {selectedOrder.project_offers.map((offer) => (
                       <div key={offer.offer_id} className="p-4 border rounded-lg">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
