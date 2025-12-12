@@ -431,7 +431,7 @@ const ClientOrdersAndOffers = () => {
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              onClick={(e) => { e.stopPropagation(); navigate(`/disputes/${order.order_id}`); }}
+                              onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/disputes/${order.order_id}`); }}
                               disabled={loading}
                             >
                               عرض النزاع

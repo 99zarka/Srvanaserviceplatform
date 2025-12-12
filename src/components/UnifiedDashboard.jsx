@@ -41,6 +41,7 @@ import { AdminServices } from "./admin-dashboard/AdminServices";
 import { AdminVerifications } from "./admin-dashboard/AdminVerifications";
 import { AdminReports } from "./admin-dashboard/AdminReports";
 import { AdminSettings } from "./admin-dashboard/AdminSettings";
+import { DisputeDetailPage } from "./DisputeDetailPage";
 
 export function UnifiedDashboard() {
   const { user } = useSelector((state) => state.auth);
@@ -190,6 +191,8 @@ export function UnifiedDashboard() {
           <Route path="transactions" element={<WorkerTransactions />} />
           <Route path="overview" element={<WorkerOverview />} />
           <Route path="worker-disputes" element={<WorkerDisputes />} />
+          <Route path="disputes/:orderId" element={<DisputeDetailPage />} />
+          
           
           {/* Admin Routes */}
           <Route path="admin-overview" element={<AdminOverview />} />

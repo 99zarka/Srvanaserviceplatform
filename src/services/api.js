@@ -88,6 +88,17 @@ export const api = createApi({
       providesTags: (result, error, disputeId) => [{ type: 'Dispute', id: disputeId }],
     }),
 
+    // Orders with disputes endpoint for technicians
+    getTechnicianOrdersWithDisputes: builder.query({
+      query: () => '/orders/worker-tasks/?has_dispute=true',
+      providesTags: ['Order'],
+    }),
+    // Orders with disputes endpoint for clients
+    getClientOrdersWithDisputes: builder.query({
+      query: () => '/orders/?has_dispute=true&role=client',
+      providesTags: ['Order'],
+    }),
+
     createDispute: builder.mutation({
       query: (disputeData) => ({
         url: '/disputes/disputes/',
@@ -166,4 +177,7 @@ export const {
   useCreateDisputeMutation,
   useUpdateDisputeMutation,
   useResolveDisputeMutation,
+  useGetOrdersWithDisputesQuery,
+  useGetTechnicianOrdersWithDisputesQuery,
+  useGetClientOrdersWithDisputesQuery,
 } = api;

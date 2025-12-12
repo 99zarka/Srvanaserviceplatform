@@ -65,7 +65,6 @@ export default function App() {
           <Route path="/technicians/browse" element={<TechnicianBrowse />} />
           <Route path="/offer/:technicianId" element={<DirectOfferForm />} />
           {/* <Route path="/client-offers" element={<ClientOffersPage />} /> */} {/* Removed */}
-          <Route path="/disputes/:orderId" element={<DisputeDetailPage />} />
           <Route path="/transactions/:transactionId" element={<TransactionDetailPage />} />
 
           <Route path="/dashboard/*" element={<UnifiedDashboard />} />

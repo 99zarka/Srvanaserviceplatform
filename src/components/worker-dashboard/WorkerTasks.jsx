@@ -250,7 +250,7 @@ export function WorkerTasks() {
                       )}
                       {task.order_status === "DISPUTED" && (
                          <Button variant="outline" size="sm" asChild className="flex items-center space-x-2 border-orange-500 text-orange-500">
-                         <Link to={`/disputes/${task.order_id}`}>
+                         <Link to={`/dashboard/disputes/${task.order_id}`}>
                            <Flag className="h-4 w-4" />
                            <span>عرض النزاع</span>
                          </Link>
