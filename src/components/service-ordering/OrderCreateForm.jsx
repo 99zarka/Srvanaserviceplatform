@@ -35,7 +35,7 @@ const OrderCreateForm = () => {
     const fetchServices = async () => {
       setIsLoadingServices(true);
       try {
-        const response = await api.get('/services/?page_size=50');
+        const response = await api.get('/services/services/?page_size=50');
         setServices(response.results);
       } catch (error) {
         console.error('Failed to fetch services:', error);

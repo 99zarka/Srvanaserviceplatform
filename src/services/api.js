@@ -61,7 +61,7 @@ export const api = createApi({
     // Service endpoints
     getServices: builder.query({
       query: (params = {}) => {
-        let url = '/services/';
+        let url = '/services/services/';
         if (params.page || params.page_size || params.category) {
           const queryParams = [];
           if (params.page) queryParams.push(`page=${params.page}`);
@@ -76,7 +76,7 @@ export const api = createApi({
 
     createService: builder.mutation({
       query: (newService) => ({
-        url: '/services/',
+        url: '/services/services/',
         method: 'POST',
         body: newService,
       }),
@@ -85,7 +85,7 @@ export const api = createApi({
 
     updateService: builder.mutation({
       query: ({ serviceId, ...patch }) => ({
-        url: `/services/${serviceId}/`,
+        url: `/services/services/${serviceId}/`,
         method: 'PUT',
         body: patch,
       }),
@@ -94,7 +94,7 @@ export const api = createApi({
 
     deleteService: builder.mutation({
       query: (serviceId) => ({
-        url: `/services/${serviceId}/`,
+        url: `/services/services/${serviceId}/`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Service'],

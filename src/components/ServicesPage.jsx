@@ -15,8 +15,7 @@ export function ServicesPage() {
     const fetchServices = async () => {
       try {
         setLoading(true);
-        // Try the correct endpoint
-        const data = await api.get("/services/?page_size=50"); // Backend endpoint (without duplicate /services/)
+        const data = await api.get("/services/services/?page_size=50"); // Backend endpoint
         // Handle paginated response or direct array
         const servicesData = data.results || data || [];
         setServices(Array.isArray(servicesData) ? servicesData : []);
