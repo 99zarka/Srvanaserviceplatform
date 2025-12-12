@@ -12,6 +12,7 @@ import { UserProfilePage } from "./components/UserProfilePage";
 import { BrowseUsersPage } from "./components/BrowseUsersPage";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
+import { Loader } from "./components/Loader";
 
 // Import new service ordering components
 import OrderCreateForm from "./components/service-ordering/OrderCreateForm";
@@ -42,6 +43,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col" dir="rtl">
+      <Loader />
       {showHeaderFooter && <Header />}
       <div className="flex-1">
         <Routes>
