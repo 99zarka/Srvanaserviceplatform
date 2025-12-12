@@ -15,8 +15,91 @@ const baseQuery = fetchBaseQuery({
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQuery,
-  tagTypes: ['Order', 'Technician', 'User', 'Offer', 'Dispute'],
+  tagTypes: ['Order', 'Technician', 'User', 'Offer', 'Dispute', 'Service', 'ServiceCategory'],
   endpoints: (builder) => ({
+    // Service Category endpoints
+    getServiceCategories: builder.query({
+      query: (params = {}) => {
+        let url = '/services/categories/';
+        if (params.page) {
+          url += `?page=${params.page}`;
+          if (params.page_size) url += `&page_size=${params.page_size}`;
+        } else if (params.page_size) {
+          url += `?page_size=${params.page_size}`;
+        }
+        return url;
+      },
+      providesTags: ['ServiceCategory'],
+    }),
+
+    createServiceCategory: builder.mutation({
+      query: (newCategory) => ({
+        url: '/services/categories/',
+        method: 'POST',
+        body: newCategory,
+      }),
+      invalidatesTags: ['ServiceCategory'],
+    }),
+
+    updateServiceCategory: builder.mutation({
+      query: ({ categoryId, ...patch }) => ({
+        url: `/services/categories/${categoryId}/`,
+        method: 'PUT',
+        body: patch,
+      }),
+      invalidatesTags: ['ServiceCategory'],
+    }),
+
+    deleteServiceCategory: builder.mutation({
+      query: (categoryId) => ({
+        url: `/services/categories/${categoryId}/`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['ServiceCategory'],
+    }),
+
+    // Service endpoints
+    getServices: builder.query({
+      query: (params = {}) => {
+        let url = '/services/';
+        if (params.page || params.page_size || params.category) {
+          const queryParams = [];
+          if (params.page) queryParams.push(`page=${params.page}`);
+          if (params.page_size) queryParams.push(`page_size=${params.page_size}`);
+          if (params.category) queryParams.push(`category=${params.category}`);
+          url += `?${queryParams.join('&')}`;
+        }
+        return url;
+      },
+      providesTags: ['Service'],
+    }),
+
+    createService: builder.mutation({
+      query: (newService) => ({
+        url: '/services/',
+        method: 'POST',
+        body: newService,
+      }),
+      invalidatesTags: ['Service'],
+    }),
+
+    updateService: builder.mutation({
+      query: ({ serviceId, ...patch }) => ({
+        url: `/services/${serviceId}/`,
+        method: 'PUT',
+        body: patch,
+      }),
+      invalidatesTags: ['Service'],
+    }),
+
+    deleteService: builder.mutation({
+      query: (serviceId) => ({
+        url: `/services/${serviceId}/`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Service'],
+    }),
+
     // Order endpoints
     getClientOrders: builder.query({
       query: () => '/orders/orders/?role=client',
@@ -63,11 +146,14 @@ export const api = createApi({
     // Technician endpoints
     getTechnicians: builder.query({
       query: (params = {}) => {
-        const url = new URL(`${BASE_URL}/users/users/technicians/`);
-        if (params.specialization) url.searchParams.append('specialization', params.specialization);
-        if (params.location) url.searchParams.append('location', params.location);
-        if (params.min_rating) url.searchParams.append('min_rating', params.min_rating);
-        return url.pathname + url.search;
+        if (params.specialization || params.location || params.min_rating) {
+          const queryParams = [];
+          if (params.specialization) queryParams.push(`specialization=${params.specialization}`);
+          if (params.location) queryParams.push(`location=${params.location}`);
+          if (params.min_rating) queryParams.push(`min_rating=${params.min_rating}`);
+          return `/users/users/technicians/?${queryParams.join('&')}`;
+        }
+        return '/users/users/technicians/';
       },
       providesTags: ['Technician'],
     }),
@@ -163,12 +249,20 @@ export const api = createApi({
 
 // Export hooks for usage in functional components
 export const {
+  useGetServiceCategoriesQuery,
+  useCreateServiceCategoryMutation,
+  useUpdateServiceCategoryMutation,
+  useDeleteServiceCategoryMutation,
+  useGetServicesQuery,
+  useCreateServiceMutation,
+  useUpdateServiceMutation,
+  useDeleteServiceMutation,
   useGetClientOrdersQuery,
   useGetAvailableOrdersQuery,
   useGetOrderOffersQuery,
   useCreateOrderMutation,
   useAcceptOfferMutation,
-  useCreateProjectOfferMutation,
+ useCreateProjectOfferMutation,
   useGetTechniciansQuery,
   useGetTechnicianDetailQuery,
   // Dispute hooks
