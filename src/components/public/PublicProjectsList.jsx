@@ -271,48 +271,147 @@ const PublicProjectsList = () => {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" style={{ backgroundColor: '#1A2B4C', padding: '2rem', borderRadius: '10px' }}>
           {filteredOrders.map((order) => (
-            <div key={order.order_id} className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-700 mb-2">{order.service?.arabic_name || 'غير متوفر'}</h2>
-              <p className="text-gray-600 mb-4">{order.problem_description.substring(0, 100)}...</p>
-              <div className="flex items-center text-gray-500 text-sm mb-2">
-                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                {order.requested_location}
-              </div>
-              <div className="flex items-center text-gray-500 text-sm mb-4">
-                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                {order.scheduled_date} الساعة {order.scheduled_time_start}
-              </div>
-              {order.expected_price && (
-                <div className="text-lg font-bold text-blue-600 mb-4">
-                  السعر المتوقع: ${order.expected_price}
+            <div key={order.order_id} className="relative group" style={{ width: '100%', maxWidth: '320px', margin: '0 auto', color: 'white' }}>
+              {/* Glassmorphism card */}
+              <div
+                style={{
+                  width: '100%',
+                  minHeight: '280px',
+                  padding: '1rem',
+                  backgroundColor: 'rgba(255, 255, 255, 0.074)',
+                  border: '1px solid rgba(255, 255, 255, 0.222)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  borderRadius: '0.7rem',
+                  transition: 'all ease 0.3s',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between'
+                }}
+                className="hover:shadow-[0px_0px_20px_1px_rgba(244,196,48,0.25)] hover:border-[rgba(255,255,255,0.454)]"
+              >
+                {/* Card Content */}
+                <div>
+                  <h2 className="text-2xl font-medium mb-4" style={{ letterSpacing: '0.1em' }}>
+                    {order.service?.arabic_name || 'غير متوفر'}
+                  </h2>
+                  
+                  <div className="mb-4">
+                    <strong className="block mb-2 text-sm">الوصف</strong>
+                    <p className="text-sm font-light mb-0" style={{ letterSpacing: '0.1em' }}>
+                      {order.problem_description.substring(0, 100)}...
+                    </p>
+                  </div>
+                  
+                  <div className="mb-2">
+                    <span className="text-xs font-light flex items-center mb-1">
+                      <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      </svg>
+                      {order.requested_location}
+                    </span>
+                  </div>
+                  
+                  <div className="mb-3">
+                    <span className="text-xs font-light flex items-center">
+                      <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                      </svg>
+                      {order.scheduled_date} {order.scheduled_time_start}
+                    </span>
+                  </div>
+                  
+                  {order.expected_price && (
+                    <div className="mb-3">
+                      <span className="text-xs font-light">السعر المتوقع: </span>
+                      <span className="text-sm font-medium" style={{ marginRight: '0.2rem', color: '#F4C430' }}>
+                        ${order.expected_price}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              )}
-              <div className="flex gap-3">
-                <Link
-                  to={`/projects/${order.order_id}`}
-                  className="flex-1 font-bold py-2 px-4 rounded transition duration-300 hover:scale-105 hover:shadow-lg transform text-center"
+
+                {/* Buttons that appear on hover */}
+                <div 
+                  className="flex gap-2 transition-all duration-300 opacity-0 group-hover:opacity-100 mt-4"
                   style={{
-                    backgroundColor: '#1A2B4C',
-                    color: '#F4C430',
-                    textDecoration: 'none'
+                    transform: 'translateY(-10px)',
+                    transition: 'all 0.3s ease-in-out'
                   }}
                 >
-                  عرض التفاصيل
-                </Link>
-                <Link
-                  to={`/projects/${order.order_id}/offer`}
-                  className="flex-1 font-bold py-2 px-4 rounded transition duration-300 hover:scale-105 hover:shadow-lg transform text-center"
-                  style={{
-                    backgroundColor: '#F4C430',
-                    color: '#1A2B4C',
-                    textDecoration: 'none'
-                  }}
-                >
-                  قدم عرض
-                </Link>
+                  <Link
+                    to={`/projects/${order.order_id}`}
+                    className="flex-1 text-center py-2 px-3 rounded text-xs font-semibold transition-all duration-200"
+                    style={{
+                      backgroundColor: 'rgba(244, 196, 48, 0.2)',
+                      color: 'white',
+                      textDecoration: 'none',
+                      border: '1px solid rgba(244, 196, 48, 0.5)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(244, 196, 48, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(244, 196, 48, 0.2)';
+                    }}
+                  >
+                    عرض التفاصيل
+                  </Link>
+                  <Link
+                    to={`/projects/${order.order_id}/offer`}
+                    className="flex-1 text-center py-2 px-3 rounded text-xs font-semibold transition-all duration-200"
+                    style={{
+                      backgroundColor: 'rgba(244, 196, 48, 0.2)',
+                      color: 'white',
+                      textDecoration: 'none',
+                      border: '1px solid rgba(244, 196, 48, 0.5)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(244, 196, 48, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(244, 196, 48, 0.2)';
+                    }}
+                  >
+                    قدم عرض
+                  </Link>
+                </div>
               </div>
+
+              {/* Decorative elements */}
+              <div
+                style={{
+                  content: '""',
+                  backgroundColor: 'rgba(244, 196, 48, 0.3)',
+                  position: 'absolute',
+                  borderRadius: '50%',
+                  width: '6rem',
+                  height: '6rem',
+                  top: '30%',
+                  right: '7%',
+                  zIndex: -1,
+                  pointerEvents: 'none'
+                }}
+              />
+              <div
+                style={{
+                  content: '""',
+                  position: 'absolute',
+                  height: '3rem',
+                  width: '3rem',
+                  top: '8%',
+                  right: '5%',
+                  border: '1px solid rgba(244, 196, 48, 0.5)',
+                  borderRadius: '0.3rem',
+                  zIndex: -1,
+                  pointerEvents: 'none'
+                }}
+              />
             </div>
           ))}
         </div>
