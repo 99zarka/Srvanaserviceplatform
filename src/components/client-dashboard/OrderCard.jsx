@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { Clock, CheckCircle, XCircle, User, MapPin, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, User, MapPin, Calendar, ChevronDown, ChevronUp, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
@@ -150,6 +150,35 @@ const OrderCard = ({
                   </Link>
                 </div>
               )}
+              {(order.review_rating || order.review_comment) && (
+                <div className="w-full md:w-auto md:col-span-2 mt-2 p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200">
+                  <div className="flex items-center justify-between mb-2">
+                    {order.review_rating && (
+                      <div className="flex items-center gap-2">
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-4 h-4 ${i < order.review_rating ? 'text-yellow-500 fill-current' : 'text-gray-300'}`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-sm font-semibold text-yellow-70 bg-yellow-100 px-2 py-1 rounded-full">
+                          {order.review_rating}/5
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {order.review_comment && (
+                    <div className="text-sm text-gray-700">
+                      <span className="font-medium text-gray-900 block mb-1">تعليق المراجعة: </span>
+                      <p className="bg-white p-2 rounded border border-gray-200 italic text-gray-800">
+                        "{order.review_comment}"
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
           
@@ -240,7 +269,7 @@ const OrderCard = ({
                 </Button>
               </>
             )}
-            {order.order_status === 'COMPLETED' && (order.technician_user || order.associated_offer?.technician_user) && (
+            {order.order_status === 'COMPLETED' && (order.technician_user || order.associated_offer?.technician_user) && !order.review_rating && !order.review_comment && (
               <Button 
                 variant="secondary" 
                 size="sm" 

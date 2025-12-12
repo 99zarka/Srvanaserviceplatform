@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import EditOrderForm from '../EditOrderForm';
 import OrderCard from './OrderCard';
 import ExpandableOffers from './ExpandableOffers';
+import StarRating from '../ui/StarRating';
 
 const ClientOrdersAndOffers = () => {
   const dispatch = useDispatch();
@@ -172,7 +173,6 @@ const ClientOrdersAndOffers = () => {
       await dispatch(submitReview({
         order: selectedOrder.order_id,
         technician: reviewTechnicianId,
-        client: user.user_id,
         rating: parseFloat(reviewRating),
         comment: reviewComment,
       })).unwrap();
@@ -331,16 +331,17 @@ const ClientOrdersAndOffers = () => {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="reviewRating">التقييم (1-5)</Label>
-              <Input
-                id="reviewRating"
-                type="number"
-                min="1"
-                max="5"
-                placeholder="أدخل تقييمًا من 1 إلى 5"
-                value={reviewRating}
-                onChange={(e) => setReviewRating(e.target.value)}
-              />
+              <Label>التقييم</Label>
+              <div className="flex items-center gap-2">
+                <StarRating
+                  rating={parseFloat(reviewRating) || 0}
+                  onRatingChange={(rating) => setReviewRating(rating.toString())}
+                  size="lg"
+                />
+                <span className="text-sm text-gray-500">
+                  {reviewRating ? `${reviewRating}/5` : 'اختر تقييمًا'}
+                </span>
+              </div>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="reviewComment">التعليق</Label>
