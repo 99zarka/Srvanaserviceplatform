@@ -130,6 +130,15 @@ const PublicProjectsList = () => {
               variant={showFilters ? "default" : "outline"}
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2"
+              style={showFilters ? {
+                backgroundColor: '#F4C430',
+                color: '#1A2B4C',
+                border: 'none'
+              } : {
+                backgroundColor: 'transparent',
+                color: '#1A2B4C',
+                border: '2px solid #1A2B4C'
+              }}
             >
               <Filter className="h-4 w-4" />
               <span>تصفية</span>
@@ -227,7 +236,8 @@ const PublicProjectsList = () => {
                 <Button
                   variant="ghost"
                   onClick={handleResetFilters}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 hover:bg-[#F4C430]/20"
+                  style={{ color: '#1A2B4C' }}
                 >
                   <X className="h-4 w-4" />
                   <span>إعادة تعيين</span>
@@ -251,6 +261,11 @@ const PublicProjectsList = () => {
             variant="outline"
             onClick={handleResetFilters}
             className="mt-4"
+            style={{
+              backgroundColor: 'transparent',
+              color: '#1A2B4C',
+              border: '2px solid #1A2B4C'
+            }}
           >
             إعادة تعيين التصفية
           </Button>
@@ -277,13 +292,23 @@ const PublicProjectsList = () => {
               <div className="flex gap-3">
                 <Link
                   to={`/projects/${order.order_id}`}
-                  className="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded transition duration-300 hover:scale-105 hover:shadow-lg transform text-center"
+                  className="flex-1 font-bold py-2 px-4 rounded transition duration-300 hover:scale-105 hover:shadow-lg transform text-center"
+                  style={{
+                    backgroundColor: '#1A2B4C',
+                    color: '#F4C430',
+                    textDecoration: 'none'
+                  }}
                 >
                   عرض التفاصيل
                 </Link>
                 <Link
                   to={`/projects/${order.order_id}/offer`}
-                  className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded transition duration-300 hover:scale-105 hover:shadow-lg transform text-center"
+                  className="flex-1 font-bold py-2 px-4 rounded transition duration-300 hover:scale-105 hover:shadow-lg transform text-center"
+                  style={{
+                    backgroundColor: '#F4C430',
+                    color: '#1A2B4C',
+                    textDecoration: 'none'
+                  }}
                 >
                   قدم عرض
                 </Link>

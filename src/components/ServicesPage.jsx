@@ -15,12 +15,14 @@ export function ServicesPage() {
     const fetchServices = async () => {
       try {
         setLoading(true);
-        const data = await api.get("/services/services/?page_size=50"); // Backend endpoint
+        // Try the correct endpoint
+        const data = await api.get("/services/?page_size=50"); // Backend endpoint (without duplicate /services/)
         // Handle paginated response or direct array
         const servicesData = data.results || data || [];
         setServices(Array.isArray(servicesData) ? servicesData : []);
       } catch (err) {
         console.error('Failed to fetch services:', err);
+        console.error('Error details:', err.status, err.message);
         setError(err);
         setServices([]); // Set empty array on error
       } finally {
@@ -84,42 +86,102 @@ export function ServicesPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {(services || []).map((service) => (
-              <Card
+              <div
                 key={service.service_id || service.id}
-                className="hover:shadow-lg transition-all hover:border-primary group"
+                style={{
+                  width: '320px',
+                  minHeight: '350px',
+                  padding: '20px',
+                  color: 'white',
+                  background: 'linear-gradient(#1A2B4C, #1A2B4C) padding-box, linear-gradient(145deg, transparent 35%, #F4C430, #1A2B4C) border-box',
+                  border: '2px solid transparent',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  cursor: 'pointer',
+                  transformOrigin: 'right bottom',
+                  transition: 'all 0.6s cubic-bezier(0.23, 1, 0.320, 1)'
+                }}
+                className="hover:rotate-[8deg]"
               >
-                <CardContent className="pt-6">
-                  <div className="w-16 h-16 bg-accent rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary transition-colors">
-                    {serviceIcons[service.service_name] && React.createElement(serviceIcons[service.service_name], { className: "h-8 w-8 text-primary group-hover:text-primary-foreground transition-colors" })}
+                {/* Header */}
+                <div className="mb-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-gray-400 text-sm">
+                      {service.category?.arabic_name || 'خدمة'}
+                    </span>
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#F4C430] to-[#1A2B4C] rounded-lg flex items-center justify-center">
+                      {serviceIcons[service.service_name] && React.createElement(serviceIcons[service.service_name], { className: "h-6 w-6 text-white" })}
+                    </div>
                   </div>
-                  <h3 className="mb-3">{service.arabic_name || service.title}</h3>
-                  <p className="text-muted-foreground mb-4">
+                </div>
+
+                {/* Main Content */}
+                <div className="flex-1">
+                  <h3 className="text-2xl font-semibold mb-4">{service.arabic_name || service.title}</h3>
+                  <p className="text-gray-300 mb-4 text-sm line-clamp-3">
                     {service.description}
                   </p>
+                  
+                  {/* Categories/Badges */}
                   <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge variant="secondary">
+                    <span 
+                      style={{
+                        backgroundColor: '#F4C430',
+                        padding: '4px 8px',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        fontSize: '12px',
+                        borderRadius: '50em',
+                        color: '#1A2B4C'
+                      }}
+                    >
                       {service.workers || 0} عمال
-                    </Badge>
-                    <Badge variant="secondary">
+                    </span>
+                    <span 
+                      style={{
+                        backgroundColor: '#F4C430',
+                        padding: '4px 8px',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        fontSize: '12px',
+                        borderRadius: '50em',
+                        color: '#1A2B4C'
+                      }}
+                    >
                       ⭐ {service.avgRating || 0}
-                    </Badge>
-                    <Badge className="bg-accent text-accent-foreground hover:bg-accent">
-                      تبدأ من ${service.startingPrice || service.base_inspection_fee || 0}/hr
-                    </Badge>
+                    </span>
                   </div>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center space-x-2"
-                    asChild
+                </div>
+
+                {/* Footer */}
+                <div className="mt-auto">
+                  <div className="text-gray-400 font-semibold mb-3 text-sm">
+                    تبدأ من ${service.startingPrice || service.base_inspection_fee || 0}/hr
+                  </div>
+                  <Link 
+                    to="/signup"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      width: '100%',
+                      padding: '12px',
+                      backgroundColor: '#F4C430',
+                      color: '#1A2B4C',
+                      fontWeight: 600,
+                      borderRadius: '6px',
+                      transition: 'all 0.3s',
+                      textDecoration: 'none'
+                    }}
+                    className="hover:bg-[#FFD700] hover:scale-105"
                   >
-                    <Link to="/signup">
-                      <PlusCircle className="h-5 w-5" />
-                      <span>طلب خدمة</span>
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
+                    <PlusCircle className="h-5 w-5" />
+                    <span>طلب خدمة</span>
+                  </Link>
+                </div>
+              </div>
             ))}
           </div>
         </div>

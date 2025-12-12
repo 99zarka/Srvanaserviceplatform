@@ -82,7 +82,7 @@ const EditOrderForm = ({ orderId, onClose }) => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await api.get('/services/services/');
+        const response = await api.get('/services/');
         setServices(response.results);
       } catch (err) {
         toast.error('فشل جلب الخدمات.');

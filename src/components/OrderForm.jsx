@@ -102,7 +102,7 @@ const OrderForm = ({
     // Fetch services only once
     const fetchServices = async () => {
       try {
-        const response = await api.get('/services/services/?page_size=50');
+        const response = await api.get('/services/?page_size=50');
         setServices(response.results);
       } catch (err) {
         console.error('Error fetching services:', err);
