@@ -121,7 +121,7 @@ export function Header() {
           </div>
 
           {/* Center: Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8 flex-1 justify-center" dir="rtl">
+          <nav className="hidden md:flex items-center flex-1 justify-evenly" dir="rtl">
             {navItems.filter(item => item.path !== "/").map((item) => (
               item.isDropdown ? (
                 <DropdownMenu key={item.path}>
