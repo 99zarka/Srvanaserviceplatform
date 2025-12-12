@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { 
   getClientOrders, 
   acceptOffer, 
@@ -14,15 +11,15 @@ import {
   clearSuccessMessage,
 } from '../../redux/orderSlice';
 import { useCreateDisputeMutation } from '../../redux/disputeSlice';
-import { Clock, CheckCircle, XCircle, DollarSign, User, MapPin, Calendar, Loader2, Edit } from 'lucide-react';
-import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
 import { toast } from 'sonner';
-import EditOrderForm from '../EditOrderForm'; // Import the renamed component
+import EditOrderForm from '../EditOrderForm';
+import OrderCard from './OrderCard';
+import ExpandableOffers from './ExpandableOffers';
 
 const ClientOrdersAndOffers = () => {
   const dispatch = useDispatch();
@@ -35,31 +32,29 @@ const ClientOrdersAndOffers = () => {
   } = useSelector((state) => state.orders);
   const { user } = useSelector((state) => state.auth);
 
-  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [expandedOrderId, setExpandedOrderId] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [cancellationReason, setCancellationReason] = useState('');
-  const [isCancelling, setIsCancelling] = useState(false); // Local loading state for cancellation
+  const [isCancelling, setIsCancelling] = useState(false);
   const [isDisputeModalOpen, setIsDisputeModalOpen] = useState(false);
-  const [disputeReason, setDisputeReason] = useState(''); // Keep for UI, but not sent to backend
+  const [disputeReason, setDisputeReason] = useState('');
   const [disputeDescription, setDisputeDescription] = useState('');
- const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewRating, setReviewRating] = useState('');
   const [reviewComment, setReviewComment] = useState('');
   const [reviewTechnicianId, setReviewTechnicianId] = useState(null);
-
 
   useEffect(() => {
     if (user?.user_id) {
       dispatch(getClientOrders());
     }
-  }, [dispatch, user]);
+ }, [dispatch, user]);
 
   useEffect(() => {
     if (successMessage) {
       toast.success(successMessage);
       dispatch(clearSuccessMessage());
-      // No explicit refetch here. Rely on Redux state update.
     }
     if (error) {
       const errorMessageToDisplay = error.detail || error.message || 'An unknown error occurred.';
@@ -68,25 +63,32 @@ const ClientOrdersAndOffers = () => {
     }
   }, [successMessage, error, dispatch]);
 
-  const handleViewOffers = (orderId) => {
-    const order = clientOrders.find(o => o.order_id === orderId);
-    setSelectedOrderId(orderId);
-    setSelectedOrder(order);
+  const handleToggleExpand = (orderId) => {
+    const newExpandedOrderId = expandedOrderId === orderId ? null : orderId;
+    setExpandedOrderId(newExpandedOrderId);
+    
+    // Update selected order for the expanded section
+    if (newExpandedOrderId) {
+      const order = clientOrders.find(o => o.order_id === newExpandedOrderId);
+      setSelectedOrder(order);
+    } else {
+      setSelectedOrder(null);
+    }
   };
 
   const handleAcceptOffer = async (orderId, offerId) => {
     try {
       await dispatch(acceptOffer({ orderId, offerId })).unwrap();
-      // Rely solely on the reducer to update the state.
+      setExpandedOrderId(null); // Close the expanded section after accepting
     } catch (err) {
       // Error is handled by the global useEffect
     }
-  };
+ };
 
   const handleCancelOrderClick = (orderId) => {
-    setSelectedOrderId(orderId);
+    setSelectedOrder(clientOrders.find(o => o.order_id === orderId));
     setIsCancelModalOpen(true);
-  };
+ };
 
   const handleConfirmCancel = async () => {
     if (!cancellationReason) {
@@ -95,10 +97,11 @@ const ClientOrdersAndOffers = () => {
     }
     setIsCancelling(true);
     try {
-      await dispatch(cancelOrder({ orderId: selectedOrderId, cancellationReason })).unwrap();
+      await dispatch(cancelOrder({ orderId: selectedOrder.order_id, cancellationReason })).unwrap();
       setIsCancelModalOpen(false);
       setCancellationReason('');
-      dispatch(getClientOrders()); // Explicitly refetch orders on success
+      setExpandedOrderId(null);
+      dispatch(getClientOrders());
     } catch (err) {
       console.error('Failed to cancel order:', err);
     } finally {
@@ -110,41 +113,43 @@ const ClientOrdersAndOffers = () => {
     if (window.confirm('هل أنت متأكد أنك تريد تحرير الأموال لهذا الطلب؟ سيؤدي هذا إلى إكمال الطلب.')) {
       try {
         await dispatch(releaseFunds(orderId)).unwrap();
-        dispatch(getClientOrders()); // Explicitly refetch orders on success
+        setExpandedOrderId(null);
+        dispatch(getClientOrders());
       } catch (err) {
         console.error('Failed to release funds:', err);
       }
     }
-  };
+ };
 
   const handleInitiateDisputeClick = (orderId) => {
-    setSelectedOrderId(orderId);
+    setSelectedOrder(orderId);
     setIsDisputeModalOpen(true);
-  };
+ };
 
   const [createDispute] = useCreateDisputeMutation();
 
   const handleConfirmDispute = async () => {
-    if (!disputeDescription) { // Only disputeDescription is sent to backend as client_argument
+    if (!disputeDescription) {
       toast.error('الرجاء إدخال وصف النزاع.');
       return;
     }
     try {
       await createDispute({
-        order: selectedOrderId,
+        order: selectedOrder.order_id,
         client_argument: disputeDescription
       }).unwrap();
       setIsDisputeModalOpen(false);
       setDisputeReason('');
       setDisputeDescription('');
-      dispatch(getClientOrders()); // Explicitly refetch orders on success
+      setExpandedOrderId(null);
+      dispatch(getClientOrders());
     } catch (err) {
       console.error('Failed to initiate dispute:', err);
     }
   };
 
   const handleSubmitReviewClick = (orderId, technicianId) => {
-    setSelectedOrderId(orderId);
+    setSelectedOrder(clientOrders.find(o => o.order_id === orderId));
     setReviewTechnicianId(technicianId);
     setIsReviewModalOpen(true);
   };
@@ -165,7 +170,7 @@ const ClientOrdersAndOffers = () => {
 
     try {
       await dispatch(submitReview({
-        order: selectedOrderId,
+        order: selectedOrder.order_id,
         technician: reviewTechnicianId,
         client: user.user_id,
         rating: parseFloat(reviewRating),
@@ -175,7 +180,8 @@ const ClientOrdersAndOffers = () => {
       setReviewRating('');
       setReviewComment('');
       setReviewTechnicianId(null);
-      dispatch(getClientOrders()); // Explicitly refetch orders on success
+      setExpandedOrderId(null);
+      dispatch(getClientOrders());
     } catch (err) {
       console.error('Failed to submit review:', err);
     }
@@ -187,81 +193,6 @@ const ClientOrdersAndOffers = () => {
 
   const handleViewOrder = (orderId) => {
     navigate(`/dashboard/orders-offers/view/${orderId}`);
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'OPEN':
-        return 'bg-blue-100 text-blue-800';
-      case 'PENDING':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'ACCEPTED':
-        return 'bg-green-100 text-green-800';
-      case 'IN_PROGRESS':
-        return 'bg-indigo-100 text-indigo-800';
-      case 'AWAITING_RELEASE':
-        return 'bg-purple-100 text-purple-800';
-      case 'COMPLETED':
-        return 'bg-teal-100 text-teal-800';
-      case 'DISPUTED':
-        return 'bg-orange-100 text-orange-800';
-      case 'CANCELLED':
-        return 'bg-red-100 text-red-800';
-      case 'REFUNDED':
-        return 'bg-pink-100 text-pink-800';
-      case 'AWAITING_CLIENT_ESCROW_CONFIRMATION':
-        return 'bg-yellow-200 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'OPEN':
-        return 'مفتوحة';
-      case 'PENDING':
-        return 'معلقة';
-      case 'ACCEPTED':
-        return 'مقبولة';
-      case 'IN_PROGRESS':
-        return 'قيد التنفيذ';
-      case 'AWAITING_RELEASE':
-        return 'بانتظار الإفراج';
-      case 'COMPLETED':
-        return 'مكتملة';
-      case 'DISPUTED':
-        return 'متنازع عليها';
-      case 'CANCELLED':
-        return 'ملغاة';
-      case 'REFUNDED':
-        return 'مستردة';
-      case 'AWAITING_CLIENT_ESCROW_CONFIRMATION':
-        return 'بانتظار تأكيد العميل للدفع';
-      default:
-        return 'غير محدد';
-    }
-  };
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case 'OPEN':
-      case 'PENDING':
-      case 'AWAITING_RELEASE':
-      case 'DISPUTED':
-      case 'AWAITING_CLIENT_ESCROW_CONFIRMATION':
-        return <Clock className="h-4 w-4" />;
-      case 'ACCEPTED':
-      case 'IN_PROGRESS':
-        return <CheckCircle className="h-4 w-4" />;
-      case 'COMPLETED':
-        return <CheckCircle className="h-4 w-4" />;
-      case 'CANCELLED':
-      case 'REFUNDED':
-        return <XCircle className="h-4 w-4" />;
-      default:
-        return <Clock className="h-4 w-4" />;
-    }
   };
 
   // Sort clientOrders by order_id
@@ -278,7 +209,7 @@ const ClientOrdersAndOffers = () => {
 
       {loading && (!clientOrders || clientOrders.length === 0) ? (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <span className="ml-2">جاري تحميل الطلبات...</span>
         </div>
       ) : (!clientOrders || clientOrders.length === 0) ? (
@@ -289,258 +220,32 @@ const ClientOrdersAndOffers = () => {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>طلباتي</CardTitle>
-                <CardDescription>
-                  {Array.isArray(clientOrders) ? clientOrders.length : 0} طلبات تم إنشاؤها
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {sortedClientOrders.map((order) => {
-                    // Determine if the "تأكيد وتمويل الضمان" button should be disabled
-                    const isAcceptOfferButtonDisabled = 
-                      order.order_status !== 'AWAITING_CLIENT_ESCROW_CONFIRMATION' ||
-                      (order.associated_offer && order.associated_offer.status === 'accepted') ||
-                      order.order_status === 'ACCEPTED' ||
-                      loading; // Also consider global loading state
-
-                    const acceptOfferButtonText = 
-                      (order.order_status === 'ACCEPTED' || (order.associated_offer && order.associated_offer.status === 'accepted'))
-                        ? 'تم التأكيد' 
-                        : 'تأكيد وتمويل الضمان';
-
-                    // Add a check to ensure order and order.order_id are not undefined
-                    return order && order.order_id ? (
-                      <div
-                        key={order.order_id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                          selectedOrderId === order.order_id
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                        onClick={() => handleViewOffers(order.order_id)}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-semibold">
-                                {order.service?.arabic_name || order.service?.service_name || order.problem_description}
-                              </h3>
-                              <Badge className={getStatusColor(order.order_status)}>
-                                {getStatusIcon(order.order_status)}
-                                <span className="ml-1">{getStatusText(order.order_status)}</span>
-                              </Badge>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                              <div className="flex items-center gap-1">
-                                <MapPin className="h-4 w-4" />
-                                {order.requested_location}
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Calendar className="h-4 w-4" />
-                                {format(new Date(order.scheduled_date), 'PPP')}
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Clock className="h-4 w-4" />
-                                {order.scheduled_time_start} - {order.scheduled_time_end}
-                              </div>
-                              {order.technician_user && (
-                                <div className="flex items-center gap-1">
-                                  <User className="h-4 w-4" />
-                                  تم التعيين لـ {order.technician_user.first_name}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          
-                          <div className="text-right">
-                            {order.offers_count > 0 && (
-                              <Badge variant="outline">
-                                {order.offers_count} عروض
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {(order.order_status === 'OPEN' || order.order_status === 'PENDING') && (
-                            <>
-                              <Button 
-                                variant="destructive" 
-                                size="sm" 
-                                onClick={(e) => { e.stopPropagation(); handleCancelOrderClick(order.order_id); }}
-                                disabled={loading}
-                              >
-                                إلغاء الطلب
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={(e) => { e.stopPropagation(); handleEditOrder(order.order_id); }}
-                                disabled={loading}
-                              >
-                                <Edit className="h-4 w-4 ml-2" />
-                                تعديل الطلب
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={(e) => { e.stopPropagation(); handleViewOrder(order.order_id); }}
-                                disabled={loading}
-                              >
-                                عرض تفاصيل الطلب
-                              </Button>
-                            </>
-                          )}
-                          {order.order_status === 'AWAITING_RELEASE' && (
-                            <>
-                              <Button 
-                                variant="success" 
-                                size="sm" 
-                                onClick={(e) => { e.stopPropagation(); handleReleaseFundsClick(order.order_id); }}
-                                disabled={loading}
-                              >
-                                تحرير الأموال
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={(e) => { e.stopPropagation(); handleInitiateDisputeClick(order.order_id); }}
-                                disabled={loading}
-                              >
-                                فتح نزاع
-                              </Button>
-                            </>
-                          )}
-                          {order.order_status === 'COMPLETED' && order.technician_user && (
-                            <Button 
-                              variant="secondary" 
-                              size="sm" 
-                              onClick={(e) => { e.stopPropagation(); handleSubmitReviewClick(order.order_id, order.technician_user.user_id); }}
-                              disabled={loading}
-                            >
-                              كتابة مراجعة
-                            </Button>
-                          )}
-                          {order.order_status === 'DISPUTED' && (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/disputes/${order.order_id}`); }}
-                              disabled={loading}
-                            >
-                              عرض النزاع
-                            </Button>
-                          )}
-                          {order.order_status === 'AWAITING_CLIENT_ESCROW_CONFIRMATION' && order.associated_offer && (
-                            <Button
-                              variant="success"
-                              size="sm"
-                              onClick={(e) => { e.stopPropagation(); handleAcceptOffer(order.order_id, order.associated_offer.offer_id); }}
-                              disabled={isAcceptOfferButtonDisabled}
-                            >
-                              {acceptOfferButtonText}
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    ) : null // Render nothing if order or order_id is undefined
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  {selectedOrderId ? 'العروض المستلمة' : 'اختر طلبًا'}
-                </CardTitle>
-                <CardDescription>
-                  {selectedOrderId 
-                    ? 'راجع واقبل العروض من الفنيين'
-                    : 'انقر على طلب لعرض العروض'
-                  }
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {!selectedOrderId ? (
-                  <div className="text-center py-8 text-gray-500">
-                    اختر طلبًا لعرض العروض
-                  </div>
-                ) : !selectedOrder ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>لم يتم العثور على الطلب</p>
-                  </div>
-                ) : (!selectedOrder.project_offers || selectedOrder.project_offers.length === 0) ? (
-                  <div className="text-center py-8 text-gray-50">
-                    <p>لم يتم استلام عروض بعد</p>
-                    <p className="text-sm">سيقدم الفنيون عروضهم على طلبك قريبًا</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {selectedOrder.project_offers.map((offer) => (
-                      <div key={offer.offer_id} className="p-4 border rounded-lg">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <User className="h-4 w-4 text-gray-500" />
-                            <span className="font-medium">
-                              {offer.technician_user?.first_name} {offer.technician_user?.last_name}
-                            </span>
-                          </div>
-                          <Badge className={getStatusColor(offer.status)}>
-                            {getStatusText(offer.status)}
-                          </Badge>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <DollarSign className="h-4 w-4 text-green-600" />
-                            <span className="text-lg font-bold text-green-600">
-                              ${offer.offered_price}
-                            </span>
-                          </div>
-                          
-                          <p className="text-sm text-gray-600">
-                            {offer.offer_description}
-                          </p>
-                          
-                          <div className="text-xs text-gray-500">
-                            {format(new Date(offer.offer_date), 'PPP')}
-                          </div>
-                        </div>
-                        
-                        {offer.status === 'pending' && (
-                          <div className="mt-4 pt-3 border-t">
-                            <Button 
-                              onClick={() => handleAcceptOffer(selectedOrderId, offer.offer_id)}
-                              disabled={loading}
-                              className="w-full"
-                            >
-                              {loading ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                  <span className="ml-2">جاري القبول...</span>
-                                </>
-                              ) : (
-                                'قبول العرض'
-                              )}
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+        <div className="space-y-4">
+          {sortedClientOrders.map((order) => (
+            <div key={order.order_id}>
+              <OrderCard
+                order={order}
+                isSelected={expandedOrderId === order.order_id}
+                onToggleExpand={() => handleToggleExpand(order.order_id)}
+                onEdit={handleEditOrder}
+                onView={handleViewOrder}
+                onCancel={handleCancelOrderClick}
+                onReleaseFunds={handleReleaseFundsClick}
+                onInitiateDispute={handleInitiateDisputeClick}
+                onSubmitReview={handleSubmitReviewClick}
+                onAcceptOffer={handleAcceptOffer}
+                loading={loading}
+                orderId={order.order_id}
+              />
+              <ExpandableOffers
+                order={order}
+                offers={order.project_offers}
+                isOpen={expandedOrderId === order.order_id}
+                onAcceptOffer={handleAcceptOffer}
+                loading={loading}
+              />
+            </div>
+          ))}
         </div>
       )}
 
