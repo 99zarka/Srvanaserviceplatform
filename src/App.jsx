@@ -12,7 +12,7 @@ import { UserProfilePage } from "./components/UserProfilePage";
 import { BrowseUsersPage } from "./components/BrowseUsersPage";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
-import { Loader } from "./components/Loader";
+import { useState, useEffect } from "react";
 
 // Import new service ordering components
 import OrderCreateForm from "./components/service-ordering/OrderCreateForm";
@@ -28,9 +28,27 @@ import { NotificationDisplay } from "./components/NotificationDisplay";
 import PublicProjectsList from "./components/public/PublicProjectsList";
 import ProjectDetail from "./components/public/ProjectDetail";
 
-
 export default function App() {
   const location = useLocation();
+  const [isLoading, setIsLoading] = useState(true);
+  const [showContent, setShowContent] = useState(false);
+
+  useEffect(() => {
+    // Hide loader after 2.3 seconds
+    const loaderTimer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2300);
+
+    // Show content with fade-in after loader disappears
+    const contentTimer = setTimeout(() => {
+      setShowContent(true);
+    }, 2300);
+
+    return () => {
+      clearTimeout(loaderTimer);
+      clearTimeout(contentTimer);
+    };
+  }, []);
 
   const showHeaderFooter = ![
     "/login",
@@ -42,10 +60,24 @@ export default function App() {
     !location.pathname.startsWith("/transactions");
 
   return (
-    <div className="min-h-screen flex flex-col" dir="rtl">
-      <Loader />
-      {showHeaderFooter && <Header />}
-      <div className="flex-1">
+    <>
+      {/* Loader */}
+      {isLoading && (
+        <div className="loader-overlay">
+          <div className="spinner">
+            <div className="spinner1"></div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div 
+        className={`min-h-screen flex flex-col ${showContent ? 'fade-in-content' : 'hidden-content'}`} 
+        dir="rtl"
+        style={{ transition: 'opacity 0.8s ease-in' }}
+      >
+        {showHeaderFooter && <Header />}
+        <div className="flex-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
@@ -77,5 +109,6 @@ export default function App() {
       <Toaster />
       <NotificationDisplay />
     </div>
+    </>
   );
 }

@@ -22,6 +22,7 @@ export default {
         'pulse-slow': 'pulse 3s infinite',
         'shimmer': 'shimmer 2s infinite',
         'float': 'float 3s ease-in-out infinite',
+        'bell-ring': 'bellRing 1s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -59,6 +60,12 @@ export default {
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-10px)' },
+        },
+        bellRing: {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '10%, 30%': { transform: 'rotate(-10deg)' },
+          '20%, 40%': { transform: 'rotate(10deg)' },
+          '50%': { transform: 'rotate(0deg)' },
         },
       },
     },
