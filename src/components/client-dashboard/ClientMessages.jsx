@@ -62,30 +62,36 @@ export function ClientMessages() {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {conversations.map((conv) => (
-            <Card key={conv.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="pt-6 flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg">
-                    محادثة مع: {conv.other_participant_name || "مستخدم غير معروف"}
-                  </CardTitle>
-                  <p className="text-muted-foreground text-sm">
-                    {conv.last_message ? conv.last_message.content : "لا توجد رسائل سابقة"}
-                  </p>
-                  {conv.last_message && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(conv.last_message.timestamp).toLocaleString("ar-EG")}
+          {conversations.map((conv) => {
+            // Find the other participant (not current user)
+            const otherParticipant = conv.participants_info?.find(p => p.id !== user?.user_id);
+            const otherUserId = otherParticipant?.id;
+            
+            return (
+              <Card key={conv.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="pt-6 flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg">
+                      محادثة مع: {otherParticipant?.full_name || "مستخدم غير معروف"}
+                    </CardTitle>
+                    <p className="text-muted-foreground text-sm">
+                      {conv.last_message?.content || "لا توجد رسائل سابقة"}
                     </p>
-                  )}
-                </div>
-                <Button variant="ghost" asChild>
-                  <Link to={`/dashboard/messages/${conv.id}`}> {/* Link to individual chat */}
-                    <ArrowRight className="h-5 w-5" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                    {conv.last_message?.timestamp && (
+                      <p className="text-xs text-gray-50 mt-1">
+                        {new Date(conv.last_message.timestamp).toLocaleString("ar-EG")}
+                      </p>
+                    )}
+                  </div>
+                  <Button variant="ghost" asChild>
+                    <Link to={`/dashboard/messages/${otherUserId}`}>
+                      <ArrowRight className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

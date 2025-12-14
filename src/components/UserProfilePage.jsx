@@ -394,9 +394,20 @@ export function UserProfilePage() {
                 </div>
               )}
 
+              {/* Send Message Button */}
+              {user && !isCurrentUser && (
+                <div className="mt-4">
+                  <Link to={`/dashboard/messages/${userId}`}>
+                    <Button className="w-full px-6 py-3 text-lg bg-blue-500 hover:bg-blue-600 text-white">
+                      إرسال رسالة
+                    </Button>
+                  </Link>
+                </div>
+              )}
+
               {/* Make Direct Offer Button and Modal */}
               {user && currentUserData?.user_type === 'technician' && !isCurrentUser && (
-                <div className="mt-8">
+                <div className="mt-4">
                   <Link to={`/offer/${userId}`}>
                     <Button className="w-full px-6 py-3 text-lg">
                       تقديم عرض مباشر

@@ -98,14 +98,18 @@ const api = {
     const url = `${BASE_URL}${endpoint}`;
     const token = getAuthToken();
     
+    // Check if data is FormData to handle file uploads properly
+    const isFormData = data instanceof FormData;
+    
     const config = {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         ...(token && { 'Authorization': `Bearer ${token}` }),
+        // Don't set Content-Type for FormData - browser will set it with proper boundary
+        ...(!isFormData && { 'Content-Type': 'application/json' }),
         ...options.headers,
       },
-      body: JSON.stringify(data),
+      body: isFormData ? data : JSON.stringify(data),
       ...options,
     };
     

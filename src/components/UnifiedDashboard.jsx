@@ -27,6 +27,7 @@ import { ClientFinancials } from "./client-dashboard/ClientFinancials";
 import ClientOrdersAndOffers from "./client-dashboard/ClientOrdersAndOffers";
 import EditOrderPage from "./client-dashboard/EditOrderPage";
 import ViewOrderPage from "./client-dashboard/ViewOrderPage";
+import { ChatRoom } from "./chat/ChatRoom";
 import { WorkerOverview } from "./worker-dashboard/WorkerOverview";
 import { WorkerTasks } from "./worker-dashboard/WorkerTasks";
 import { WorkerEarnings } from "./worker-dashboard/WorkerEarnings";
@@ -180,6 +181,7 @@ export function UnifiedDashboard() {
           <Route path="orders-offers/edit/:orderId" element={<EditOrderPage />} />
           <Route path="orders-offers/view/:orderId" element={<ViewOrderPage />} />
           <Route path="messages" element={<ClientMessages />} />
+          <Route path="messages/:id" element={<ChatRoom />} />
           <Route path="disputes" element={<ClientDisputes />} />
 
           {/* Worker Routes */}

@@ -44,7 +44,7 @@ export function Header() {
 
   const navItems = [
     { name: "الرئيسية", path: "/", icon: Home },
-    { name: "تصفح المستخدمين", path: "/browse-users", icon: Users }, // New link
+    { name: "المستخدمين", path: "/browse-users", icon: Users }, // New link
     { name: "المشاريع", path: "/projects", icon: Briefcase }, // Added public projects link
     { name: "اتصل بنا", path: "/contact", icon: Mail },
   ];
