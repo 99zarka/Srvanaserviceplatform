@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { Input } from "../ui/input";
-import { MessageSquare, Send, Paperclip, X, Image, FileText, User, Clock } from "lucide-react";
+import { MessageSquare, Send, Paperclip, X, Image, FileText, User, Clock, Phone, Video, MoreVertical } from "lucide-react";
 import api from "../../utils/api";
 
 export function ChatRoom() {
@@ -243,35 +243,39 @@ export function ChatRoom() {
     if (message.file_url) {
       if (message.file_type === 'image') {
         return (
-          <div className="mt-2 p-2 bg-gray-50 rounded-lg border border-gray-20 max-w-xs md:max-w-md">
-            <div className="flex items-center space-x-2 text-sm text-gray-600 mb-1">
+          <div className="mt-2 p-2 bg-white rounded-xl border border-gray-100 shadow-sm">
+            <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
               <Image className="h-4 w-4" />
-              <span>صورة</span>
+              <span className="font-medium">صورة</span>
             </div>
             <a href={message.file_url} target="_blank" rel="noopener noreferrer" className="block">
               <img
                 src={message.file_url}
                 alt={message.file_name || "صورة مرفقة"}
-                className="max-h-48 rounded border hover:opacity-90 transition-opacity"
+                className="max-h-64 rounded-lg border hover:shadow-md transition-all duration-200 cursor-pointer"
               />
             </a>
           </div>
         );
       } else {
         return (
-          <div className="mt-2 p-2 bg-gray-50 rounded-lg border border-gray-20 max-w-xs md:max-w-md">
-            <div className="flex items-center space-x-2 text-sm text-gray-600 mb-1">
+          <div className="mt-2 p-3 bg-white rounded-xl border border-gray-100 shadow-sm">
+            <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
               <FileText className="h-4 w-4" />
-              <span>ملف</span>
+              <span className="font-medium">ملف</span>
             </div>
             <a
               href={message.file_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block text-blue-60 hover:text-blue-800 underline text-sm truncate"
+              className="block text-blue-600 hover:text-blue-800 font-medium text-sm truncate"
               title={message.file_name}
             >
-              {message.file_name || "ملف مرفق"}
+              <div className="flex items-center space-x-2">
+                <FileText className="h-4 w-4" />
+                <span>{message.file_name || "ملف مرفق"}</span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">{formatFileSize(message.file_size)}</p>
             </a>
           </div>
         );
@@ -279,111 +283,199 @@ export function ChatRoom() {
     }
 
     if (message.content) {
-      return <p className="whitespace-pre-wrap">{message.content}</p>;
+      return (
+        <div className="whitespace-pre-wrap leading-relaxed">
+          {message.content}
+        </div>
+      );
     }
 
     return null;
   };
 
-  if (isLoadingConversation) return <div className="text-center p-8" dir="rtl">جاري تحميل المحادثة...</div>;
-  if (error) return <div className="text-center p-8 text-red-50" dir="rtl">خطأ: {error}</div>;
+  if (isLoadingConversation) return (
+    <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+        <p className="text-gray-600 font-medium" dir="rtl">جاري تحميل المحادثة...</p>
+      </div>
+    </div>
+  );
 
- return (
-    <div className="flex flex-col h-screen bg-gray-50" dir="rtl">
+  if (error) return (
+    <div className="flex items-center justify-center h-screen bg-gradient-to-br from-red-50 to-pink-50">
+      <div className="text-center p-8 bg-white rounded-2xl shadow-lg border border-red-100 max-w-md mx-4">
+        <p className="text-red-600 font-medium text-lg" dir="rtl">خطأ: {error}</p>
+        <Button 
+          onClick={() => window.location.reload()} 
+          className="mt-4 bg-red-500 hover:bg-red-600"
+        >
+          إعادة المحاولة
+        </Button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-blue-50" dir="rtl">
       {/* Header */}
-      <Card className="rounded-none border-0 border-b shadow-sm">
-        <CardHeader className="p-4 pb-2">
+      <Card className="rounded-none border-0 border-b border-gray-200 shadow-sm bg-white/80 backdrop-blur-sm">
+        <CardHeader className="p-4 pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/messages')}>
-                <MessageSquare className="h-5 w-5" />
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate('/dashboard/messages')}
+                className="rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <MessageSquare className="h-5 w-5 text-gray-600" />
               </Button>
-              <div>
-                <CardTitle className="text-lg">
-                  {conversation?.participants_info?.filter(p => p.id !== user?.user_id)[0]?.full_name || "محادثة"}
-                </CardTitle>
-                <p className="text-xs text-gray-500 text-right">
-                  {conversation?.participants_info?.filter(p => p.id !== user?.user_id)[0]?.user_type || ""}
-                </p>
+              <div className="flex items-center space-x-3">
+                <div className="relative">
+                  {conversation?.participants_info?.filter(p => p.id !== user?.user_id)[0]?.profile_photo ? (
+                    <img
+                      src={conversation?.participants_info?.filter(p => p.id !== user?.user_id)[0]?.profile_photo}
+                      alt="Profile"
+                      className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gray-200 border-2 border-gray-200 flex items-center justify-center">
+                      <User className="h-5 w-5 text-gray-600" />
+                    </div>
+                  )}
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></div>
+                </div>
+                <div>
+                  <CardTitle className="text-lg font-semibold text-gray-800">
+                    {conversation?.participants_info?.filter(p => p.id !== user?.user_id)[0]?.full_name || "محادثة"}
+                  </CardTitle>
+                  <p className="text-xs text-gray-500">
+                    {conversation?.participants_info?.filter(p => p.id !== user?.user_id)[0]?.user_type === 'admin' ? 'مشرف' : 
+                     conversation?.participants_info?.filter(p => p.id !== user?.user_id)[0]?.user_type === 'technician' ? 'فني' : 
+                     conversation?.participants_info?.filter(p => p.id !== user?.user_id)[0]?.user_type || ""}
+                  </p>
+                </div>
               </div>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" size="sm" className="rounded-full hover:bg-gray-100">
+                <MoreVertical className="h-5 w-5 text-gray-600" />
+              </Button>
             </div>
           </div>
         </CardHeader>
       </Card>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4" onScroll={(e) => {
-        if (e.target.scrollTop === 0 && hasMore) {
-          fetchMoreMessages();
-        }
-      }}>
+      <div 
+        className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-white/50 to-transparent"
+        onScroll={(e) => {
+          if (e.target.scrollTop === 0 && hasMore) {
+            fetchMoreMessages();
+          }
+        }}
+      >
         {hasMore && (
-          <div className="text-center py-2">
-            <Button variant="outline" size="sm" onClick={fetchMoreMessages} disabled={loading}>
-              تحميل المزيد...
+          <div className="text-center py-3">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={fetchMoreMessages} 
+              disabled={loading}
+              className="rounded-full px-6 hover:shadow-md transition-shadow"
+            >
+              {loading ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                  <span>جاري التحميل...</span>
+                </div>
+              ) : (
+                "تحميل المزيد..."
+              )}
             </Button>
           </div>
         )}
 
-        {messages.map((message) => {
+        {messages.map((message, index) => {
           const isCurrentUser = message.sender === user?.user_id;
           const senderInfo = conversation?.participants_info?.find(p => p.id === message.sender);
+          const showTimeSeparator = index > 0 && 
+            new Date(message.timestamp).toDateString() !== new Date(messages[index - 1].timestamp).toDateString();
 
           return (
-            <div
-              key={message.id}
-              className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
-            >
+            <React.Fragment key={message.id}>
+              {showTimeSeparator && (
+                <div className="text-center my-4">
+                  <span className="inline-block px-4 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">
+                    {new Date(message.timestamp).toLocaleDateString("ar-EG", {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </span>
+                </div>
+              )}
+              
               <div
-                className={`max-w-xs md:max-w-md lg:max-w-lg xl:max-w-xl ${
-                  isCurrentUser
-                    ? 'bg-blue-500 text-white rounded-br-none'
-                    : 'bg-white text-gray-800 rounded-bl-none border border-gray-200'
-                } rounded-lg p-3 shadow-sm`}
+                className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
               >
-                {!isCurrentUser && senderInfo && (
-                  <div className="flex items-center space-x-2 mb-1 text-xs text-gray-500">
-                    <User className="h-3 w-3" />
-                    <span>{senderInfo.full_name}</span>
+                <div
+                  className={`max-w-xs md:max-w-md lg:max-w-lg xl:max-w-xl ${
+                    isCurrentUser
+                      ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-br-none shadow-lg'
+                      : 'bg-white text-gray-800 rounded-bl-none border border-gray-200 shadow-sm'
+                  } rounded-2xl p-4 transition-all duration-200 hover:shadow-md`}
+                >
+                  {!isCurrentUser && senderInfo && (
+                    <div className="flex items-center space-x-2 mb-2 text-xs text-gray-500">
+                      <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center">
+                        <User className="h-3 w-3" />
+                      </div>
+                      <span className="font-medium">{senderInfo.full_name}</span>
+                    </div>
+                  )}
+                  
+                  {renderMessageContent(message)}
+                  
+                  <div className={`text-xs mt-2 ${isCurrentUser ? 'text-blue-100' : 'text-gray-500'} flex items-center justify-end space-x-1`}>
+                    <Clock className="h-3 w-3" />
+                    <span>{new Date(message.timestamp).toLocaleTimeString("ar-EG", {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}</span>
                   </div>
-                )}
-                
-                {renderMessageContent(message)}
-                
-                <div className={`text-xs mt-1 ${isCurrentUser ? 'text-blue-100' : 'text-gray-500'} flex items-center justify-end space-x-1`}>
-                  <Clock className="h-3 w-3" />
-                  <span>{new Date(message.timestamp).toLocaleTimeString("ar-EG", {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}</span>
                 </div>
               </div>
-            </div>
+            </React.Fragment>
           );
         })}
+        
         <div ref={messagesEndRef} />
       </div>
 
       {/* Message Input */}
-      <Card className="rounded-none border-0 border-t shadow-sm m-0 p-4 bg-white">
+      <Card className="rounded-none border-0 border-t border-gray-200 shadow-sm m-0 p-4 bg-white/80 backdrop-blur-sm">
         {/* File Preview */}
         {filePreview && (
-          <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between max-w-md mx-auto">
+          <div className="mb-3 p-3 bg-white rounded-xl border border-gray-200 shadow-sm flex items-center justify-between max-w-md mx-auto">
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               {selectedFile?.type?.startsWith('image/') ? (
                 <Image className="h-4 w-4" />
               ) : (
                 <FileText className="h-4 w-4" />
               )}
-              <span className="truncate">{selectedFile?.name}</span>
-              <span className="text-xs">({formatFileSize(selectedFile?.size)})</span>
+              <span className="truncate font-medium">{selectedFile?.name}</span>
+              <span className="text-xs text-gray-500">({formatFileSize(selectedFile?.size)})</span>
             </div>
             <Button
               type="button"
               onClick={removeFile}
               variant="ghost"
               size="sm"
-              className="text-red-500 hover:text-red-70 p-0 h-auto"
+              className="text-red-500 hover:text-red-700 p-0 h-auto rounded-full hover:bg-red-50"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -398,7 +490,7 @@ export function ChatRoom() {
               onKeyPress={handleKeyPress}
               placeholder="اكتب رسالتك هنا..."
               rows={2}
-              className="resize-none"
+              className="resize-none border-gray-200 focus:border-blue-400 focus:ring-blue-400 rounded-xl px-4 py-3 shadow-sm transition-all duration-200"
             />
           </div>
           
@@ -415,7 +507,7 @@ export function ChatRoom() {
               variant="outline"
               size="sm"
               onClick={() => fileInputRef.current?.click()}
-              className="p-2"
+              className="p-3 rounded-full hover:shadow-md transition-shadow border-gray-300 hover:border-gray-400"
             >
               <Paperclip className="h-4 w-4" />
             </Button>
@@ -423,7 +515,7 @@ export function ChatRoom() {
             <Button
               onClick={handleSendMessage}
               disabled={(!messageContent.trim() && !selectedFile) || loading || isSending}
-              className="p-2 bg-blue-500 hover:bg-blue-600 text-white"
+              className="p-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSending ? (
                 <div className="flex items-center space-x-1">
