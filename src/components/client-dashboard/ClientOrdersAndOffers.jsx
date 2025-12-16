@@ -29,7 +29,8 @@ const ClientOrdersAndOffers = () => {
     clientOrders, 
     loading, 
     error, 
-    successMessage 
+    successMessage,
+    clientOrdersPagination
   } = useSelector((state) => state.orders);
   const { user } = useSelector((state) => state.auth);
 
@@ -40,17 +41,19 @@ const ClientOrdersAndOffers = () => {
   const [isCancelling, setIsCancelling] = useState(false);
   const [isDisputeModalOpen, setIsDisputeModalOpen] = useState(false);
   const [disputeReason, setDisputeReason] = useState('');
-  const [disputeDescription, setDisputeDescription] = useState('');
+ const [disputeDescription, setDisputeDescription] = useState('');
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewRating, setReviewRating] = useState('');
   const [reviewComment, setReviewComment] = useState('');
   const [reviewTechnicianId, setReviewTechnicianId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     if (user?.user_id) {
-      dispatch(getClientOrders());
+      dispatch(getClientOrders({ page: currentPage, pageSize }));
     }
- }, [dispatch, user]);
+ }, [dispatch, user, currentPage, pageSize]);
 
   useEffect(() => {
     if (successMessage) {
@@ -197,7 +200,7 @@ const ClientOrdersAndOffers = () => {
 
   // Sort clientOrders by order_id
   const sortedClientOrders = Array.isArray(clientOrders) 
-    ? [...clientOrders].sort((a, b) => a.order_id - b.order_id) 
+    ? [...clientOrders].sort((a, b) => b.order_id - a.order_id) 
     : [];
 
   return (
@@ -363,6 +366,75 @@ const ClientOrdersAndOffers = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Pagination Controls */}
+      {clientOrdersPagination.totalPages > 1 && (
+        <div className="flex items-center justify-between mt-6 px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+          <div className="flex flex-1 justify-between sm:hidden">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1 || loading}
+              className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              السابق
+            </button>
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, clientOrdersPagination.totalPages))}
+              disabled={currentPage === clientOrdersPagination.totalPages || loading}
+              className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              التالي
+            </button>
+          </div>
+          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm text-gray-700">
+                عرض <span className="font-medium">{(currentPage - 1) * pageSize + 1}</span> إلى{' '}
+                <span className="font-medium">
+                  {Math.min(currentPage * pageSize, clientOrdersPagination.count)}
+                </span>{' '}
+                من <span className="font-medium">{clientOrdersPagination.count}</span> نتائج
+              </p>
+            </div>
+            <div>
+              <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1 || loading}
+                  className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-40 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="sr-only">Previous</span>
+                  &rarr;
+                </button>
+
+                {/* Page numbers */}
+                {Array.from({ length: clientOrdersPagination.totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+                      page === currentPage
+                        ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
+                        : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
+                    } focus:outline-offset-0`}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, clientOrdersPagination.totalPages))}
+                  disabled={currentPage === clientOrdersPagination.totalPages || loading}
+                  className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="sr-only">Next</span>
+                  &larr;
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

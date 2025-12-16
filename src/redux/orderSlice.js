@@ -17,9 +17,12 @@ export const createOrder = createAsyncThunk(
 // Get all orders (for clients to view their orders)
 export const getClientOrders = createAsyncThunk(
   'orders/getClientOrders',
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await api.get('/orders/?page_size=50');
+      const page = params.page || 1;
+      const pageSize = params.pageSize || 10;
+      const url = `/orders/?page=${page}&page_size=${pageSize}`;
+      const response = await api.get(url);
       return response; // Return the entire response object as `action.payload`
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -378,6 +381,15 @@ const orderSlice = createSlice({
     loading: false,
     error: null,
     successMessage: null,
+    // Pagination state for client orders
+    clientOrdersPagination: {
+      count: 0,
+      next: null,
+      previous: null,
+      currentPage: 1,
+      totalPages: 1,
+      pageSize: 10
+    }
   },
   reducers: {
     clearError: (state) => {
@@ -434,6 +446,17 @@ const orderSlice = createSlice({
       .addCase(getClientOrders.fulfilled, (state, action) => {
         state.loading = false;
         state.clientOrders = action.payload?.results || [];
+        // Update pagination state based on the action parameters and response
+        const page = action.meta.arg.page || 1;
+        const pageSize = action.meta.arg.pageSize || 10;
+        state.clientOrdersPagination = {
+          count: action.payload?.count || 0,
+          next: action.payload?.next || null,
+          previous: action.payload?.previous || null,
+          currentPage: page,
+          totalPages: Math.ceil((action.payload?.count || 0) / pageSize),
+          pageSize: pageSize
+        };
       })
       .addCase(getClientOrders.rejected, (state, action) => {
         state.loading = false;
