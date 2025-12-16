@@ -12,22 +12,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { Calendar as CalendarIcon, Loader2, DollarSign, Wrench, MapPin, CircleUser } from 'lucide-react';
+import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import { Calendar } from './ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { toast } from 'sonner';
-import { getClientOrders, getOrderOffers, updateClientOffer, clearError, clearSuccessMessage } from '../redux/orderSlice';
+import { getOrderOffers, updateClientOffer, clearError, clearSuccessMessage } from '../redux/orderSlice';
 import api from '../utils/api';
+
+import GovernorateSelect from './common/GovernorateSelect';
 
 const EditOrderForm = ({ orderId, onClose }) => {
   const dispatch = useDispatch();
-  const { clientOrders, currentOrderOffers, loading, error, successMessage } = useSelector((state) => state.orders);
+  const { currentOrderOffers, loading, error, successMessage } = useSelector((state) => state.orders);
   const { user } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
     offered_price: '',
     problem_description: '',
-    requested_location: '',
+    governorate: '',
+    detailed_address: '',
     scheduled_date: new Date(),
     scheduled_time_start: '',
     scheduled_time_end: '',
@@ -42,24 +45,27 @@ const EditOrderForm = ({ orderId, onClose }) => {
   const offerToEdit = clientOffers?.[0];
 
   useEffect(() => {
-    if (currentOrderOffers && currentOrderOffers.length > 0) {
-      if (offerToEdit) {
-        if (offerToEdit.order) {
-          setOrder(offerToEdit.order);
-        }
-        setFormData(prevData => ({
-          ...prevData,
-          offered_price: offerToEdit.offered_price?.toString() || prevData.offered_price,
-          problem_description: offerToEdit.order?.problem_description || prevData.problem_description,
-          requested_location: offerToEdit.order?.requested_location || prevData.requested_location,
-          scheduled_date: offerToEdit.order?.scheduled_date ? new Date(offerToEdit.order.scheduled_date) : prevData.scheduled_date || new Date(),
-          scheduled_time_start: offerToEdit.order?.scheduled_time_start || prevData.scheduled_time_start,
-          scheduled_time_end: offerToEdit.order?.scheduled_time_end || prevData.scheduled_time_end,
-          offer_description: offerToEdit.offer_description || prevData.offer_description,
-        }));
+    if (offerToEdit) {
+      const [governorate, detailed_address] = offerToEdit.order?.requested_location 
+        ? offerToEdit.order.requested_location.split(',').map(s => s.trim()) 
+        : ["", ""];
+
+      if (offerToEdit.order) {
+        setOrder(offerToEdit.order);
       }
+      setFormData(prevData => ({
+        ...prevData,
+        offered_price: offerToEdit.offered_price?.toString() || '',
+        problem_description: offerToEdit.order?.problem_description || '',
+        governorate: governorate || '',
+        detailed_address: detailed_address || '',
+        scheduled_date: offerToEdit.order?.scheduled_date ? new Date(offerToEdit.order.scheduled_date) : new Date(),
+        scheduled_time_start: offerToEdit.order?.scheduled_time_start || '',
+        scheduled_time_end: offerToEdit.order?.scheduled_time_end || '',
+        offer_description: offerToEdit.offer_description || '',
+      }));
     }
-  }, [currentOrderOffers, offerToEdit]);
+  }, [offerToEdit]);
 
   useEffect(() => {
     if (orderId && user?.user_id) {
@@ -71,7 +77,7 @@ const EditOrderForm = ({ orderId, onClose }) => {
     if (successMessage) {
       toast.success(successMessage);
       dispatch(clearSuccessMessage());
-      onClose(); // Close modal after successful update
+      onClose();
     }
     if (error) {
       toast.error(error?.detail || error?.message || error || "حدث خطأ أثناء تحديث العرض.");
@@ -97,6 +103,10 @@ const EditOrderForm = ({ orderId, onClose }) => {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
+  const handleSelectChange = (id, value) => {
+    setFormData((prev) => ({...prev, [id]: value}));
+  }
+
   const handleServiceChange = (value) => {
     const serviceId = parseInt(value);
     const service = services.find(s => s.service_id === serviceId);
@@ -116,15 +126,17 @@ const EditOrderForm = ({ orderId, onClose }) => {
       return;
     }
 
-    if (!formData.offered_price || !formData.problem_description || !formData.requested_location || !formData.scheduled_date || !formData.scheduled_time_start || !formData.scheduled_time_end) {
+    if (!formData.offered_price || !formData.problem_description || !formData.governorate || !formData.detailed_address || !formData.scheduled_date || !formData.scheduled_time_start || !formData.scheduled_time_end) {
       toast.error("الرجاء ملء جميع الحقول المطلوبة.");
       return;
     }
+    
+    const requested_location = `${formData.governorate}, ${formData.detailed_address}`;
 
     const offerData = {
       offered_price: parseFloat(formData.offered_price),
       problem_description: formData.problem_description,
-      requested_location: formData.requested_location,
+      requested_location: requested_location,
       scheduled_date: format(formData.scheduled_date, 'yyyy-MM-dd'),
       scheduled_time_start: formData.scheduled_time_start,
       scheduled_time_end: formData.scheduled_time_end,
@@ -235,7 +247,7 @@ const EditOrderForm = ({ orderId, onClose }) => {
           <Label htmlFor="problem_description">وصف المشكلة <span className="text-red-500">*</span></Label>
           <Textarea
             id="problem_description"
-            placeholder="صف المشكلة بالتفصيل (على سبيل المثال: 'صنبور مطبخ يسرب، يحتاج إلى استبدال جزء معين')."
+            placeholder="صف المشكلة بالتفصيل (على سبيل المثال: 'صنبور مطبخ يسرب...')."
             value={formData.problem_description}
             onChange={handleChange}
             rows={4}
@@ -243,15 +255,26 @@ const EditOrderForm = ({ orderId, onClose }) => {
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="requested_location">موقع الخدمة <span className="text-red-500">*</span></Label>
-          <Input
-            id="requested_location"
-            placeholder="مثال: 123 الشارع الرئيسي، شقة 4ب، القاهرة"
-            value={formData.requested_location}
-            onChange={handleChange}
-            required
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="governorate">المحافظة <span className="text-red-500">*</span></Label>
+            <GovernorateSelect
+              id="governorate"
+              value={formData.governorate}
+              onChange={(e) => handleSelectChange('governorate', e.target.value)}
+              className="w-full"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="detailed_address">العنوان التفصيلي <span className="text-red-500">*</span></Label>
+            <Input
+              id="detailed_address"
+              placeholder="مثال: 123 الشارع الرئيسي، شقة 4ب"
+              value={formData.detailed_address}
+              onChange={handleChange}
+              required
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -266,13 +289,13 @@ const EditOrderForm = ({ orderId, onClose }) => {
                   }`}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {formData.scheduled_date ? format(formData.scheduled_date, "PPP") : <span>اختر تاريخًا</span>}
+                  {formData.scheduled_date ? format(new Date(formData.scheduled_date), "PPP") : <span>اختر تاريخًا</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
                 <Calendar
                   mode="single"
-                  selected={formData.scheduled_date}
+                  selected={new Date(formData.scheduled_date)}
                   onSelect={handleDateSelect}
                   initialFocus
                 />

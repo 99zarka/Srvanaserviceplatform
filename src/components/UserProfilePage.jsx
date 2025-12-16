@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserProfile, updateUserProfile, fetchPublicUserProfile, clearError } from "../redux/authSlice";
 import { Card, CardContent } from "./ui/card";
@@ -7,37 +7,50 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { toast } from "react-hot-toast";
-import { Link, useParams } from "react-router-dom"; // Import useParams and Link
+import { Link, useParams } from "react-router-dom";
 import { CircleUser, Edit, Save, X, Mail, Phone, MapPin, Info, User } from "lucide-react";
-// Removed Dialog and DirectOfferForm imports as direct offer will now be a separate route
+
+
+import GovernorateSelect from './common/GovernorateSelect';
 
 export function UserProfilePage() {
-  const { userId } = useParams(); // Get userId from URL params
+  const { userId } = useParams();
   const dispatch = useDispatch();
   const { user, token, isLoading, error, isAuthenticated } = useSelector((state) => state.auth);
-  const [publicUserData, setPublicUserData] = useState(null); // State for public user data
-  const isCurrentUser = user?.user_id === parseInt(userId) || userId === 'me'; // Determine if viewing own profile
-  const [isEditing, setIsEditing] = useState(false); // State to control edit mode
-  // Removed isOfferModalOpen state
+  const [publicUserData, setPublicUserData] = useState(null);
+  const isCurrentUser = user?.user_id === parseInt(userId) || userId === 'me';
+  const [isEditing, setIsEditing] = useState(false);
 
-  const currentUserData = isCurrentUser ? user : publicUserData; // Data source for form and display
+  const currentUserData = isCurrentUser ? user : publicUserData;
 
   const {
     register,
     handleSubmit,
     setValue,
     watch,
+    control,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      first_name: "",
+      last_name: "",
+      email: "",
+      phone_number: "",
+      governorate: "",
+      detailed_address: "",
+      bio: "",
+      profile_photo: null
+    }
+  });
 
   const [previewUrl, setPreviewUrl] = useState(null);
   const profilePhotoFile = watch("profile_photo");
 
   useEffect(() => {
-    if (userId) { // Fetch profile if userId is present in URL
+    if (userId) {
       if (isCurrentUser) {
         if (isAuthenticated && token) {
-          dispatch(fetchUserProfile()); // Fetches current user's profile
+          dispatch(fetchUserProfile());
         }
       } else {
         dispatch(fetchPublicUserProfile(userId)).then((action) => {
@@ -53,28 +66,29 @@ export function UserProfilePage() {
     const dataToSet = isCurrentUser ? user : publicUserData;
 
     if (dataToSet) {
+      const [governorate, detailed_address] = dataToSet.address ? dataToSet.address.split(',').map(s => s.trim()) : ["", ""];
+      
       setValue("first_name", dataToSet.first_name || "");
       setValue("last_name", dataToSet.last_name || "");
       setValue("email", dataToSet.email || "");
       setValue("phone_number", dataToSet.phone_number || "");
-      setValue("address", dataToSet.address || "");
+      setValue("governorate", governorate || "");
+      setValue("detailed_address", detailed_address || "");
       setValue("bio", dataToSet.bio || "");
       setPreviewUrl(dataToSet.profile_photo || null);
-      // Reset isEditing when currentUserData changes, to ensure profile is viewed initially
       setIsEditing(false);
     } else {
-      // Clear values if no user data is available (e.g., loading or not found)
       setValue("first_name", "");
       setValue("last_name", "");
       setValue("email", "");
       setValue("phone_number", "");
-      setValue("address", "");
+      setValue("governorate", "");
+      setValue("detailed_address", "");
       setValue("bio", "");
       setPreviewUrl(null);
       setIsEditing(false);
     }
   }, [currentUserData, setValue, publicUserData, user, isCurrentUser]);
-
 
   useEffect(() => {
     if (profilePhotoFile && profilePhotoFile.length > 0 && profilePhotoFile[0] instanceof File) {
@@ -97,21 +111,23 @@ export function UserProfilePage() {
   }, [error, dispatch]);
 
   const onSubmit = async (data) => {
-    if (!isCurrentUser || !isEditing) return; // Prevent submission if not current user's profile or not in edit mode
+    if (!isCurrentUser || !isEditing) return;
 
-    const submitData = { ...data };
+    const address = `${data.governorate}, ${data.detailed_address}`;
+    const submitData = { ...data, address };
+    
+    // remove governorate and detailed_address
+    delete submitData.governorate;
+    delete submitData.detailed_address;
+
 
     if (submitData.profile_photo && submitData.profile_photo.length > 0) {
       submitData.profile_photo = submitData.profile_photo[0];
     } else {
-      // If no new photo is selected, and there was a previous one, keep it.
-      // If explicitly cleared (e.g., new file input is empty array and old photo existed),
-      // we need a mechanism to signal clearing the photo, currently not implemented.
-      // For now, if no new file, don't send the photo key unless it was explicitly null.
-      if (!previewUrl) { // If previewUrl is null, it means no photo or cleared.
+      if (!previewUrl) {
          submitData.profile_photo = null;
       } else {
-        delete submitData.profile_photo; // Don't send if no change
+        delete submitData.profile_photo;
       }
     }
 
@@ -127,28 +143,18 @@ export function UserProfilePage() {
     
     if (updateUserProfile.fulfilled.match(resultAction)) {
       toast.success("تم تحديث الملف الشخصي بنجاح!");
-      setIsEditing(false); // Exit edit mode on successful save
+      setIsEditing(false);
     } else {
       toast.error("فشل تحديث الملف الشخصي.");
     }
   };
 
-  // Helper function to get user type display name
   const getUserTypeDisplay = (userType) => {
     if (!userType) return '';
-    if (typeof userType === 'string') {
-      return userType;
-    }
-    if (typeof userType === 'object' && userType.user_type_name) {
-      return userType.user_type_name;
-    }
+    if (typeof userType === 'string') return userType;
+    if (typeof userType === 'object' && userType.user_type_name) return userType.user_type_name;
     if (typeof userType === 'object' && userType.user_type_id) {
-      // Map user_type_id to display name if needed
-      const typeMap = {
-        1: 'admin',
-        2: 'technician', 
-        3: 'client'
-      };
+      const typeMap = { 1: 'admin', 2: 'technician', 3: 'client' };
       return typeMap[userType.user_type_id] || 'unknown';
     }
     return String(userType);
@@ -280,9 +286,30 @@ export function UserProfilePage() {
                 )}
               </div>
 
-              <div>
-                <Label htmlFor="address" className="text-base">العنوان</Label>
-                <Input id="address" {...register("address")} className="mt-1 p-3 border rounded-md w-full focus:ring focus:ring-primary-200" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="governorate" className="text-base">المحافظة</Label>
+                  <Controller
+                    name="governorate"
+                    control={control}
+                    render={({ field }) => (
+                      <GovernorateSelect
+                        id="governorate"
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="mt-1 p-3 border rounded-md w-full focus:ring focus:ring-primary-200"
+                      />
+                    )}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="detailed_address" className="text-base">العنوان التفصيلي</Label>
+                  <Input
+                    id="detailed_address"
+                    {...register("detailed_address")}
+                    className="mt-1 p-3 border rounded-md w-full focus:ring focus:ring-primary-200"
+                  />
+                </div>
               </div>
 
               <div>
@@ -335,14 +362,14 @@ export function UserProfilePage() {
                     {currentUserData.first_name} {currentUserData.last_name}
                   </h2>
                 )}
-                {currentUserData?.user_type && ( // Display user type prominently
+                {currentUserData?.user_type && (
                   <p className="text-xl text-primary dark:text-primary-400 font-semibold">
                     {getUserTypeDisplay(currentUserData.user_type) === 'client' ? 'عميل' : getUserTypeDisplay(currentUserData.user_type) === 'technician' ? 'فني' : getUserTypeDisplay(currentUserData.user_type) === 'admin' ? 'مشرف' : getUserTypeDisplay(currentUserData.user_type)}
                   </p>
                 )}
               </div>
 
-              {isCurrentUser && currentUserData?.email && ( // Display email only for current user
+              {isCurrentUser && currentUserData?.email && (
                 <div className="space-y-1">
                   <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
                     <Mail className="h-4 w-4" />
@@ -352,7 +379,7 @@ export function UserProfilePage() {
                 </div>
               )}
 
-              {isCurrentUser && currentUserData?.phone_number && ( // Display phone number only for current user
+              {isCurrentUser && currentUserData?.phone_number && (
                 <div className="space-y-1">
                   <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
                     <Phone className="h-4 w-4" />
@@ -382,7 +409,7 @@ export function UserProfilePage() {
                 </div>
               )}
 
-              {currentUserData?.user_type && ( // Display user type
+              {currentUserData?.user_type && (
                 <div className="space-y-1">
                   <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
                     <User className="h-4 w-4" />
@@ -394,7 +421,6 @@ export function UserProfilePage() {
                 </div>
               )}
 
-              {/* Send Message Button */}
               {user && !isCurrentUser && (
                 <div className="mt-4">
                   <Link to={`/dashboard/messages/${userId}`}>
@@ -405,7 +431,6 @@ export function UserProfilePage() {
                 </div>
               )}
 
-              {/* Make Direct Offer Button and Modal */}
               {user && currentUserData?.user_type === 'technician' && !isCurrentUser && (
                 <div className="mt-4">
                   <Link to={`/offer/${userId}`}>

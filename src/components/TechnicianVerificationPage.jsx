@@ -14,6 +14,7 @@ import { useGetServicesQuery } from "../services/api";
 import { FileUpload } from "./FileUpload";
 import { Skeleton } from "./ui/skeleton";
 import { useOnClickOutside } from "../hooks/useOnClickOutside";
+import GovernorateSelect from './common/GovernorateSelect';
 
 export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
   const [documents, setDocuments] = useState({
@@ -45,7 +46,8 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
       experience_years: "",
       hourly_rate: "",
       description: "",
-      address: "",
+      governorate: "",
+      detailed_address: "",
     },
   });
 
@@ -82,9 +84,12 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
       required: "السعر لكل ساعة مطلوب",
       min: { value: 1, message: "السعر يجب أن يكون جنيه مصري واحد على الأقل" },
     },
-    address: {
-      required: "العنوان مطلوب",
-      minLength: { value: 5, message: "العنوان يجب أن يكون 5 أحرف على الأقل" },
+    governorate: {
+      required: "المحافظة مطلوبة",
+    },
+    detailed_address: {
+      required: "العنوان التفصيلي مطلوب",
+      minLength: { value: 5, message: "العنوان التفصيلي يجب أن يكون 5 أحرف على الأقل" },
     },
     description: {
       required: "وصف الخدمات مطلوب",
@@ -127,6 +132,9 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
     if (selectedSpecializations.length > 0) {
       updatedFormData.specialization = selectedSpecializations.map((spec) => spec.name).join(',');
     }
+    updatedFormData.address = `${formData.governorate}, ${formData.detailed_address}`;
+    delete updatedFormData.governorate;
+    delete updatedFormData.detailed_address;
 
     Object.keys(updatedFormData).forEach((key) => {
       verificationData.append(key, updatedFormData[key]);
@@ -350,10 +358,21 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
                       {errors.hourly_rate && <p className="text-sm text-red-600 mt-1">{errors.hourly_rate.message}</p>}
                     </div>
                   </div>
-                  <div>
-                    <Label htmlFor="address">العنوان *</Label>
-                    <Input id="address" {...register('address', validationRules.address)} />
-                    {errors.address && <p className="text-sm text-red-600 mt-1">{errors.address.message}</p>}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="governorate">المحافظة *</Label>
+                      <GovernorateSelect
+                        id="governorate"
+                        {...register('governorate', validationRules.governorate)}
+                        className={`w-full ${errors.governorate ? "border-red-500" : ""}`}
+                      />
+                      {errors.governorate && <p className="text-sm text-red-600 mt-1">{errors.governorate.message}</p>}
+                    </div>
+                    <div>
+                      <Label htmlFor="detailed_address">العنوان التفصيلي *</Label>
+                      <Input id="detailed_address" {...register('detailed_address', validationRules.detailed_address)} />
+                      {errors.detailed_address && <p className="text-sm text-red-600 mt-1">{errors.detailed_address.message}</p>}
+                    </div>
                   </div>
                   <div>
                     <Label htmlFor="skills">المهارات *</Label>

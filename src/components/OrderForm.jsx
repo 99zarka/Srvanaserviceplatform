@@ -18,9 +18,12 @@ import {
 } from './ui/select';
 import { Calendar } from './ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import api from '../utils/api'; // Assuming this is available
+import api from '../utils/api'; 
+
+import GovernorateSelect from './common/GovernorateSelect';
 
 const timeValidation = (data) => {
+  if (!data.scheduled_time_start || !data.scheduled_time_end) return true;
   const [startHour, startMinute] = data.scheduled_time_start.split(':').map(Number);
   const [endHour, endMinute] = data.scheduled_time_end.split(':').map(Number);
 
@@ -30,11 +33,11 @@ const timeValidation = (data) => {
   return endTime > startTime;
 };
 
-// Define the base schema
 const baseOrderSchema = z.object({
   service_id: z.string().min(1, "نوع الخدمة مطلوب"),
-  problem_description: z.string().min(10, "وصف المشكلة يجب أن يحتوي على 10 أحرف على الأ atleast"),
-  requested_location: z.string().min(5, "الموقع المطلوب مطلوب"),
+  problem_description: z.string().min(10, "وصف المشكلة يجب أن يحتوي على 10 أحرف على الأقل"),
+  governorate: z.string().min(1, "المحافظة مطلوبة"),
+  detailed_address: z.string().min(5, "العنوان التفصيلي مطلوب"),
   scheduled_date: z.date({
     required_error: "التاريخ المحدد مطلوب",
   }),
@@ -52,7 +55,7 @@ const OrderForm = ({
   showOfferedPrice = false,
   showOfferDescription = false,
   showFinalPrice = false,
-  showExpectedPrice = false, // New prop for expected_price
+  showExpectedPrice = false,
   showCancelButton = false,
   onCancel,
   formSetError,
@@ -61,13 +64,11 @@ const OrderForm = ({
 }) => {
   const [services, setServices] = useState([]);
 
-  // Extend the base schema conditionally
   const formSchema = baseOrderSchema
     .safeExtend(showOfferedPrice ? { offered_price: z.coerce.number().min(0.01, "السعر المعروض مطلوب").or(z.nan()) } : {})
     .safeExtend(showOfferDescription ? { offer_description: z.string().optional() } : {})
     .safeExtend(showFinalPrice ? { final_price: z.coerce.number().min(0.01, "السعر النهائي مطلوب").or(z.nan()) } : {})
-    .safeExtend(showExpectedPrice ? { expected_price: z.coerce.number().min(0.01, "السعر المتوقع مطلوب").or(z.nan()) } : {}); // New: expected_price schema
-
+    .safeExtend(showExpectedPrice ? { expected_price: z.coerce.number().min(0.01, "السعر المتوقع مطلوب").or(z.nan()) } : {});
 
   const {
     control,
@@ -83,14 +84,15 @@ const OrderForm = ({
     defaultValues: {
       service_id: '',
       problem_description: '',
-      requested_location: '',
+      governorate: '',
+      detailed_address: '',
       scheduled_date: new Date(),
       scheduled_time_start: '',
       scheduled_time_end: '',
       ...(showOfferedPrice && { offered_price: '' }),
       ...(showOfferDescription && { offer_description: '' }),
       ...(showFinalPrice && { final_price: '' }),
-      ...(showExpectedPrice && { expected_price: '' }), // Initialize expected_price
+      ...(showExpectedPrice && { expected_price: '' }),
       ...initialData,
     },
   });
@@ -99,42 +101,49 @@ const OrderForm = ({
   const selectedServiceDetails = services.find(s => s.service_id?.toString() === watchedServiceId);
 
   useEffect(() => {
-    // Fetch services only once
     const fetchServices = async () => {
       try {
         const response = await api.get('/services/services/?page_size=50');
         setServices(response.results);
       } catch (err) {
         console.error('Error fetching services:', err);
-        // Optionally show a toast error
       }
     };
     fetchServices();
   }, []);
 
   useEffect(() => {
-    // Reset form with initialData when it changes
-    // This is called when initialData changes (e.g., loading a different order for edit)
     if (initialData) {
+      const [governorate, detailed_address] = initialData.requested_location 
+        ? initialData.requested_location.split(',').map(s => s.trim()) 
+        : ["", ""];
+      
       reset({
         ...initialData,
-        // Convert date string to Date object if coming from initialData
-        scheduled_date: initialData.scheduled_date ? new Date(initialData.scheduled_date) : undefined,
+        governorate: governorate,
+        detailed_address: detailed_address,
+        scheduled_date: initialData.scheduled_date ? new Date(initialData.scheduled_date) : new Date(),
       });
     }
-    // Also, pass setError and clearErrors up to the parent if provided
     if (formSetError) formSetError.current = setError;
     if (formClearErrors) formClearErrors.current = clearErrors;
 
-    // Cleanup: remove references when component unmounts
     return () => {
       if (formSetError) formSetError.current = null;
       if (formClearErrors) formClearErrors.current = null;
     };
   }, [initialData, reset, formSetError, formClearErrors, setError, clearErrors]);
 
+  const handleFormSubmit = (data) => {
+    const requested_location = `${data.governorate}, ${data.detailed_address}`;
+    const submissionData = { ...data, requested_location };
+    delete submissionData.governorate;
+    delete submissionData.detailed_address;
+    onSubmit(submissionData);
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8 bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
       {Object.keys(errors).length > 0 && (
         <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
           <span className="font-medium">الرجاء تصحيح الأخطاء التالية:</span>
@@ -156,7 +165,6 @@ const OrderForm = ({
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Service Type */}
         <div className="space-y-2">
           <Label htmlFor="service_id">نوع الخدمة <span className="text-red-500">*</span></Label>
           <Controller
@@ -185,7 +193,6 @@ const OrderForm = ({
           )}
         </div>
 
-        {/* Offered Price (conditionally rendered) */}
         {showOfferedPrice && (
           <div className="space-y-2">
             <Label htmlFor="offered_price">سعرك المعروض <span className="text-red-500">*</span></Label>
@@ -211,7 +218,6 @@ const OrderForm = ({
           </div>
         )}
 
-        {/* Final Price (conditionally rendered) */}
         {showFinalPrice && (
           <div className="space-y-2">
             <Label htmlFor="final_price">السعر النهائي <span className="text-red-500">*</span></Label>
@@ -237,7 +243,6 @@ const OrderForm = ({
           </div>
         )}
 
-        {/* Expected Price (conditionally rendered) */}
         {showExpectedPrice && (
           <div className="space-y-2">
             <Label htmlFor="expected_price">السعر المتوقع (اختياري)</Label>
@@ -264,7 +269,6 @@ const OrderForm = ({
         )}
       </div>
 
-      {/* Problem Description */}
       <div className="space-y-2">
         <Label htmlFor="problem_description">وصف المشكلة <span className="text-red-500">*</span></Label>
         <Controller
@@ -273,7 +277,7 @@ const OrderForm = ({
           render={({ field }) => (
             <Textarea
               id="problem_description"
-              placeholder="صف المشكلة بالتفصيل (على سبيل المثال: 'صنبور مطبخ يسرب، يحتاج إلى استبدال جزء معين')."
+              placeholder="صف المشكلة بالتفصيل (على سبيل المثال: 'صنبور مطبخ يسرب...')"
               rows={4}
               className={errors.problem_description ? "border-red-500" : ""}
               {...field}
@@ -285,28 +289,41 @@ const OrderForm = ({
         )}
       </div>
 
-      {/* Requested Location */}
-      <div className="space-y-2">
-        <Label htmlFor="requested_location">موقع الخدمة <span className="text-red-500">*</span></Label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="governorate">المحافظة <span className="text-red-500">*</span></Label>
+                    <Controller
+                      name="governorate"
+                      control={control}
+                      render={({ field }) => (
+                        <GovernorateSelect
+                          id="governorate"
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          className={`w-full ${errors.governorate ? "border-red-500" : ""}`}
+                        />
+                      )}
+                    />
+                    {errors.governorate && <p className="text-red-500 text-sm mt-1">{errors.governorate.message}</p>}
+                  </div>        <div className="space-y-2">
+          <Label htmlFor="detailed_address">العنوان التفصيلي <span className="text-red-500">*</span></Label>
           <Controller
-            name="requested_location"
+            name="detailed_address"
             control={control}
             render={({ field }) => (
               <Input
-                id="requested_location"
-                placeholder="مثال: 123 الشارع الرئيسي، شقة 4ب، القاهرة"
-                className={errors.requested_location ? "border-red-500" : ""}
+                id="detailed_address"
+                placeholder="مثال: 123 الشارع الرئيسي، شقة 4ب"
+                className={errors.detailed_address ? "border-red-500" : ""}
                 {...field}
               />
             )}
           />
-          {errors.requested_location && (
-            <p className="text-red-500 text-sm mt-1">{errors.requested_location.message}</p>
-          )}
+          {errors.detailed_address && <p className="text-red-500 text-sm mt-1">{errors.detailed_address.message}</p>}
         </div>
+      </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Scheduled Date */}
           <div className="space-y-2">
             <Label htmlFor="scheduled_date">التاريخ المحدد <span className="text-red-500">*</span></Label>
             <Controller
@@ -322,13 +339,13 @@ const OrderForm = ({
                       } ${errors.scheduled_date ? "border-red-500" : ""}`}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {field.value ? format(field.value, "PPP") : <span>اختر تاريخًا</span>}
+                      {field.value ? format(new Date(field.value), "PPP") : <span>اختر تاريخًا</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
                     <Calendar
                       mode="single"
-                      selected={field.value}
+                      selected={field.value ? new Date(field.value) : null}
                       onSelect={field.onChange}
                       initialFocus
                     />
@@ -341,7 +358,6 @@ const OrderForm = ({
             )}
           </div>
 
-          {/* Scheduled Time Start */}
           <div className="space-y-2">
             <Label htmlFor="scheduled_time_start">وقت البدء <span className="text-red-500">*</span></Label>
             <Controller
@@ -361,7 +377,6 @@ const OrderForm = ({
             )}
           </div>
 
-          {/* Scheduled Time End */}
           <div className="space-y-2">
             <Label htmlFor="scheduled_time_end">وقت الانتهاء <span className="text-red-500">*</span></Label>
             <Controller
@@ -382,7 +397,6 @@ const OrderForm = ({
           </div>
         </div>
 
-        {/* Offer Description (conditionally rendered) */}
         {showOfferDescription && (
           <div className="space-y-2">
             <Label htmlFor="offer_description">رسالتك إلى الفني (اختياري)</Label>
