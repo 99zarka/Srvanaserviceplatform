@@ -133,6 +133,9 @@ export const getTechnicians = createAsyncThunk(
       if (filters.min_rating && filters.min_rating !== 'all') {
         params.append('min_rating', filters.min_rating);
       }
+      if (filters.sort_by) {
+        params.append('sort_by', filters.sort_by);
+      }
 
       const url = `/users/public/all/?${params.toString()}`;
       const response = await api.get(url); // 'response' is already the parsed JSON data

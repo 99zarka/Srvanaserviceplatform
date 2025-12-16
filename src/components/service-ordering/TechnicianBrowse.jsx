@@ -36,6 +36,7 @@ const TechnicianBrowse = () => {
     specialization: 'all',
     location: '',
     min_rating: 'all',
+    sort_by: 'rating',
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -234,7 +235,7 @@ const TechnicianBrowse = () => {
               <Button 
                 variant="outline" 
                 onClick={() => {
-                  setFilters({ specialization: 'all', location: '', min_rating: 'all' });
+                  setFilters({ specialization: 'all', location: '', min_rating: 'all', sort_by: 'rating' });
                   setSearchTerm('');
                   setCurrentPage(1);
                 }}
@@ -252,8 +253,11 @@ const TechnicianBrowse = () => {
             <p className="text-sm text-gray-600">
               {totalItems > 0 ? `عرض ${currentTechnicians.length} من ${totalItems} فنيين` : '0 فنيين تم العثور عليهم'}
             </p>
-            <div className="flex items-center gap-2">
-              <Select defaultValue="rating">
+              <div className="flex items-center gap-2">
+              <Select 
+                value={filters.sort_by} 
+                onValueChange={(value) => handleFilterChange('sort_by', value)}
+              >
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="الترتيب حسب" />
                 </SelectTrigger>
