@@ -226,7 +226,7 @@ export function ClientFinancials() {
     let colorClass = "bg-gray-100 text-gray-800";
 
     switch (type) {
-      case "DEPOSIT": // Backend transaction types are typically uppercase
+      case "DEPOSIT":
         translatedType = "إيداع";
         colorClass = "bg-green-100 text-green-800";
         break;
@@ -234,21 +234,29 @@ export function ClientFinancials() {
         translatedType = "سحب";
         colorClass = "bg-red-100 text-red-800";
         break;
-      case "PAYMENT_SENT":
-        translatedType = "دفع مرسل";
+      case "ESCROW_HOLD":
+        translatedType = "معلق في الضمان";
         colorClass = "bg-blue-100 text-blue-800";
         break;
-      case "PAYMENT_RECEIVED":
-        translatedType = "دفع مستلم";
+      case "ESCROW_RELEASE":
+        translatedType = "إفراج الضمان";
         colorClass = "bg-purple-100 text-purple-800";
         break;
-      case "REFUND":
-        translatedType = "استرداد";
+      case "CANCEL_REFUND":
+        translatedType = "استرداد إلغاء";
         colorClass = "bg-yellow-100 text-yellow-800";
         break;
-      case "DISPUTE_FEE":
-        translatedType = "رسوم نزاع";
+      case "DISPUTE_PAYOUT":
+        translatedType = "دفع نزاع";
         colorClass = "bg-orange-100 text-orange-800";
+        break;
+      case "DISPUTE_REFUND":
+        translatedType = "استرداد نزاع";
+        colorClass = "bg-red-100 text-red-800";
+        break;
+      case "FEE":
+        translatedType = "رسوم";
+        colorClass = "bg-gray-100 text-gray-800";
         break;
       default:
         translatedType = type;

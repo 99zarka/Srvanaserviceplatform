@@ -40,7 +40,7 @@ export function AdminSettings() {
           setSettings({
             site_name: "Srvana Platform",
             contact_email: "support@srvana.com",
-            support_phone: "+966 50 123 4567",
+            support_phone: "+20 10 1234 5678",
             allow_registrations: true,
             maintenance_mode: false,
             welcome_message: "مرحبًا بكم في منصة سرفانا! اكتشف خدمات احترافية.",

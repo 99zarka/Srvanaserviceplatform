@@ -38,12 +38,12 @@ export function ClientOverview() {
 
         // Update local stats, explicitly using balances from Redux state
         setStats([
-          { label: "الرصيد المتاح", value: `$${available_balance.toFixed(2)}`, icon: CreditCard, color: "text-green-600" },
-          { label: "في الضمان", value: `$${in_escrow_balance.toFixed(2)}`, icon: CreditCard, color: "text-blue-600" },
-          { label: "الرصيد المعلق", value: `$${pending_balance.toFixed(2)}`, icon: CreditCard, color: "text-yellow-600" },
+          { label: "الرصيد المتاح", value: `${available_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-green-600" },
+          { label: "في الضمان", value: `${in_escrow_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-blue-600" },
+          { label: "الرصيد المعلق", value: `${pending_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-yellow-600" },
           { label: "الطلبات النشطة", value: statsData.active_orders || 0, icon: Clock, color: "text-primary" },
           { label: "المكتملة", value: statsData.completed_orders || 0, icon: CheckCircle, color: "text-green-600" },
-          { label: "إجمالي الإنفاق", value: `$${statsData.total_spent ? parseFloat(statsData.total_spent).toFixed(2) : '0.00'}`, icon: CreditCard, color: "text-blue-600" },
+          { label: "إجمالي الإنفاق", value: `${statsData.total_spent ? parseFloat(statsData.total_spent).toFixed(2) : '0.00'} ج.م`, icon: CreditCard, color: "text-blue-600" },
         ]);
 
         // Fetch recent orders
@@ -56,7 +56,7 @@ export function ClientOverview() {
           worker: req.technician_user ? `${req.technician_user.first_name} ${req.technician_user.last_name}` : "لم يتم التعيين بعد",
           status: req.order_status,
           date: new Date(req.creation_timestamp).toLocaleDateString("ar-EG"),
-          amount: `$${req.final_price || req.updated_price ? parseFloat(req.final_price || req.updated_price).toFixed(2) : '0.00'}`,
+          amount: `${req.final_price || req.updated_price ? parseFloat(req.final_price || req.updated_price).toFixed(2) : '0.00'} ج.م`,
         })));
       } catch (err) {
         setError(err.message || "فشل في جلب بيانات لوحة التحكم.");
@@ -70,17 +70,66 @@ export function ClientOverview() {
 
   const getStatusBadge = (status) => {
     const variants = {
-      "pending": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
-      "accepted": { variant: "default", className: "bg-blue-100 text-blue-800" },
-      "completed": { variant: "default", className: "bg-green-100 text-green-800" },
-      "cancelled": { variant: "default", className: "bg-red-100 text-red-800" },
-      "قيد التنفيذ": { variant: "default", className: "bg-blue-100 text-blue-800" },
+      "OPEN": { variant: "default", className: "bg-blue-100 text-blue-800" },
+      "ACCEPTED": { variant: "default", className: "bg-green-100 text-green-800" },
+      "IN_PROGRESS": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
+      "AWAITING_RELEASE": { variant: "default", className: "bg-purple-100 text-purple-800" },
+      "COMPLETED": { variant: "default", className: "bg-green-100 text-green-800" },
+      "DISPUTED": { variant: "default", className: "bg-orange-100 text-orange-800" },
+      "CANCELLED": { variant: "default", className: "bg-red-100 text-red-800" },
+      "REFUNDED": { variant: "default", className: "bg-red-200 text-red-900" },
+      "AWAITING_TECHNICIAN_RESPONSE": { variant: "default", className: "bg-gray-200 text-gray-800" },
+      "AWAITING_CLIENT_ESCROW_CONFIRMATION": { variant: "default", className: "bg-yellow-200 text-yellow-800" },
+      // Arabic translations
+      "مفتوحة": { variant: "default", className: "bg-blue-100 text-blue-800" },
+      "مقبولة": { variant: "default", className: "bg-green-100 text-green-800" },
+      "قيد التنفيذ": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
+      "بانتظار الإفراج": { variant: "default", className: "bg-purple-100 text-purple-800" },
       "مكتملة": { variant: "default", className: "bg-green-100 text-green-800" },
-      "معلقة": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
+      "متنازع عليها": { variant: "default", className: "bg-orange-100 text-orange-800" },
       "ملغاة": { variant: "default", className: "bg-red-100 text-red-800" },
+      "مستردة": { variant: "default", className: "bg-red-200 text-red-900" },
+      "بانتظار رد الفني": { variant: "default", className: "bg-gray-200 text-gray-800" },
+      "بانتظار تأكيد العميل للدفع": { variant: "default", className: "bg-yellow-200 text-yellow-800" },
     };
+
+    let translatedStatus = status;
+    switch (status) {
+      case "OPEN":
+        translatedStatus = "مفتوحة";
+        break;
+      case "ACCEPTED":
+        translatedStatus = "مقبولة";
+        break;
+      case "IN_PROGRESS":
+        translatedStatus = "قيد التنفيذ";
+        break;
+      case "AWAITING_RELEASE":
+        translatedStatus = "بانتظار الإفراج";
+        break;
+      case "COMPLETED":
+        translatedStatus = "مكتملة";
+        break;
+      case "DISPUTED":
+        translatedStatus = "متنازع عليها";
+        break;
+      case "CANCELLED":
+        translatedStatus = "ملغاة";
+        break;
+      case "REFUNDED":
+        translatedStatus = "مستردة";
+        break;
+      case "AWAITING_TECHNICIAN_RESPONSE":
+        translatedStatus = "بانتظار رد الفني";
+        break;
+      case "AWAITING_CLIENT_ESCROW_CONFIRMATION":
+        translatedStatus = "بانتظار تأكيد العميل للدفع";
+        break;
+      default:
+        translatedStatus = status;
+    }
     const config = variants[status] || { variant: "default", className: "bg-gray-100 text-gray-800" };
-    return <Badge variant={config.variant} className={config.className}>{status}</Badge>;
+    return <Badge variant={config.variant} className={config.className}>{translatedStatus}</Badge>;
   };
 
   if (loading) return <div className="text-center py-20" dir="rtl">جاري تحميل لوحة التحكم...</div>;

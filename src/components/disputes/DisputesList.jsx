@@ -61,12 +61,8 @@ export function DisputesList({
         className = "bg-yellow-100 text-yellow-800";
         break;
       case "RESOLVED":
-        translatedStatus = "تم حل النزاع";
+        translatedStatus = "تم الحل";
         className = "bg-green-100 text-green-800";
-        break;
-      case "CLOSED":
-        translatedStatus = "مغلق";
-        className = "bg-red-100 text-red-800";
         break;
       default:
         translatedStatus = status;

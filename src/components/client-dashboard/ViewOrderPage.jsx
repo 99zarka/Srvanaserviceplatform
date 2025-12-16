@@ -154,14 +154,12 @@ const ViewOrderPage = () => {
     switch (status) {
       case 'OPEN':
         return 'مفتوحة';
-      case 'PENDING':
-        return 'معلقة';
       case 'ACCEPTED':
         return 'مقبولة';
       case 'IN_PROGRESS':
         return 'قيد التنفيذ';
       case 'AWAITING_RELEASE':
-        return 'بانتظار الإفراج'; // New status text
+        return 'بانتظار الإفراج';
       case 'COMPLETED':
         return 'مكتملة';
       case 'DISPUTED':
@@ -174,8 +172,10 @@ const ViewOrderPage = () => {
         return 'بانتظار رد الفني';
       case 'AWAITING_CLIENT_ESCROW_CONFIRMATION':
         return 'بانتظار تأكيد العميل للدفع';
+      case 'AWAITING_RELEASE':
+        return 'بانتظار الإفراج';
       default:
-        return 'غير محدد';
+        return status;
     }
   };
 

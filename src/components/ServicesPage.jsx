@@ -153,10 +153,10 @@ export function ServicesPage() {
                   </div>
                 </div>
 
-                {/* Footer */}
+                  {/* Footer */}
                 <div className="mt-auto">
                   <div className="text-gray-400 font-semibold mb-3 text-sm">
-                    تبدأ من ${service.startingPrice || service.base_inspection_fee || 0}/hr
+                    تبدأ من {service.startingPrice || service.base_inspection_fee || 0} ج.م/ساعة
                   </div>
                   <Link 
                     to="/signup"

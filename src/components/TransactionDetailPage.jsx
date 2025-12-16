@@ -34,25 +34,29 @@ export function TransactionDetailPage() {
         translatedType = "سحب";
         className = "bg-red-100 text-red-800";
         break;
-      case "ESCROW_FUNDING":
-        translatedType = "تمويل الضمان";
+      case "ESCROW_HOLD":
+        translatedType = "معلق في الضمان";
         className = "bg-blue-100 text-blue-800";
         break;
       case "ESCROW_RELEASE":
         translatedType = "إفراج الضمان";
         className = "bg-purple-100 text-purple-800";
         break;
-      case "DISPUTE_SETTLEMENT":
-        translatedType = "تسوية نزاع";
+      case "CANCEL_REFUND":
+        translatedType = "استرداد إلغاء";
+        className = "bg-yellow-100 text-yellow-800";
+        break;
+      case "DISPUTE_PAYOUT":
+        translatedType = "دفع نزاع";
         className = "bg-orange-100 text-orange-800";
         break;
-      case "SERVICE_PAYMENT":
-        translatedType = "دفعة خدمة";
-        className = "bg-indigo-100 text-indigo-800";
+      case "DISPUTE_REFUND":
+        translatedType = "استرداد نزاع";
+        className = "bg-red-100 text-red-800";
         break;
-      case "SERVICE_REFUND":
-        translatedType = "استرداد خدمة";
-        className = "bg-pink-100 text-pink-800";
+      case "FEE":
+        translatedType = "رسوم";
+        className = "bg-gray-100 text-gray-800";
         break;
       default:
         translatedType = type;

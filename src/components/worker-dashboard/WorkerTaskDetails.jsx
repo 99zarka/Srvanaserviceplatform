@@ -81,63 +81,63 @@ export function WorkerTaskDetails() {
 
   const getStatusBadge = (status) => {
     const variants = {
-      "pending": { variant: "outline", className: "bg-gray-100 text-gray-800" },
-      "awaiting_technician_response": { variant: "outline", className: "bg-yellow-100 text-yellow-800" },
-      "accepted": { variant: "default", className: "bg-blue-100 text-blue-800" },
-      "in_progress": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
-      "awaiting_release": { variant: "default", className: "bg-indigo-100 text-indigo-800" }, // New status
-      "completed": { variant: "default", className: "bg-green-100 text-green-800" },
-      "cancelled": { variant: "destructive", className: "bg-red-100 text-red-800" },
-      "rejected": { variant: "destructive", className: "bg-red-100 text-red-800" },
-      "on_hold": { variant: "outline", className: "bg-purple-100 text-purple-800" },
-      "disputed": { variant: "destructive", className: "bg-orange-100 text-orange-800" },
+      "OPEN": { variant: "outline", className: "bg-blue-100 text-blue-800" },
+      "ACCEPTED": { variant: "default", className: "bg-green-100 text-green-800" },
+      "IN_PROGRESS": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
+      "AWAITING_RELEASE": { variant: "default", className: "bg-purple-100 text-purple-800" },
+      "COMPLETED": { variant: "default", className: "bg-green-100 text-green-800" },
+      "DISPUTED": { variant: "destructive", className: "bg-orange-100 text-orange-800" },
+      "CANCELLED": { variant: "destructive", className: "bg-red-100 text-red-800" },
+      "REFUNDED": { variant: "destructive", className: "bg-red-200 text-red-900" },
+      "AWAITING_TECHNICIAN_RESPONSE": { variant: "outline", className: "bg-gray-200 text-gray-800" },
+      "AWAITING_CLIENT_ESCROW_CONFIRMATION": { variant: "outline", className: "bg-yellow-200 text-yellow-800" },
       // Arabic translations
-      "معلقة": { variant: "outline", className: "bg-gray-100 text-gray-800" },
-      "بانتظار رد الفني": { variant: "outline", className: "bg-yellow-100 text-yellow-800" },
-      "مقبولة": { variant: "default", className: "bg-blue-100 text-blue-800" },
+      "مفتوحة": { variant: "outline", className: "bg-blue-100 text-blue-800" },
+      "مقبولة": { variant: "default", className: "bg-green-100 text-green-800" },
       "قيد التنفيذ": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
-      "بانتظار الموافقة": { variant: "default", className: "bg-indigo-100 text-indigo-800" }, // New status
+      "بانتظار الإفراج": { variant: "default", className: "bg-purple-100 text-purple-800" },
       "مكتملة": { variant: "default", className: "bg-green-100 text-green-800" },
-      "ملغاة": { variant: "destructive", className: "bg-red-100 text-red-800" },
-      "مرفوضة": { variant: "destructive", className: "bg-red-100 text-red-800" },
-      "معلقة مؤقتًا": { variant: "outline", className: "bg-purple-100 text-purple-800" },
       "متنازع عليها": { variant: "destructive", className: "bg-orange-100 text-orange-800" },
+      "ملغاة": { variant: "destructive", className: "bg-red-100 text-red-800" },
+      "مستردة": { variant: "destructive", className: "bg-red-200 text-red-900" },
+      "بانتظار رد الفني": { variant: "outline", className: "bg-gray-200 text-gray-800" },
+      "بانتظار تأكيد العميل للدفع": { variant: "outline", className: "bg-yellow-200 text-yellow-800" },
     };
 
     let translatedStatus = status;
     switch (status) {
-      case "pending":
-        translatedStatus = "معلقة";
+      case "OPEN":
+        translatedStatus = "مفتوحة";
         break;
-      case "awaiting_technician_response":
-        translatedStatus = "بانتظار رد الفني";
-        break;
-      case "accepted":
+      case "ACCEPTED":
         translatedStatus = "مقبولة";
         break;
-      case "in_progress":
+      case "IN_PROGRESS":
         translatedStatus = "قيد التنفيذ";
         break;
-      case "awaiting_release":
-        translatedStatus = "بانتظار الموافقة"; // New translation
+      case "AWAITING_RELEASE":
+        translatedStatus = "بانتظار الإفراج";
         break;
-      case "completed":
+      case "COMPLETED":
         translatedStatus = "مكتملة";
         break;
-      case "cancelled":
-        translatedStatus = "ملغاة";
-        break;
-      case "rejected":
-        translatedStatus = "مرفوضة";
-        break;
-      case "on_hold":
-        translatedStatus = "معلقة مؤقتًا";
-        break;
-      case "disputed":
+      case "DISPUTED":
         translatedStatus = "متنازع عليها";
         break;
+      case "CANCELLED":
+        translatedStatus = "ملغاة";
+        break;
+      case "REFUNDED":
+        translatedStatus = "مستردة";
+        break;
+      case "AWAITING_TECHNICIAN_RESPONSE":
+        translatedStatus = "بانتظار رد الفني";
+        break;
+      case "AWAITING_CLIENT_ESCROW_CONFIRMATION":
+        translatedStatus = "بانتظار تأكيد العميل للدفع";
+        break;
       default:
-        translatedStatus = status; // Fallback for any unhandled status
+        translatedStatus = status;
     }
     const config = variants[status] || { variant: "outline", className: "bg-gray-100 text-gray-800" };
     return <Badge variant={config.variant} className={`${config.className} text-sm font-semibold`}>{translatedStatus}</Badge>;

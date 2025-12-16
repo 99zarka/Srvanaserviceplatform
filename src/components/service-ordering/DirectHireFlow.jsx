@@ -313,7 +313,7 @@ const DirectHireFlow = () => {
 
               {/* Budget */}
               <div className="space-y-2">
-                <Label htmlFor="budget">ميزانيتك (دولار أمريكي)</Label>
+                <Label htmlFor="budget">ميزانيتك (جنيه مصري)</Label>
                 <Input
                   id="budget"
                   type="number"
@@ -400,7 +400,7 @@ const DirectHireFlow = () => {
                   </div>
                   <div>
                     <span className="font-medium">الميزانية:</span>
-                    <p>${watch('budget')}</p>
+                    <p>{watch('budget')} ج.م</p>
                   </div>
                   <div className="col-span-2">
                     <span className="font-medium">الموقع:</span>

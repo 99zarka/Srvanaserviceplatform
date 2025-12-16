@@ -330,7 +330,7 @@ const PublicProjectsList = () => {
                     <div className="mb-3">
                       <span className="text-xs font-light">السعر المتوقع: </span>
                       <span className="text-sm font-medium" style={{ marginRight: '0.2rem', color: '#F4C430' }}>
-                        ${order.expected_price}
+                        {order.expected_price} ج.م
                       </span>
                     </div>
                   )}

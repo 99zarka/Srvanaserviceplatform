@@ -332,7 +332,7 @@ export function SignupPage() {
                         <Input
                             id="phone_number"
                             type="tel"
-                            placeholder="+1 (555) 000-0000"
+                            placeholder="+20 10 1234 5678"
                             className="bg-input-background"
                             {...field}
                         />

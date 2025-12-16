@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Loader2, DollarSign } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   getUserBalances,
@@ -90,23 +90,20 @@ const BalanceDisplayAndTransfer = () => {
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-gray-600">الرصيد المتاح:</span>
-          <span className="font-bold text-lg flex items-center">
-            <DollarSign className="h-5 w-5 mr-1 text-green-600" />
-            {available_balance.toFixed(2)}
+          <span className="font-bold text-lg">
+            {available_balance.toFixed(2)} ج.م
           </span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-600">الرصيد تحت الضمان:</span>
-          <span className="font-bold text-lg flex items-center">
-            <DollarSign className="h-5 w-5 mr-1 text-yellow-600" />
-            {in_escrow_balance.toFixed(2)}
+          <span className="font-bold text-lg">
+            {in_escrow_balance.toFixed(2)} ج.م
           </span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-600">الرصيد المعلق:</span>
-          <span className="font-bold text-lg flex items-center">
-            <DollarSign className="h-5 w-5 mr-1 text-orange-600" />
-            {pending_balance.toFixed(2)}
+          <span className="font-bold text-lg">
+            {pending_balance.toFixed(2)} ج.م
           </span>
         </div>
 

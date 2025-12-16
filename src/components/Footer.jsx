@@ -110,11 +110,11 @@ export function Footer() {
               </li>
               <li className="flex items-start space-x-2">
                 <Phone className="h-5 w-5 mt-0.5 shrink-0" />
-                <span className="text-secondary-foreground/80">+1 (555) 123-4567</span>
+                <span className="text-secondary-foreground/80">+20 10 1234 5678</span>
               </li>
               <li className="flex items-start space-x-2">
                 <MapPin className="h-5 w-5 mt-0.5 shrink-0" />
-                <span className="text-secondary-foreground/80">123 شارع الخدمات، المدينة، الولاية</span>
+                <span className="text-secondary-foreground/80">123 شارع النيل، القاهرة، مصر</span>
               </li>
             </ul>
           </div>
