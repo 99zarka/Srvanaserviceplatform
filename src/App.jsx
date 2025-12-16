@@ -53,7 +53,6 @@ export default function App() {
   const showHeaderFooter = ![
     "/login",
     "/signup",
-    "/technician-verification"
   ].includes(location.pathname) &&
     !location.pathname.startsWith("/dashboard") &&
     !location.pathname.startsWith("/disputes") &&
