@@ -451,8 +451,8 @@ const orderSlice = createSlice({
         state.loading = false;
         state.clientOrders = action.payload?.results || [];
         // Update pagination state based on the action parameters and response
-        const page = action.meta.arg.page || 1;
-        const pageSize = action.meta.arg.pageSize || 10;
+        const page = action.meta.arg?.page || 1;
+        const pageSize = action.meta.arg?.pageSize || 10;
         state.clientOrdersPagination = {
           count: action.payload?.count || 0,
           next: action.payload?.next || null,
