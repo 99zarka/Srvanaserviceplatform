@@ -605,6 +605,14 @@ const orderSlice = createSlice({
         state.loading = false;
         // The new endpoint returns paginated data directly in action.payload.results
         state.technicians = action.payload.results || [];
+        // Store pagination metadata
+        state.techniciansPagination = {
+          count: action.payload.count || 0,
+          next: action.payload.next || null,
+          previous: action.payload.previous || null,
+          currentPage: action.meta.arg.page || 1,
+          pageSize: action.meta.arg.page_size || 10
+        };
       })
       .addCase(getTechnicians.rejected, (state, action) => {
         state.loading = false;

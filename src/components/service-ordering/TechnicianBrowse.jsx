@@ -20,14 +20,16 @@ import {
   Search,
   Loader2,
   CheckCircle,
-  DollarSign
+  DollarSign,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const TechnicianBrowse = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { technicians, loading, error, successMessage } = useSelector((state) => state.orders);
+  const { technicians, loading, error, successMessage, techniciansPagination } = useSelector((state) => state.orders);
   const { data: services, isLoading: servicesLoading, error: servicesError } = useGetServicesQuery({ page_size: 100 });
   
   const [filters, setFilters] = useState({
@@ -36,10 +38,16 @@ const TechnicianBrowse = () => {
     min_rating: 'all',
   });
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6); // Default to 2 technicians per page
 
   useEffect(() => {
-    dispatch(getTechnicians(filters));
-  }, [dispatch, filters]);
+    dispatch(getTechnicians({
+      ...filters,
+      page: currentPage,
+      page_size: pageSize
+    }));
+  }, [dispatch, filters, currentPage, pageSize]);
 
   useEffect(() => {
     // Clear messages after 5 seconds
@@ -57,20 +65,28 @@ const TechnicianBrowse = () => {
       ...prev,
       [filterType]: value
     }));
+    // Reset to first page when filters change
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    // Reset to first page when search term changes
+    setCurrentPage(1);
+  };
+
+  const handlePageSizeChange = (value) => {
+    setPageSize(Number(value));
+    setCurrentPage(1); // Reset to first page when page size changes
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
   };
 
   const handleViewTechnicianProfile = (technicianId) => {
     navigate(`/profile/${technicianId}`); // Navigate to the UserProfilePage
   };
-
-  // Removed handleHireTechnician as direct hire is now on UserProfilePage
-
-  const filteredTechnicians = technicians?.filter(technician => {
-    const matchesSearch = technician.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         technician.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         technician.specialization?.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  }) || [];
 
   const renderStars = (rating) => {
     const stars = [];
@@ -82,7 +98,7 @@ const TechnicianBrowse = () => {
     }
     
     if (hasHalfStar) {
-      stars.push(<Star key="half" className="h-4 w-4 fill-yellow-200 text-yellow-400" />);
+      stars.push(<Star key="half" className="h-4 w-4 fill-yellow-200 text-yellow-40" />);
     }
     
     const emptyStars = 5 - Math.ceil(rating);
@@ -93,6 +109,11 @@ const TechnicianBrowse = () => {
     return stars;
   };
 
+  // Calculate pagination info from the Redux store
+  const totalItems = techniciansPagination?.count || 0;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const currentTechnicians = technicians || [];
+
   return (
     <div className="container mx-auto p-6" dir="rtl">
       <div className="mb-6">
@@ -102,14 +123,14 @@ const TechnicianBrowse = () => {
 
       {/* Error/Success Messages */}
       {error && (
-        <div className="mb-6 p-4 rounded-md bg-red-50 border border-red-200">
+        <div className="mb-6 p-4 rounded-md bg-red-50 border-red-200">
           <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
 
       {successMessage && (
         <div className="mb-6 p-4 rounded-md bg-green-50 border border-green-200">
-          <p className="text-sm text-green-600">{successMessage}</p>
+          <p className="text-sm text-green-60">{successMessage}</p>
         </div>
       )}
 
@@ -132,7 +153,7 @@ const TechnicianBrowse = () => {
                   <Input
                     placeholder="البحث عن فنيين..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => handleSearchChange(e.target.value)}
                     className="pl-10"
                   />
                 </div>
@@ -193,12 +214,29 @@ const TechnicianBrowse = () => {
                 </Select>
               </div>
 
+              {/* Page Size Selector */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">عدد العناصر في الصفحة</label>
+                <Select onValueChange={handlePageSizeChange} defaultValue="6">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="6">6</SelectItem>
+                    <SelectItem value="12">12</SelectItem>
+                    <SelectItem value="24">24</SelectItem>
+                    <SelectItem value="48">48</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Clear Filters */}
               <Button 
                 variant="outline" 
                 onClick={() => {
                   setFilters({ specialization: 'all', location: '', min_rating: 'all' });
                   setSearchTerm('');
+                  setCurrentPage(1);
                 }}
                 className="w-full"
               >
@@ -210,38 +248,57 @@ const TechnicianBrowse = () => {
 
         {/* Technicians List */}
         <div className="lg:col-span-3">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-600">
-              {filteredTechnicians.length} فنيين تم العثور عليهم
+              {totalItems > 0 ? `عرض ${currentTechnicians.length} من ${totalItems} فنيين` : '0 فنيين تم العثور عليهم'}
             </p>
-            <Select defaultValue="rating">
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="الترتيب حسب" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="rating">الأعلى تقييماً</SelectItem>
-                <SelectItem value="jobs">الأكثر خبرة</SelectItem>
-                <SelectItem value="name">الاسم أ-ي</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+              <Select defaultValue="rating">
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="الترتيب حسب" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rating">الأعلى تقييماً</SelectItem>
+                  <SelectItem value="jobs">الأكثر خبرة</SelectItem>
+                  <SelectItem value="name">الاسم أ-ي</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          {loading && (!technicians || technicians.length === 0) ? (
+          {/* Loading indicator for initial load */}
+          {loading && (!technicians || technicians.length === 0) && (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin" />
               <span className="ml-2">جاري تحميل الفنيين...</span>
             </div>
-          ) : filteredTechnicians.length === 0 ? (
+          )}
+          
+          {/* Loading indicator for pagination/filter updates (replaces results) */}
+          {loading && technicians && technicians.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 min-h-96 flex items-center justify-center">
+              <div className="col-span-full flex flex-col items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
+                <span className="text-gray-600">جاري التحميل...</span>
+              </div>
+            </div>
+          )}
+          
+          {/* No results */}
+          {!loading && currentTechnicians.length === 0 && !loading && (
             <Card>
               <CardContent className="text-center py-12">
-                <Wrench className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <Wrench className="h-12 w-12 text-gray-40 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">لم يتم العثور على فنيين</h3>
                 <p className="text-gray-600">حاول تعديل الفلاتر أو مصطلحات البحث الخاصة بك</p>
               </CardContent>
             </Card>
-          ) : (
+          )}
+          
+          {/* Technician cards */}
+          {!loading && currentTechnicians.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredTechnicians.map((technician) => (
+              {currentTechnicians.map((technician) => (
                 <Card key={technician.user_id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-start justify-between">
@@ -299,6 +356,67 @@ const TechnicianBrowse = () => {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-8 pt-6 border-t">
+              <div className="text-sm text-gray-600 hidden sm:block">
+                الصفحة {currentPage} من {totalPages}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="flex items-center gap-1"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                  السابق
+                </Button>
+                
+                {/* Page number buttons */}
+                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handlePageChange(pageNum)}
+                      className="w-10 h-10"
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center gap-1"
+                >
+                  التالي
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="text-sm text-gray-600 sm:hidden">
+                {currentPage} من {totalPages}
+              </div>
             </div>
           )}
         </div>
