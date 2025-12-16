@@ -7,6 +7,8 @@ import { Badge } from '../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { getTechnicians, getTechnicianDetail, clearError, clearSuccessMessage } from '../../redux/orderSlice';
+import { useGetServicesQuery } from '../../services/api.js';
+import GovernorateSelect from '../common/GovernorateSelect';
 import { 
   Star, 
   MapPin, 
@@ -26,6 +28,7 @@ const TechnicianBrowse = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { technicians, loading, error, successMessage } = useSelector((state) => state.orders);
+  const { data: services, isLoading: servicesLoading, error: servicesError } = useGetServicesQuery({ page_size: 100 });
   
   const [filters, setFilters] = useState({
     specialization: 'all',
@@ -144,12 +147,21 @@ const TechnicianBrowse = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">جميع التخصصات</SelectItem>
-                    <SelectItem value="plumbing">سباكة</SelectItem>
-                    <SelectItem value="electrical">كهرباء</SelectItem>
-                    <SelectItem value="hvac">تكييف وتدفئة</SelectItem>
-                    <SelectItem value="cleaning">تنظيف</SelectItem>
-                    <SelectItem value="carpentry">نجارة</SelectItem>
-                    <SelectItem value="painting">دهانات</SelectItem>
+                    {servicesLoading && (
+                      <SelectItem value="loading" disabled>
+                        جاري التحميل...
+                      </SelectItem>
+                    )}
+                    {servicesError && (
+                      <SelectItem value="error" disabled>
+                        خطأ في التحميل
+                      </SelectItem>
+                    )}
+                    {services?.results?.map((service) => (
+                      <SelectItem key={service.service_id} value={service.arabic_name || service.service_name}>
+                        {service.arabic_name || service.service_name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -157,10 +169,10 @@ const TechnicianBrowse = () => {
               {/* Location Filter */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">الموقع</label>
-                <Input
-                  placeholder="أدخل الموقع..."
+                <GovernorateSelect
                   value={filters.location}
                   onChange={(e) => handleFilterChange('location', e.target.value)}
+                  className="w-full"
                 />
               </div>
 
