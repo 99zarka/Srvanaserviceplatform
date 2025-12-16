@@ -21,7 +21,11 @@ export const getClientOrders = createAsyncThunk(
     try {
       const page = params.page || 1;
       const pageSize = params.pageSize || 10;
-      const url = `/orders/?page=${page}&page_size=${pageSize}`;
+      const orderStatus = params.orderStatus || '';
+      let url = `/orders/?page=${page}&page_size=${pageSize}`;
+      if (orderStatus) {
+        url += `&order_status=${orderStatus}`;
+      }
       const response = await api.get(url);
       return response; // Return the entire response object as `action.payload`
     } catch (error) {

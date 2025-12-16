@@ -46,14 +46,15 @@ const ClientOrdersAndOffers = () => {
   const [reviewRating, setReviewRating] = useState('');
   const [reviewComment, setReviewComment] = useState('');
   const [reviewTechnicianId, setReviewTechnicianId] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+ const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [orderStatus, setOrderStatus] = useState('');
 
-  useEffect(() => {
+ useEffect(() => {
     if (user?.user_id) {
-      dispatch(getClientOrders({ page: currentPage, pageSize }));
+      dispatch(getClientOrders({ page: currentPage, pageSize, orderStatus }));
     }
- }, [dispatch, user, currentPage, pageSize]);
+ }, [dispatch, user, currentPage, pageSize, orderStatus]);
 
   useEffect(() => {
     if (successMessage) {
@@ -198,6 +199,16 @@ const ClientOrdersAndOffers = () => {
     navigate(`/dashboard/orders-offers/view/${orderId}`);
   };
 
+  const handleOrderStatusChange = (e) => {
+    setOrderStatus(e.target.value);
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
+
+  const handleClearFilter = () => {
+    setOrderStatus('');
+    setCurrentPage(1);
+  };
+
   // Sort clientOrders by order_id
   const sortedClientOrders = Array.isArray(clientOrders) 
     ? [...clientOrders].sort((a, b) => b.order_id - a.order_id) 
@@ -210,6 +221,45 @@ const ClientOrdersAndOffers = () => {
         <p className="text-gray-600">إدارة طلباتك للخدمة ومراجعة عروض الفنيين.</p>
       </div>
 
+      {/* Filter Controls */}
+      <div className="mb-6 p-4 bg-white rounded-lg shadow">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center w-full sm:w-auto">
+            <div className="w-full sm:w-auto">
+              <Label htmlFor="orderStatus">حالة الطلب</Label>
+              <select
+                id="orderStatus"
+                value={orderStatus}
+                onChange={handleOrderStatusChange}
+                className="mt-1 block w-full sm:w-48 border border-gray-30 rounded-md shadow-sm p-2"
+              >
+                <option value="">جميع الحالات</option>
+                <option value="OPEN">مفتوح</option>
+                <option value="ACCEPTED">مقبول</option>
+                <option value="IN_PROGRESS">جاري التنفيذ</option>
+                <option value="AWAITING_RELEASE">في انتظار التحرير</option>
+                <option value="COMPLETED">مكتمل</option>
+                <option value="DISPUTED">متنازع عليها</option>
+                <option value="CANCELLED">ملغي</option>
+                <option value="REFUNDED">مسترجع</option>
+                <option value="AWAITING_TECHNICIAN_RESPONSE">في انتظار رد الفني</option>
+                <option value="AWAITING_CLIENT_ESCROW_CONFIRMATION">في انتظار تأكيد العميل</option>
+              </select>
+            </div>
+            {orderStatus && (
+              <Button
+                variant="outline"
+                onClick={handleClearFilter}
+                className="mt-4 sm:mt-6 px-4 py-2"
+              >
+                مسح الفلتر
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Loading indicator for initial load */}
       {loading && (!clientOrders || clientOrders.length === 0) ? (
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -223,32 +273,43 @@ const ClientOrdersAndOffers = () => {
           </Button>
         </div>
       ) : (
-        <div className="space-y-4">
-          {sortedClientOrders.map((order) => (
-            <div key={order.order_id}>
-              <OrderCard
-                order={order}
-                isSelected={expandedOrderId === order.order_id}
-                onToggleExpand={() => handleToggleExpand(order.order_id)}
-                onEdit={handleEditOrder}
-                onView={handleViewOrder}
-                onCancel={handleCancelOrderClick}
-                onReleaseFunds={handleReleaseFundsClick}
-                onInitiateDispute={handleInitiateDisputeClick}
-                onSubmitReview={handleSubmitReviewClick}
-                onAcceptOffer={handleAcceptOffer}
-                loading={loading}
-                orderId={order.order_id}
-              />
-              <ExpandableOffers
-                order={order}
-                offers={order.project_offers}
-                isOpen={expandedOrderId === order.order_id}
-                onAcceptOffer={handleAcceptOffer}
-                loading={loading}
-              />
+        <div className="space-y-4 relative">
+          {/* Loading overlay for pagination/filtering */}
+          {loading && clientOrders && clientOrders.length > 0 && (
+            <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded-lg">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                <span>جاري تحميل البيانات...</span>
+              </div>
             </div>
-          ))}
+          )}
+          <div className={!loading ? "" : "opacity-50 pointer-events-none"}>
+            {sortedClientOrders.map((order) => (
+              <div key={order.order_id}>
+                <OrderCard
+                  order={order}
+                  isSelected={expandedOrderId === order.order_id}
+                  onToggleExpand={() => handleToggleExpand(order.order_id)}
+                  onEdit={handleEditOrder}
+                  onView={handleViewOrder}
+                  onCancel={handleCancelOrderClick}
+                  onReleaseFunds={handleReleaseFundsClick}
+                  onInitiateDispute={handleInitiateDisputeClick}
+                  onSubmitReview={handleSubmitReviewClick}
+                  onAcceptOffer={handleAcceptOffer}
+                  loading={loading}
+                  orderId={order.order_id}
+                />
+                <ExpandableOffers
+                  order={order}
+                  offers={order.project_offers}
+                  isOpen={expandedOrderId === order.order_id}
+                  onAcceptOffer={handleAcceptOffer}
+                  loading={loading}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -401,10 +462,18 @@ const ClientOrdersAndOffers = () => {
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1 || loading}
-                  className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-40 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span className="sr-only">Previous</span>
-                  &rarr;
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    </>
+                  ) : (
+                    <>
+                      <span className="sr-only">Previous</span>
+                      &rarr;
+                    </>
+                  )}
                 </button>
 
                 {/* Page numbers */}
@@ -427,8 +496,16 @@ const ClientOrdersAndOffers = () => {
                   disabled={currentPage === clientOrdersPagination.totalPages || loading}
                   className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span className="sr-only">Next</span>
-                  &larr;
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    </>
+                  ) : (
+                    <>
+                      <span className="sr-only">Next</span>
+                      &larr;
+                    </>
+                  )}
                 </button>
               </nav>
             </div>
