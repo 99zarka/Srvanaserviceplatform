@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -13,6 +13,7 @@ import { getVerificationStatus, uploadVerificationDocuments } from "../redux/ver
 import { useGetServicesQuery } from "../services/api";
 import { FileUpload } from "./FileUpload";
 import { Skeleton } from "./ui/skeleton";
+import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
   const [documents, setDocuments] = useState({
@@ -22,6 +23,9 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
   });
   const [selectedSpecializations, setSelectedSpecializations] = useState([]);
   const [showServiceDropdown, setShowServiceDropdown] = useState(false);
+  const specializationRef = useRef(null);
+
+  useOnClickOutside(specializationRef, () => setShowServiceDropdown(false));
 
   const { data: servicesData, isLoading: loadingServices, isError } = useGetServicesQuery({ page_size: 100 });
   const verification = useSelector((state) => state.verification);
@@ -96,6 +100,8 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
     const arabicName = service.arabic_name || service.service_name;
     if (!selectedSpecializations.some((spec) => spec.id === service.service_id)) {
       setSelectedSpecializations((prev) => [...prev, { id: service.service_id, name: arabicName }]);
+    } else {
+      removeSpecialization(service.service_id);
     }
   };
 
@@ -286,7 +292,7 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
                   <CardDescription>أخبرنا عن خبراتك ومهاراتك.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
+                  <div ref={specializationRef}>
                     <Label htmlFor="specialization">التخصص *</Label>
                     <div className="relative">
                       <div className="min-h-10 p-2 border rounded-md bg-background mb-2 flex flex-wrap gap-2">
