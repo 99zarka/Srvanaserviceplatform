@@ -39,19 +39,19 @@ export function ContactPage() {
           {
             icon: Phone,
             title: "الهاتف",
-            content: response.support_phone || "+1 (555) 123-4567",
-            link: `tel:${response.support_phone || "+15551234567"}`,
+            content: response.support_phone || "+20 10 1234 5678",
+            link: `tel:${response.support_phone || "+201012345678"}`,
           },
           {
             icon: MapPin,
             title: "العنوان",
-            content: response.address || "123 شارع الخدمات، المدينة، الولاية 12345",
+            content: response.address || "123 شارع النيل، القاهرة، مصر",
             link: "#", // Could be a link to a map if coordinates are provided
           },
           {
             icon: Clock,
             title: "ساعات العمل",
-            content: response.working_hours || "من الاثنين إلى الجمعة: 9:00 صباحًا - 6:00 مساءً",
+            content: response.working_hours || "من الأحد إلى الخميس: 9:00 صباحًا - 6:00 مساءً",
             link: "#",
           },
         ];
@@ -249,6 +249,15 @@ export function ContactPage() {
                   ))}
                 </div>
               )}
+
+              {/* Egyptian-specific notice */}
+              <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="font-semibold text-blue-800 mb-2">ملاحظة مهمة</h3>
+                <p className="text-blue-700 text-sm">
+                  هذه الخدمة متاحة حالياً فقط للمقيمين في مصر. للحصول على الدعم باللغة العربية، 
+                  يرجى الاتصال بنا على الرقم المذكور أعلاه أو إرسال بريد إلكتروني إلينا.
+                </p>
+              </div>
 
               {/* Map Placeholder */}
               <Card className="mt-6">

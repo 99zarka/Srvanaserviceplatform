@@ -93,7 +93,7 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
       required: "السعر لكل ساعة مطلوب",
       min: {
         value: 1,
-        message: "السعر يجب أن يكون ريال واحد على الأقل"
+        message: "السعر يجب أن يكون جنيه مصري واحد على الأقل"
       }
     },
     address: {
@@ -327,6 +327,14 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
             </div>
           )}
 
+          {/* Egyptian-specific notice */}
+          <Alert className="mb-6 border-blue-20 bg-blue-50">
+            <AlertDescription className="text-blue-800 text-center">
+              <strong>ملاحظة مهمة:</strong> هذه الخدمة متاحة حالياً فقط للمقيمين في مصر. 
+              يرجى التأكد من أن لديك بطاقة هوية مصرية سارية ورقم هاتف مصري للتقديم.
+            </AlertDescription>
+          </Alert>
+
           {/* User Info Card */}
           {effectiveUser && (
             <Card className="mb-6">
@@ -395,7 +403,7 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
                   <div className="mt-3">
                     <p className="text-sm font-medium">تاريخ التقديم:</p>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(verificationStatus.submitted_at).toLocaleDateString('ar-SA')}
+                      {new Date(verificationStatus.submitted_at).toLocaleDateString('ar-EG')}
                     </p>
                   </div>
                 )}
@@ -533,7 +541,7 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
                     </div>
 
                     <div>
-                      <Label htmlFor="hourly_rate">السعر لكل ساعة (ريال) *</Label>
+                      <Label htmlFor="hourly_rate">السعر لكل ساعة (جنيه مصري) *</Label>
                       <Input
                         id="hourly_rate"
                         type="number"
@@ -552,7 +560,7 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
                       <Input
                         id="address"
                         {...register('address', validationRules.address)}
-                        placeholder="الرياض، حي النخيل"
+                        placeholder="القاهرة، الجيزة، المعادي"
                         className={errors.address ? 'border-red-500' : ''}
                       />
                       {errors.address && (
@@ -578,7 +586,7 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
                       <Input
                         id="skills"
                         {...register('skills', validationRules.skills)}
-                        placeholder="مثال: تركيب الإضاءة، إصلاح الأسلاك"
+                        placeholder="مثال: تركيب الإضاءة، إصلاح الأسلاك، الصيانة العامة"
                         className={errors.skills ? 'border-red-500' : ''}
                       />
                       {errors.skills && (
@@ -593,7 +601,10 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
                     
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="id_document">صورة من الهوية الوطنية *</Label>
+                        <Label htmlFor="id_document">صورة بطاقة الهوية المصرية *</Label>
+                        <div className="mt-1 text-sm text-muted-foreground mb-2">
+                          يجب أن تكون بطاقة الهوية سارية وواضحة
+                        </div>
                         <div className="mt-1">
                           <input
                             type="file"
