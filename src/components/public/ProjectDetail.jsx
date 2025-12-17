@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { fetchPublicOrderDetail, createProjectOffer, updateProjectOffer } from '../../redux/orderSlice';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Sparkles, Loader2 } from 'lucide-react';
 
 const ProjectDetail = () => {
   const { order_id } = useParams();
@@ -19,6 +20,7 @@ const ProjectDetail = () => {
   const [offerPrice, setOfferPrice] = useState('');
   const [offerDescription, setOfferDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [editingOffer, setEditingOffer] = useState(null);
   const [editPrice, setEditPrice] = useState('');
   const [editDescription, setEditDescription] = useState('');
@@ -34,6 +36,41 @@ const ProjectDetail = () => {
   const hasAlreadyOffered = selectedOrder?.project_offers?.some(
     (offer) => offer.technician_user === currentUser?.user_id
   );
+
+  const generateProposal = async () => {
+    if (!currentUser || !currentUser.user_id) {
+      toast.error('يجب أن تكون مسجلاً دخولك لاستخدام هذه الميزة.');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/ai/generate-proposal/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          order_id: parseInt(order_id),
+          technician_id: currentUser.user_id
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setOfferDescription(data.proposal);
+        setOfferPrice(data.price);
+        toast.success('تم توليد العرض والسعر بنجاح!');
+      } else {
+        toast.error('فشل في توليد العرض: ' + (data.error || 'خطأ غير معروف'));
+      }
+    } catch (error) {
+      toast.error('خطأ في الاتصال بالخادم: ' + error.message);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleSubmitOffer = async (e) => {
     e.preventDefault();
@@ -113,7 +150,7 @@ const ProjectDetail = () => {
           {selectedOrder.expected_price && (
             <div>
               <strong className="block text-gray-800">السعر المتوقع:</strong>
-              <span className="text-blue-600 font-semibold">${selectedOrder.expected_price}</span>
+              <span className="text-blue-600 font-semibold">{selectedOrder.expected_price} ج.م.</span>
             </div>
           )}
           <div>
@@ -127,21 +164,43 @@ const ProjectDetail = () => {
         <div className="bg-white shadow-md rounded-lg p-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">قدم عرضًا</h2>
           <form onSubmit={handleSubmitOffer}>
-            <div className="mb-4">
-              <label htmlFor="offerPrice" className="block text-gray-700 text-sm font-bold mb-2">
-                سعر عرضك ($)
-              </label>
-              <input
-                type="number"
-                id="offerPrice"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                placeholder="مثل 150.00"
-                value={offerPrice}
-                onChange={(e) => setOfferPrice(e.target.value)}
-                required
-                min="0.01"
-                step="0.01"
-              />
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex-1">
+                <label htmlFor="offerPrice" className="block text-gray-700 text-sm font-bold mb-2">
+                  سعر عرضك (جنيه مصري)
+                </label>
+                <input
+                  type="number"
+                  id="offerPrice"
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="مثل 150.00"
+                  value={offerPrice}
+                  onChange={(e) => setOfferPrice(e.target.value)}
+                  required
+                  min="0.01"
+                  step="0.01"
+                />
+              </div>
+              <div className="ml-4 mt-6">
+                <button
+                  type="button"
+                  onClick={generateProposal}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:opacity-50 flex items-center space-x-2"
+                  disabled={isGenerating}
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>جاري التوليد...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      <span>توليد العرض</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
             <div className="mb-6">
               <label htmlFor="offerDescription" className="block text-gray-700 text-sm font-bold mb-2">
