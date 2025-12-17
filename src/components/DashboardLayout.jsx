@@ -1,7 +1,9 @@
 import { LogOut, Menu, CircleUser } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logout } from "../redux/authSlice";
 import SrvanaLogo from "../../assets/srvana-logo.svg";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -16,6 +18,13 @@ export function DashboardLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login");
+  };
 
   return (
     <div className="min-h-screen bg-muted">
@@ -45,7 +54,7 @@ export function DashboardLayout({
             ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           `}
         >
-          <div className="h-full flex flex-col">
+          <div className="h-full flex flex-col overflow-hidden">
             {/* Logo */}
             <div className="p-6 border-b border-sidebar-border hidden lg:block">
               <Link to="/">
@@ -73,7 +82,7 @@ export function DashboardLayout({
               </Link>
             </div>
             {/* Navigation */}
-            <nav className="flex-1 p-4 space-y-2">
+            <nav className="flex-1 p-4 space-y-2 overflow-auto">
               {sidebarItems.map((item, index) => {
                 if (item.isSeparator) {
                   return <hr key={index} className="my-2 border-t border-sidebar-border" />;
@@ -108,12 +117,10 @@ export function DashboardLayout({
               <Button
                 variant="ghost"
                 className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
-                asChild
+                onClick={handleLogout}
               >
-                <Link to="/" className="flex items-center">
-                  <LogOut className="h-5 w-5 mr-3" /> {/* Adjusted margin for RTL */}
-                  <span>تسجيل الخروج</span>
-                </Link>
+                <LogOut className="h-5 w-5 ml-3" /> {/* Adjusted margin for RTL */}
+                <span>تسجيل الخروج</span>
               </Button>
             </div>
           </div>

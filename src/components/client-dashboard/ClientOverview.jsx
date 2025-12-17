@@ -53,7 +53,7 @@ export function ClientOverview() {
         setRecentRequests(requestsData.results.slice(0, 4).map(req => ({
           id: req.order_id,
           service: req.service?.arabic_name || req.service?.service_name || "خدمة غير محددة",
-          worker: req.technician_user ? `${req.technician_user.first_name} ${req.technician_user.last_name}` : "لم يتم التعيين بعد",
+          worker: req.associated_offer?.technician_user ? `${req.associated_offer.technician_user.first_name} ${req.associated_offer.technician_user.last_name}` : "لم يتم التعيين بعد",
           status: req.order_status,
           date: new Date(req.creation_timestamp).toLocaleDateString("ar-EG"),
           amount: `${req.final_price || req.updated_price ? parseFloat(req.final_price || req.updated_price).toFixed(2) : '0.00'} ج.م`,
