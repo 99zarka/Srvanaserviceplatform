@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createOrder, clearError } from '../../redux/orderSlice'; // Import clearError
 import api from '../../utils/api';
 import OrderForm from '../OrderForm'; // Import the reusable OrderForm
@@ -18,14 +18,39 @@ const OrderCreateForm = () => {
   const [isLoadingServices, setIsLoadingServices] = useState(false);
   const [formKey, setFormKey] = useState(0); // Key to force OrderForm remount
   const [serverErrorMessage, setServerErrorMessage] = useState(null); // New state for global server error
-  const [currentFormData, setCurrentFormData] = useState({
-    service_id: '', // Ensure this matches the schema in OrderForm (service_id)
-    problem_description: '',
-    requested_location: '',
-    scheduled_date: undefined, // Should be undefined or null for a fresh form
-    scheduled_time_start: '',
-    scheduled_time_end: '',
-    expected_price: '', // Changed to expected_price
+  const [searchParams] = useSearchParams();
+  const [currentFormData, setCurrentFormData] = useState(() => {
+    // Parse URL parameters and create initial form data
+    const urlParams = {
+      service_id: searchParams.get('service_id') || '',
+      problem_description: searchParams.get('problem_description') || '',
+      governorate: searchParams.get('governorate') || '',
+      detailed_address: searchParams.get('detailed_address') || '',
+      scheduled_date: searchParams.get('scheduled_date') || '',
+      scheduled_time_start: searchParams.get('scheduled_time_start') || '',
+      scheduled_time_end: searchParams.get('scheduled_time_end') || '',
+      expected_price: searchParams.get('expected_price') || '',
+    };
+
+    // Convert scheduled_date to Date object if provided
+    let scheduledDate = undefined;
+    if (urlParams.scheduled_date) {
+      const date = new Date(urlParams.scheduled_date);
+      if (!isNaN(date.getTime())) {
+        scheduledDate = date;
+      }
+    }
+
+    return {
+      service_id: urlParams.service_id,
+      problem_description: urlParams.problem_description,
+      governorate: urlParams.governorate,
+      detailed_address: urlParams.detailed_address,
+      scheduled_date: scheduledDate,
+      scheduled_time_start: urlParams.scheduled_time_start,
+      scheduled_time_end: urlParams.scheduled_time_end,
+      expected_price: urlParams.expected_price,
+    };
   });
 
   const formSetErrorRef = useRef(null); // Ref to hold setError function from OrderForm

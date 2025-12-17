@@ -114,9 +114,20 @@ const OrderForm = ({
 
   useEffect(() => {
     if (initialData) {
-      const [governorate, detailed_address] = initialData.requested_location 
-        ? initialData.requested_location.split(',').map(s => s.trim()) 
-        : ["", ""];
+      // Handle requested_location from URL params or existing order
+      let governorate = '';
+      let detailed_address = '';
+      
+      if (initialData.governorate && initialData.detailed_address) {
+        // URL parameters are already separated
+        governorate = initialData.governorate;
+        detailed_address = initialData.detailed_address;
+      } else if (initialData.requested_location) {
+        // Existing order format - split the location
+        const [gov, det] = initialData.requested_location.split(',').map(s => s.trim());
+        governorate = gov || '';
+        detailed_address = det || '';
+      }
       
       reset({
         ...initialData,
