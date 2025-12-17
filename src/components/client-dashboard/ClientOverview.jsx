@@ -227,7 +227,7 @@ export function ClientOverview() {
               className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center space-x-2"
               asChild
             >
-              <Link to="/services">
+              <Link to="/order/create">
                 <PlusCircle className="h-5 w-5" />
                 <span>طلب خدمة جديدة</span>
               </Link>

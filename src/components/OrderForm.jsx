@@ -189,7 +189,7 @@ const OrderForm = ({
             <p className="text-red-500 text-sm mt-1">{errors.service_id.message}</p>
           )}
           {selectedServiceDetails && (
-            <p className="text-xs text-gray-500 mt-1">رسوم الفحص الأساسية: ${selectedServiceDetails.base_inspection_fee}</p>
+            <p className="text-xs text-gray-500 mt-1">رسوم الفحص الأساسية: {selectedServiceDetails.base_inspection_fee} ج.م.</p>
           )}
         </div>
 
@@ -203,7 +203,7 @@ const OrderForm = ({
                 <Input
                   id="offered_price"
                   type="number"
-                  step="0.01"
+                  step="1"
                   placeholder="مثال: 250.00"
                   className={errors.offered_price ? "border-red-500" : ""}
                   {...field}
@@ -228,7 +228,7 @@ const OrderForm = ({
                 <Input
                   id="final_price"
                   type="number"
-                  step="0.01"
+                  step="1"
                   placeholder="مثال: 100.00"
                   className={errors.final_price ? "border-red-500" : ""}
                   {...field}
@@ -253,7 +253,7 @@ const OrderForm = ({
                 <Input
                   id="expected_price"
                   type="number"
-                  step="0.01"
+                  step="1"
                   placeholder="مثال: 150.00"
                   className={errors.expected_price ? "border-red-500" : ""}
                   {...field}

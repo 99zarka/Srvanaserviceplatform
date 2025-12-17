@@ -225,7 +225,7 @@ const EditOrderForm = ({ orderId, onClose }) => {
               </SelectContent>
             </Select>
             {selectedService && (
-              <p className="text-xs text-gray-50 mt-1">رسوم الفحص الأساسية: ${selectedService.base_inspection_fee}</p>
+              <p className="text-xs text-gray-50 mt-1">رسوم الفحص الأساسية: {selectedService.base_inspection_fee} ج.م.</p>
             )}
           </div>
 
@@ -234,7 +234,7 @@ const EditOrderForm = ({ orderId, onClose }) => {
             <Input
               id="offered_price"
               type="number"
-              step="0.01"
+              step="1"
               placeholder="مثال: 250.00"
               value={formData.offered_price}
               onChange={handleChange}

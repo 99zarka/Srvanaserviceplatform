@@ -392,7 +392,7 @@ export function ClientFinancials() {
                 placeholder="أدخل مبلغ الإيداع"
                 {...depositRegister("amount")}
                 min="0.01"
-                step="0.01"
+                step="1"
                 className="w-full mb-2"
                 dir="ltr"
               />
@@ -458,7 +458,7 @@ export function ClientFinancials() {
                 placeholder="أدخل مبلغ السحب"
                 {...withdrawalRegister("amount")}
                 min="0.01"
-                step="0.01"
+                step="1"
                 className="w-full mb-2"
                 dir="ltr"
               />

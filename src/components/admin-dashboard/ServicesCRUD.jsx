@@ -222,7 +222,7 @@ export function ServicesCRUD() {
                     id="base_inspection_fee"
                     name="base_inspection_fee"
                     type="number"
-                    step="0.01"
+                    step="1"
                     value={formData.base_inspection_fee}
                     onChange={handleInputChange}
                     required
@@ -234,7 +234,7 @@ export function ServicesCRUD() {
                     id="estimated_price_range_min"
                     name="estimated_price_range_min"
                     type="number"
-                    step="0.01"
+                    step="1"
                     value={formData.estimated_price_range_min}
                     onChange={handleInputChange}
                   />
@@ -245,7 +245,7 @@ export function ServicesCRUD() {
                     id="estimated_price_range_max"
                     name="estimated_price_range_max"
                     type="number"
-                    step="0.01"
+                    step="1"
                     value={formData.estimated_price_range_max}
                     onChange={handleInputChange}
                   />
@@ -257,7 +257,7 @@ export function ServicesCRUD() {
                   id="emergency_surcharge_percentage"
                   name="emergency_surcharge_percentage"
                   type="number"
-                  step="0.01"
+                  step="1"
                   value={formData.emergency_surcharge_percentage}
                   onChange={handleInputChange}
                 />

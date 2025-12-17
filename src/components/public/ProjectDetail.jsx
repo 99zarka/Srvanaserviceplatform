@@ -178,7 +178,7 @@ const ProjectDetail = () => {
                   onChange={(e) => setOfferPrice(e.target.value)}
                   required
                   min="0.01"
-                  step="0.01"
+                  step="1"
                 />
               </div>
               <div className="ml-4 mt-6">
@@ -364,7 +364,7 @@ const ProjectDetail = () => {
                   onChange={(e) => setEditPrice(e.target.value)}
                   required
                   min="0.01"
-                  step="0.01"
+                  step="1"
                 />
               </div>
 

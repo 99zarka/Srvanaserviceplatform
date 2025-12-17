@@ -399,7 +399,7 @@ export function DisputeDetailPage() {
                                 value={clientRefundAmount}
                                 onChange={(e) => setClientRefundAmount(e.target.value)}
                                 className="flex-1 border border-gray-300 rounded-md p-2 text-right"
-                                step="0.01"
+                                step="1"
                                 min="0"
                                 max={order.final_price || 0}
                               />
@@ -416,7 +416,7 @@ export function DisputeDetailPage() {
                                 value={technicianPayoutAmount}
                                 onChange={(e) => setTechnicianPayoutAmount(e.target.value)}
                                 className="flex-1 border border-gray-300 rounded-md p-2 text-right"
-                                step="0.01"
+                                step="1"
                                 min="0"
                                 max={order.final_price || 0}
                               />
