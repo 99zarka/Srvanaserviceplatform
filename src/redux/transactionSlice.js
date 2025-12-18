@@ -4,9 +4,14 @@ import api from '../utils/api';
 // Get all transactions for the current user
 export const getUserTransactions = createAsyncThunk(
   'transactions/getUserTransactions',
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1, pageSize = 20 }, { rejectWithValue }) => {
     try {
-      const response = await api.get('/transactions/me/');
+      const response = await api.get('/transactions/me/', {
+        params: {
+          page: page,
+          page_size: pageSize
+        }
+      });
       return response; // Corrected: return the parsed data directly
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -59,10 +64,12 @@ const transactionSlice = createSlice({
         state.loading = false;
         // Ensure action.payload is an object, then safely access results
         const payload = action.payload || {}; 
+        // Get pageSize from the thunk arguments
+        const pageSize = action.meta.arg.pageSize || 10;
         state.transactions = (payload.results) ? payload.results : [];
         state.transactionsPagination = {
           count: payload.count || 0,
-          totalPages: Math.ceil((payload.count || 0) / 10),
+          totalPages: Math.ceil((payload.count || 0) / pageSize),
           next: payload.next || null,
           previous: payload.previous || null,
         };

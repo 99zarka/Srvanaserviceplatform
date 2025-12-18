@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPendingVerifications, approveVerification, rejectVerification } from "../../redux/adminSlice";
-import BASE_URL from "../../config/api";
 
 export function AdminVerifications() {
   const [searchTerm, setSearchTerm] = useState("");

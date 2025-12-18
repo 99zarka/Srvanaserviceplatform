@@ -38,25 +38,14 @@ export const getPendingVerifications = createAsyncThunk(
 
       const rawDocs = data.results || data;
       
-      // Process individual documents instead of grouping by user
+      // Process documents using the prefetched user data
       const processedDocs = [];
       
       if (Array.isArray(rawDocs)) {
         for (const doc of rawDocs) {
-          // technician_user is just an ID, we need to fetch user details
-          const userId = doc.technician_user;
-          
-          // Fetch user details for this technician
-          const userResponse = await fetch(`${BASE_URL}/users/${userId}/`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-          
-          let userDetail = {
-            id: userId,
+          // Use the prefetched technician_user data instead of making individual API calls
+          const userDetail = doc.technician_user || {
+            id: doc.technician_user_id || null,
             first_name: "",
             last_name: "",
             email: "",
@@ -68,10 +57,6 @@ export const getPendingVerifications = createAsyncThunk(
             hourly_rate: null
           };
           
-          if (userResponse.ok) {
-            userDetail = await userResponse.json();
-          }
-          
           const processedDoc = {
             id: doc.doc_id, // Use the actual document ID
             doc_id: doc.doc_id, // Keep the original doc_id
@@ -80,9 +65,9 @@ export const getPendingVerifications = createAsyncThunk(
             upload_date: doc.upload_date,
             verification_status: doc.verification_status?.toLowerCase(),
             rejection_reason: doc.rejection_reason,
-            technician_user_id: userId, // This is just the user ID
+            technician_user_id: userDetail.id, // Use the user ID from prefetched data
             
-            // User details from the user API call
+            // User details from the prefetched data (no individual API calls needed!)
             user: userDetail,
             address: userDetail.address,
             description: userDetail.bio,

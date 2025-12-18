@@ -75,7 +75,15 @@ const getAuthToken = () => {
 
 const api = {
   async get(endpoint, options = {}) {
-    const url = `${BASE_URL}${endpoint}`;
+    const { params, ...otherOptions } = options; // Extract params from options
+    let url = `${BASE_URL}${endpoint}`;
+    
+    // Append query parameters if provided
+    if (params && Object.keys(params).length > 0) {
+      const queryParams = new URLSearchParams(params);
+      url += `?${queryParams.toString()}`;
+    }
+    
     const token = getAuthToken();
     
     const config = {
@@ -83,9 +91,9 @@ const api = {
       headers: {
         'Content-Type': 'application/json',
         ...(token && { 'Authorization': `Bearer ${token}` }),
-        ...options.headers,
+        ...otherOptions.headers,
       },
-      ...options,
+      ...otherOptions,
     };
     
     const response = await fetch(url, config);

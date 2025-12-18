@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import api from "../../utils/api"; // Import the API utility
 
 export function WorkerOverview() {
-  const { token } = useSelector((state) => state.auth);
+  const { token, user } = useSelector((state) => state.auth);
   const [stats, setStats] = useState([]);
   const [activeTasks, setActiveTasks] = useState([]);
   const [performance, setPerformance] = useState({ completedTasks: 0, earnings: 0, avgRating: 0 });
@@ -251,19 +251,23 @@ export function WorkerOverview() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center space-x-2">
-                <CalendarPlus className="h-5 w-5" />
-                <span>تحديث التوفر</span>
+              <Button variant="outline" asChild className="w-full bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center space-x-2">
+                <Link to="/dashboard/client-offers">
+                  <CalendarPlus className="h-5 w-5" />
+                  <span>معاينة عروض العملاء</span>
+                </Link>
               </Button>
               <Button variant="outline" asChild className="w-full flex items-center justify-center space-x-2">
-                <Link to="/dashboard/earnings">
+                <Link to="/dashboard/financials">
                   <CreditCard className="h-5 w-5" />
                   <span>عرض سجل الدفعات</span>
                 </Link>
               </Button>
-              <Button variant="outline" className="w-full flex items-center justify-center space-x-2">
-                <Edit className="h-5 w-5" />
-                <span>تعديل الملف الشخصي</span>
+              <Button variant="outline" asChild className="w-full flex items-center justify-center space-x-2">
+                <Link to={`/dashboard/profile/${user?.user_id}`}>
+                  <Edit className="h-5 w-5" />
+                  <span>تعديل الملف الشخصي</span>
+                </Link>
               </Button>
             </div>
           </CardContent>
