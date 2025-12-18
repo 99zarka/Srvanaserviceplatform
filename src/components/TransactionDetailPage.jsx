@@ -58,6 +58,10 @@ export function TransactionDetailPage() {
         translatedType = "رسوم";
         className = "bg-gray-100 text-gray-800";
         break;
+      case "PENDING_TO_AVAILABLE_TRANSFER":
+        translatedType = "تحويل من معلق إلى متاح";
+        colorClass = "bg-orange-100 text-orange-800";
+        break;
       default:
         translatedType = type;
         break;

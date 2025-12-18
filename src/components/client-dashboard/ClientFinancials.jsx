@@ -61,7 +61,10 @@ export function ClientFinancials() {
 
   const [withdrawalError, setWithdrawalError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(20);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [paginationLoading, setPaginationLoading] = useState(false);
+  const [minSpinnerTime, setMinSpinnerTime] = useState(false);
 
   // Add New Payment Method form state and methods
   const { control: addPaymentMethodControl, handleSubmit: handleAddPaymentMethodSubmit, register: addPaymentMethodRegister, formState: { errors: addPaymentMethodErrors, isSubmitting: isAddingPaymentMethod } , reset: resetAddPaymentMethodForm } = useForm({
@@ -123,8 +126,29 @@ export function ClientFinancials() {
 
   useEffect(() => {
     fetchPaymentMethods();
-    dispatch(getUserTransactions({ page: currentPage, pageSize }));
+    const fetchTransactions = async () => {
+      if (isInitialLoading) {
+        // Only show full loading message during initial load
+        await dispatch(getUserTransactions({ page: currentPage, pageSize }));
+        setIsInitialLoading(false);
+      } else {
+        // For pagination, set pagination loading state
+        setPaginationLoading(true);
+        await dispatch(getUserTransactions({ page: currentPage, pageSize }));
+        setPaginationLoading(false);
+      }
+    };
+    fetchTransactions();
   }, [token, authLoading, dispatch, currentPage, pageSize]);
+
+  // Handle minimum spinner display time
+  useEffect(() => {
+    if (paginationLoading) {
+      setMinSpinnerTime(true);
+      const timer = setTimeout(() => setMinSpinnerTime(false), 300); // 300ms minimum
+      return () => clearTimeout(timer);
+    }
+  }, [paginationLoading]);
 
   const handleDeposit = async (data) => {
     dispatch(depositFunds({ amount: parseFloat(data.amount), payment_method_id: parseInt(data.paymentMethodId) }))
@@ -239,6 +263,10 @@ export function ClientFinancials() {
         translatedType = "رسوم";
         colorClass = "bg-gray-100 text-gray-800";
         break;
+      case "PENDING_TO_AVAILABLE_TRANSFER":
+        translatedType = "تحويل من معلق إلى متاح";
+        colorClass = "bg-orange-100 text-orange-800";
+        break;
       default:
         translatedType = type;
         break;
@@ -247,7 +275,7 @@ export function ClientFinancials() {
     return <Badge className={colorClass}>{translatedType}</Badge>;
   };
 
-  if (authLoading || transactionsLoading) {
+  if (authLoading || (transactionsLoading && isInitialLoading)) {
     return <div className="text-center p-8" dir="rtl">جاري تحميل البيانات المالية...</div>;
   }
   if (authError) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ في المصادقة: {authError}</div>;
@@ -510,7 +538,7 @@ export function ClientFinancials() {
           ) : (
             <>
               {/* Loading overlay for pagination */}
-              {transactionsLoading && (
+              {(transactionsLoading && !isInitialLoading) || minSpinnerTime && (
                 <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded-lg">
                   <div className="flex items-center justify-center space-x-2">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
@@ -524,7 +552,7 @@ export function ClientFinancials() {
                     <TableRow>
                       <TableHead>المبلغ</TableHead>
                       <TableHead>النوع</TableHead>
-                      <TableHead>طريقة الدفع</TableHead> {/* New column for Payment Method */}
+                      <TableHead>طريقة الدفع</TableHead>
                       <TableHead>العملة</TableHead> {/* New column for Currency */}
                       <TableHead>الحالة</TableHead>
                       <TableHead>التاريخ والوقت</TableHead>
@@ -535,7 +563,31 @@ export function ClientFinancials() {
                       <TableRow key={transaction.id}>
                         <TableCell>{transaction.amount}</TableCell>
                         <TableCell>{getTransactionTypeBadge(transaction.transaction_type)}</TableCell>
-                        <TableCell>{transaction.payment_method || 'N/A'}</TableCell> {/* Display payment method, or N/A if null */}
+                        <TableCell>
+                          {(() => {
+                            const method = transaction.payment_method;
+                            if (!method) return 'N/A';
+                            
+                            if (method === 'Available Balance') return 'الرصيد المتاح';
+                            if (method === 'Escrow') return 'الضمان';
+                            
+                            // Handle card types ending in digits
+                            if (method.startsWith('Visa ending in')) {
+                              return method.replace('Visa ending in', 'Visa (آخر أرقام البطاقة)');
+                            }
+                            if (method.startsWith('MasterCard ending in')) {
+                              return method.replace('MasterCard ending in', 'MasterCard (آخر أرقام البطاقة)');
+                            }
+                            if (method.startsWith('American Express ending in')) {
+                              return method.replace('American Express ending in', 'American Express (آخر أرقام البطاقة)');
+                            }
+                            if (method.startsWith('Discover ending in')) {
+                              return method.replace('Discover ending in', 'Discover (آخر أرقام البطاقة)');
+                            }
+                            
+                            return method;
+                          })()}
+                        </TableCell>
                         <TableCell>{transaction.currency}</TableCell> {/* Display currency */}
                         <TableCell>{getStatusBadge(transaction.status)}</TableCell>
                         <TableCell>{new Date(transaction.timestamp).toLocaleString("ar-EG")}</TableCell>
