@@ -59,9 +59,6 @@ export function ClientFinancials() {
   const { token, isLoading: authLoading, error: authError } = useSelector((state) => state.auth);
   const { transactions, isLoading: transactionsLoading, error: transactionsError } = useSelector((state) => state.transactions);
 
-  const [payments, setPayments] = useState([]);
-  const [paymentsLoading, setPaymentsLoading] = useState(true);
-  const [paymentsError, setPaymentsError] = useState(null);
   const [withdrawalError, setWithdrawalError] = useState(null);
 
   // Add New Payment Method form state and methods
@@ -99,28 +96,12 @@ export function ClientFinancials() {
   const [paymentMethods, setPaymentMethods] = useState([]);
 
 
-  // Function to fetch all financial data including payment methods and transactions
-  const fetchFinancialData = async () => {
+  // Function to fetch payment methods
+  const fetchPaymentMethods = async () => {
     if (!token) {
-      setPaymentsError("المستخدم غير مصادق عليه.");
-      setPaymentsLoading(false);
       return;
     }
     try {
-      setPaymentsLoading(true);
-      // Fetch payments
-      const paymentsData = await api.get("/payments/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setPayments(paymentsData.results.map(payment => ({
-        id: payment.id,
-        amount: `$${payment.amount}`,
-        type: payment.payment_type,
-        status: payment.status,
-        date: new Date(payment.timestamp).toLocaleDateString("ar-EG"),
-      })));
-
-      // Fetch payment methods
       const paymentMethodsData = await api.get("/payments/paymentmethods/", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -132,17 +113,14 @@ export function ClientFinancials() {
         setDepositValue("paymentMethodId", "");
         setWithdrawalValue("paymentMethodId", "");
       }
-
     } catch (err) {
-      setPaymentsError(err.message || "فشل في جلب البيانات المالية.");
-    } finally {
-      setPaymentsLoading(false);
+      console.error("Failed to fetch payment methods:", err);
     }
   };
 
 
   useEffect(() => {
-    fetchFinancialData();
+    fetchPaymentMethods();
     dispatch(getUserTransactions());
   }, [token, authLoading, dispatch]);
 
@@ -151,7 +129,7 @@ export function ClientFinancials() {
       .unwrap()
       .then(() => {
         setDepositValue("amount", "");
-        fetchFinancialData(); // Refetch financial data after successful deposit
+        fetchPaymentMethods(); // Refetch payment methods after successful deposit
       })
       .catch((err) => {
         console.error("Deposit failed:", err);
@@ -164,7 +142,7 @@ export function ClientFinancials() {
       .then(() => {
         setWithdrawalValue("amount", "");
         setWithdrawalError(null); // Clear any previous withdrawal errors on success
-        fetchFinancialData(); // Refetch financial data after successful withdrawal
+        fetchPaymentMethods(); // Refetch payment methods after successful withdrawal
       })
       .catch((err) => {
         console.error("Withdrawal failed:", err);
@@ -190,7 +168,7 @@ export function ClientFinancials() {
       
       alert("تم إضافة طريقة الدفع بنجاح!");
       resetAddPaymentMethodForm();
-      fetchFinancialData(); // Refresh payment methods after adding a new one
+      fetchPaymentMethods(); // Refresh payment methods after adding a new one
     } catch (err) {
       alert(err.message || "فشل في إضافة طريقة الدفع.");
       console.error("Add payment method failed:", err);
@@ -267,11 +245,10 @@ export function ClientFinancials() {
     return <Badge className={colorClass}>{translatedType}</Badge>;
   };
 
-  if (authLoading || paymentsLoading || transactionsLoading) {
+  if (authLoading || transactionsLoading) {
     return <div className="text-center p-8" dir="rtl">جاري تحميل البيانات المالية...</div>;
   }
   if (authError) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ في المصادقة: {authError}</div>;
-  if (paymentsError) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ في سجل الدفعات: {paymentsError}</div>;
   if (transactionsError) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ في سجل المعاملات: {transactionsError}</div>;
 
   return (
@@ -557,43 +534,6 @@ export function ClientFinancials() {
         </CardContent>
       </Card>
 
-      {/* Payment History Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <CreditCard className="h-5 w-5" />
-            <span>سجل المدفوعات</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-6">
-          {payments.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">
-              لا توجد دفعات مسجلة حتى الآن.
-            </p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>المبلغ</TableHead>
-                  <TableHead>النوع</TableHead>
-                  <TableHead>الحالة</TableHead>
-                  <TableHead>التاريخ</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {payments.map((payment) => (
-                  <TableRow key={payment.id}>
-                    <TableCell>{payment.amount}</TableCell>
-                    <TableCell>{payment.type}</TableCell>
-                    <TableCell>{getStatusBadge(payment.status)}</TableCell>
-                    <TableCell>{payment.date}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }
