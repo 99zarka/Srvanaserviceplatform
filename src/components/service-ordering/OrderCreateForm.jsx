@@ -4,7 +4,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createOrder, clearError } from '../../redux/orderSlice'; // Import clearError
 import api from '../../utils/api';
 import OrderForm from '../OrderForm'; // Import the reusable OrderForm
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { toast } from 'sonner';
 
 import { useRef } from 'react';
@@ -139,15 +138,11 @@ const OrderCreateForm = () => {
   const initialData = currentFormData;
 
   return (
-    <div className="max-w-2xl mx-auto p-6" dir="rtl">
-      <Card>
-        <CardHeader>
-          <CardTitle>إنشاء طلب خدمة جديد</CardTitle>
-          <CardDescription>
-            انشر مشروعك ودع الفنيين المؤهلين يقدمون عروضهم عليه
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+    <div className="flex flex-col items-center justify-center min-h-screen py-8 px-4" dir="rtl">
+      <div className="w-full max-w-2xl bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">إنشاء طلب خدمة جديد</h2>
+        <p className="text-gray-600 mb-6">انشر مشروعك ودع الفنيين المؤهلين يقدمون عروضهم عليه</p>
+        <div>
           <OrderForm
             key={formKey} // Add key to force remount and reset
             initialData={initialData}
@@ -163,8 +158,8 @@ const OrderCreateForm = () => {
             formClearErrors={formClearErrorsRef} // Pass ref for clearErrors
             serverErrorMessage={serverErrorMessage} // Pass global server error message
           />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

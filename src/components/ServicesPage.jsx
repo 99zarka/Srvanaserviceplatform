@@ -66,29 +66,15 @@ export function ServicesPage() {
 
   return (
     <div className="min-h-screen" dir="rtl">
-      {/* Hero Section */}
-      <section className="bg-secondary text-secondary-foreground py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="mb-6 flex items-center justify-center space-x-2">
-            <ListFilter className="h-9 w-9" />
-            <span>خدماتنا</span>
-          </h1>
-          <p className="max-w-3xl mx-auto text-secondary-foreground/90">
-            تصفح مجموعتنا الواسعة من الخدمات المنزلية الاحترافية. جميع العمال موثقون،
-            ومقيمون، ومستعدون للمساعدة في مشاريعك.
-          </p>
-        </div>
-      </section>
-
       {/* Services Grid */}
       <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {(services || []).map((service) => (
               <div
                 key={service.service_id || service.id}
                 style={{
-                  width: '320px',
+                  width: '100%',
                   minHeight: '350px',
                   padding: '20px',
                   color: 'white',
@@ -98,10 +84,9 @@ export function ServicesPage() {
                   display: 'flex',
                   flexDirection: 'column',
                   cursor: 'pointer',
-                  transformOrigin: 'right bottom',
-                  transition: 'all 0.6s cubic-bezier(0.23, 1, 0.320, 1)'
+                  transition: 'all 0.3s ease-in-out'
                 }}
-                className="hover:rotate-[8deg]"
+                className="hover:-translate-y-2 hover:shadow-xl"
               >
                 {/* Header */}
                 <div className="mb-4">

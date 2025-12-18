@@ -35,7 +35,71 @@ export function BrowseUsersPage() {
   }, [error, dispatch]);
 
   if (isLoading) {
-    return <div className="text-center p-8" dir="rtl">جاري تحميل المستخدمين...</div>;
+    return (
+      <div className="container mx-auto p-4" dir="rtl">
+        <h1 className="text-3xl font-bold mb-6 text-center">تصفح المستخدمين</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {[...Array(8)].map((_, index) => (
+            <div
+              key={index}
+              style={{
+                width: '100%',
+                height: '200px',
+                background: '#ffff',
+                boxShadow: '0 1px 25px rgba(0,0,0,0.2)',
+                borderRadius: '8px',
+                padding: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '15px'
+              }}
+            >
+              <div
+                style={{
+                  width: '90px',
+                  height: '90px',
+                  background: 'linear-gradient(120deg, #e5e5e5 30%, #f0f0f0 38%, #f0f0f0 40%, #e5e5e5 48%)',
+                  borderRadius: '50%',
+                  backgroundSize: '200% 100%',
+                  backgroundPosition: '100% 0',
+                  animation: 'shimmer 2s infinite'
+                }}
+              />
+              <div
+                style={{
+                  width: '120px',
+                  height: '15px',
+                  borderRadius: '5px',
+                  background: 'linear-gradient(120deg, #e5e5e5 30%, #f0f0f0 38%, #f0f0f0 40%, #e5e5e5 48%)',
+                  backgroundSize: '200% 100%',
+                  backgroundPosition: '100% 0',
+                  animation: 'shimmer 2s infinite'
+                }}
+              />
+              <div
+                style={{
+                  width: '90px',
+                  height: '12px',
+                  borderRadius: '5px',
+                  background: 'linear-gradient(120deg, #e5e5e5 30%, #f0f0f0 38%, #f0f0f0 40%, #e5e5e5 48%)',
+                  backgroundSize: '200% 100%',
+                  backgroundPosition: '100% 0',
+                  animation: 'shimmer 2s infinite'
+                }}
+              />
+            </div>
+          ))}
+        </div>
+        <style>{`
+          @keyframes shimmer {
+            100% {
+              background-position: -100% 0;
+            }
+          }
+        `}</style>
+      </div>
+    );
   }
 
   if (!users || users.length === 0) {

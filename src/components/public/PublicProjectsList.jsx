@@ -271,148 +271,110 @@ const PublicProjectsList = () => {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" style={{ backgroundColor: '#1A2B4C', padding: '2rem', borderRadius: '10px' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full px-4 sm:px-6 lg:px-8">
           {filteredOrders.map((order) => (
-            <div key={order.order_id} className="relative group" style={{ width: '100%', maxWidth: '320px', margin: '0 auto', color: 'white' }}>
-              {/* Glassmorphism card */}
-              <div
-                style={{
-                  width: '100%',
-                  minHeight: '280px',
-                  padding: '1rem',
-                  backgroundColor: 'rgba(255, 255, 255, 0.074)',
-                  border: '1px solid rgba(255, 255, 255, 0.222)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
-                  borderRadius: '0.7rem',
-                  transition: 'all ease 0.3s',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between'
-                }}
-                className="hover:shadow-[0px_0px_20px_1px_rgba(244,196,48,0.25)] hover:border-[rgba(255,255,255,0.454)]"
-              >
-                {/* Card Content */}
-                <div>
-                  <h2 className="text-2xl font-medium mb-4" style={{ letterSpacing: '0.1em' }}>
-                    {order.service?.arabic_name || 'غير متوفر'}
-                  </h2>
-                  
-                  <div className="mb-4">
-                    <strong className="block mb-2 text-sm">الوصف</strong>
-                    <p className="text-sm font-light mb-0" style={{ letterSpacing: '0.1em' }}>
-                      {order.problem_description.substring(0, 100)}...
-                    </p>
-                  </div>
-                  
-                  <div className="mb-2">
-                    <span className="text-xs font-light flex items-center mb-1">
-                      <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                      </svg>
-                      {order.requested_location}
+            <div
+              key={order.order_id}
+              style={{
+                width: '100%',
+                minHeight: '380px',
+                padding: '20px',
+                color: 'white',
+                background: 'linear-gradient(#1A2B4C, #1A2B4C) padding-box, linear-gradient(145deg, transparent 35%, #F4C430, #1A2B4C) border-box',
+                border: '2px solid transparent',
+                borderRadius: '8px',
+                display: 'flex',
+                flexDirection: 'column',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease-in-out'
+              }}
+              className="hover:-translate-y-2 hover:shadow-xl"
+            >
+                {/* Header */}
+                <div className="mb-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-gray-400 text-sm">
+                      مشروع متاح
                     </span>
-                  </div>
-                  
-                  <div className="mb-3">
-                    <span className="text-xs font-light flex items-center">
-                      <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                      </svg>
-                      {order.scheduled_date} {order.scheduled_time_start}
-                    </span>
-                  </div>
-                  
-                  {order.expected_price && (
-                    <div className="mb-3">
-                      <span className="text-xs font-light">السعر المتوقع: </span>
-                      <span className="text-sm font-medium" style={{ marginRight: '0.2rem', color: '#F4C430' }}>
-                        {order.expected_price} ج.م
-                      </span>
+                    <div className="w-12 h-12 bg-gradient-to-br from-[#F4C430] to-[#1A2B4C] rounded-lg flex items-center justify-center">
+                      <Calendar className="h-6 w-6 text-white" />
                     </div>
-                  )}
+                  </div>
                 </div>
 
-                {/* Buttons that appear on hover */}
-                <div 
-                  className="flex gap-2 transition-all duration-300 opacity-0 group-hover:opacity-100 mt-4"
-                  style={{
-                    transform: 'translateY(-10px)',
-                    transition: 'all 0.3s ease-in-out'
-                  }}
-                >
+                {/* Main Content */}
+                <div className="flex-1">
+                  <h3 className="text-2xl font-semibold mb-4">{order.service?.arabic_name || 'غير متوفر'}</h3>
+                  <p className="text-gray-300 mb-4 text-sm line-clamp-3">
+                    {order.problem_description}
+                  </p>
+                  
+                  {/* Info Badges */}
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center text-sm text-gray-300">
+                      <MapPin className="h-4 w-4 ml-2" />
+                      {order.requested_location}
+                    </div>
+                    <div className="flex items-center text-sm text-gray-300">
+                      <Calendar className="h-4 w-4 ml-2" />
+                      {order.scheduled_date} {order.scheduled_time_start}
+                    </div>
+                    {order.expected_price && (
+                      <div className="flex items-center text-sm text-gray-300">
+                        <DollarSign className="h-4 w-4 ml-2" />
+                        <span className="font-semibold" style={{ color: '#F4C430' }}>
+                          {order.expected_price} ج.م
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Footer Buttons */}
+                <div className="mt-auto space-y-2">
                   <Link
                     to={`/projects/${order.order_id}`}
-                    className="flex-1 text-center py-2 px-3 rounded text-xs font-semibold transition-all duration-200"
                     style={{
-                      backgroundColor: 'rgba(244, 196, 48, 0.2)',
-                      color: 'white',
-                      textDecoration: 'none',
-                      border: '1px solid rgba(244, 196, 48, 0.5)'
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '100%',
+                      padding: '10px',
+                      backgroundColor: 'transparent',
+                      color: '#F4C430',
+                      fontWeight: 600,
+                      fontSize: '14px',
+                      borderRadius: '6px',
+                      border: '2px solid #F4C430',
+                      transition: 'all 0.3s',
+                      textDecoration: 'none'
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(244, 196, 48, 0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(244, 196, 48, 0.2)';
-                    }}
+                    className="hover:bg-[#F4C430] hover:text-[#1A2B4C]"
                   >
                     عرض التفاصيل
                   </Link>
                   <Link
                     to={`/projects/${order.order_id}/offer`}
-                    className="flex-1 text-center py-2 px-3 rounded text-xs font-semibold transition-all duration-200"
                     style={{
-                      backgroundColor: 'rgba(244, 196, 48, 0.2)',
-                      color: 'white',
-                      textDecoration: 'none',
-                      border: '1px solid rgba(244, 196, 48, 0.5)'
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '100%',
+                      padding: '10px',
+                      backgroundColor: '#F4C430',
+                      color: '#1A2B4C',
+                      fontWeight: 600,
+                      fontSize: '14px',
+                      borderRadius: '6px',
+                      transition: 'all 0.3s',
+                      textDecoration: 'none'
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(244, 196, 48, 0.4)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(244, 196, 48, 0.2)';
-                    }}
+                    className="hover:bg-[#FFD700] hover:scale-105"
                   >
                     قدم عرض
                   </Link>
                 </div>
               </div>
-
-              {/* Decorative elements */}
-              <div
-                style={{
-                  content: '""',
-                  backgroundColor: 'rgba(244, 196, 48, 0.3)',
-                  position: 'absolute',
-                  borderRadius: '50%',
-                  width: '6rem',
-                  height: '6rem',
-                  top: '30%',
-                  right: '7%',
-                  zIndex: -1,
-                  pointerEvents: 'none'
-                }}
-              />
-              <div
-                style={{
-                  content: '""',
-                  position: 'absolute',
-                  height: '3rem',
-                  width: '3rem',
-                  top: '8%',
-                  right: '5%',
-                  border: '1px solid rgba(244, 196, 48, 0.5)',
-                  borderRadius: '0.3rem',
-                  zIndex: -1,
-                  pointerEvents: 'none'
-                }}
-              />
-            </div>
           ))}
         </div>
       )}

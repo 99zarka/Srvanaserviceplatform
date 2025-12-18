@@ -94,8 +94,8 @@ export function Header() {
   }
 
   return (
-    <header className="bg-white/95 border-b-2 border-primary/10 sticky top-0 z-50 shadow-md backdrop-blur-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" dir="rtl">
+    <header className="sticky top-0 z-50 border-b-2 shadow-md bg-white/95 border-primary/10 backdrop-blur-sm">
+      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8" dir="rtl">
         <div className="flex items-center h-20 gap-4">
           {/* Right Side: Logo + Home Link */}
           <div className="flex items-center gap-6 shrink-0">
@@ -106,7 +106,7 @@ export function Header() {
               <img 
                 src={SrvanaLogo} 
                 alt="Srvana Logo" 
-                className="h-10 w-auto group-hover:scale-105 transition-transform duration-300"
+                className="w-auto h-10 transition-transform duration-300 group-hover:scale-105"
               />
             </Link>
             <Link
@@ -116,22 +116,22 @@ export function Header() {
               }`}
             >
               <span>الرئيسية</span>
-              <Home className="h-5 w-5" />
+              <Home className="w-5 h-5" />
             </Link>
           </div>
 
           {/* Center: Navigation Links */}
-          <nav className="hidden md:flex items-center flex-1 justify-evenly" dir="rtl">
+          <nav className="items-center flex-1 hidden md:flex justify-evenly" dir="rtl">
             {navItems.filter(item => item.path !== "/").map((item) => (
               item.isDropdown ? (
                 <DropdownMenu key={item.path}>
                   <DropdownMenuTrigger asChild>
                     <Button 
                       variant="ghost" 
-                      className="flex flex-row items-center gap-2 whitespace-nowrap font-semibold text-neutral-700 hover:text-primary hover:bg-primary/5 transition-all duration-300"
+                      className="flex flex-row items-center gap-2 font-semibold transition-all duration-300 whitespace-nowrap text-neutral-700 hover:text-primary hover:bg-primary/5"
                     >
                       <span>{item.name}</span>
-                      {item.icon && <item.icon className="h-5 w-5" />}
+                      {item.icon && <item.icon className="w-5 h-5" />}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" dir="rtl" className="min-w-[200px] shadow-lg border-primary/20">
@@ -139,10 +139,10 @@ export function Header() {
                       <DropdownMenuItem 
                         key={dropdownItem.id || dropdownItem.path} 
                         asChild 
-                        className="cursor-pointer hover:bg-primary/5 transition-colors"
+                        className="transition-colors cursor-pointer hover:bg-primary/5"
                       >
                         <Link to={dropdownItem.path} className="flex items-center gap-2 py-2">
-                          {dropdownItem.icon && <dropdownItem.icon className="h-4 w-4" />}
+                          {dropdownItem.icon && <dropdownItem.icon className="w-4 h-4" />}
                           <span>{dropdownItem.name}</span>
                         </Link>
                       </DropdownMenuItem>
@@ -158,33 +158,33 @@ export function Header() {
                   }`}
                 >
                   <span>{item.name}</span>
-                  {item.icon && <item.icon className="h-5 w-5" />}
+                  {item.icon && <item.icon className="w-5 h-5" />}
                 </Link>
               )
             ))}
           </nav>
 
           {/* Left Side: Auth Buttons */}
-          <div className="hidden md:flex items-center shrink-0">
+          <div className="items-center hidden md:flex shrink-0">
             <AuthSection />
           </div>
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden mr-auto p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+            className="p-2 mr-auto transition-colors rounded-lg md:hidden hover:bg-neutral-100"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
-              <X className="h-6 w-6 text-neutral-700" />
+              <X className="w-6 h-6 text-neutral-700" />
             ) : (
-              <Menu className="h-6 w-6 text-neutral-700" />
+              <Menu className="w-6 h-6 text-neutral-700" />
             )}
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-6 border-t-2 border-primary/10 bg-neutral-50 rounded-b-xl">
+          <div className="py-6 border-t-2 md:hidden border-primary/10 bg-neutral-50 rounded-b-xl">
             <nav className="flex flex-col space-y-3">
               {navItems.map((item) => (
                 <Link
@@ -195,11 +195,11 @@ export function Header() {
                     location.pathname === item.path ? "text-primary bg-white shadow-sm" : "text-neutral-700"
                   }`}
                 >
-                  {item.icon && <item.icon className="h-5 w-5" />}
+                  {item.icon && <item.icon className="w-5 h-5" />}
                   <span>{item.name}</span>
                 </Link>
               ))}
-              <div className="flex flex-col space-y-2 pt-4 border-t-2 border-primary/10 mt-4">
+              <div className="flex flex-col pt-4 mt-4 space-y-2 border-t-2 border-primary/10">
                 <AuthSection isMobile={true} closeMenu={() => setMobileMenuOpen(false)} />
               </div>
             </nav>
@@ -263,9 +263,9 @@ function AuthSection({ isMobile = false, closeMenu }) {
             <Button 
               variant="ghost" 
               size="sm" 
-              className="flex items-center gap-2 h-10 px-3 hover:bg-primary/5 hover:text-primary transition-all duration-300 font-medium"
+              className="flex items-center h-10 gap-2 px-3 font-medium transition-all duration-300 hover:bg-primary/5 hover:text-primary"
             >
-              <CircleUser className="h-5 w-5" />
+              <CircleUser className="w-5 h-5" />
               <span className="text-sm max-w-[100px] truncate">
                 {user.first_name ? user.first_name.split(' ')[0] : user.username || "مستخدم"}
               </span>
@@ -276,16 +276,16 @@ function AuthSection({ isMobile = false, closeMenu }) {
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild className="cursor-pointer hover:bg-primary/5">
               <Link to={`/profile/${user.user_id}`} className="flex items-center gap-2 py-2">
-                <CircleUser className="h-4 w-4" />
+                <CircleUser className="w-4 h-4" />
                 <span>الملف الشخصي</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               onClick={handleLogout} 
-              className="text-danger hover:bg-danger/5 hover:text-danger cursor-pointer py-2"
+              className="py-2 cursor-pointer text-danger hover:bg-danger/5 hover:text-danger"
             >
-              <LogOut className="h-4 w-4 ml-2" />
+              <LogOut className="w-4 h-4 ml-2" />
               <span>تسجيل الخروج</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -295,11 +295,11 @@ function AuthSection({ isMobile = false, closeMenu }) {
         {user.user_type?.user_type_name !== 'technician' && user.user_type?.user_type_name !== 'admin' && (
           <Button
             onClick={handleBecomeTechnician}
-            className="flex items-center gap-1 text-white h-9 px-3"
+            className="flex items-center gap-1 px-3 text-white h-9"
             style={{ backgroundColor: '#243a5e' }}
             size="sm"
           >
-            <Wrench className="h-4 w-4" />
+            <Wrench className="w-4 h-4" />
             <span className="text-sm">كن فنياً</span>
           </Button>
         )}
@@ -321,22 +321,22 @@ function AuthSection({ isMobile = false, closeMenu }) {
     <div className={`${isMobile ? "flex flex-col space-y-3" : "flex"} items-center gap-3`}>
       <Button
         asChild
-        className="bg-primary hover:bg-primary-600 text-white flex items-center gap-2 h-10 px-5 font-semibold shadow-md hover:shadow-lg transition-all duration-300"
+        className="flex items-center h-10 gap-2 px-5 font-semibold text-white transition-all duration-300 shadow-md bg-primary hover:bg-primary-600 hover:shadow-lg"
         onClick={isMobile ? closeMenu : undefined}
       >
         <Link to="/login">
-          <LogIn className="h-5 w-5" />
+          <LogIn className="w-5 h-5" />
           <span>تسجيل الدخول</span>
         </Link>
       </Button>
       <Button
         variant="outline"
         asChild
-        className="flex items-center gap-2 border-2 border-primary/30 hover:bg-primary/5 hover:border-primary text-primary h-10 px-5 font-semibold transition-all duration-300"
+        className="flex items-center h-10 gap-2 px-5 font-semibold transition-all duration-300 border-2 border-primary/30 hover:bg-primary/5 hover:border-primary text-primary"
         onClick={isMobile ? closeMenu : undefined}
       >
         <Link to="/signup">
-          <UserPlus className="h-5 w-5" />
+          <UserPlus className="w-5 h-5" />
           <span>إنشاء حساب</span>
         </Link>
       </Button>
@@ -392,14 +392,14 @@ function NotificationDropdown({ isMobile, closeMenu }) {
 
   if (isMobile) {
     return (
-      <div className="flex flex-col space-y-2 w-full">
+      <div className="flex flex-col w-full space-y-2">
         <div className="flex items-center justify-between">
           <span className="font-semibold">الإشعارات</span>
           {unreadCount > 0 && <Badge variant="destructive">{unreadCount}</Badge>}
         </div>
-        <div className="flex flex-col space-y-2 border rounded-md p-2 max-h-60 overflow-y-auto">
+        <div className="flex flex-col p-2 space-y-2 overflow-y-auto border rounded-md max-h-60">
           {displayNotifications.length === 0 ? (
-            <span className="text-sm text-muted-foreground p-2">لا توجد إشعارات</span>
+            <span className="p-2 text-sm text-muted-foreground">لا توجد إشعارات</span>
           ) : (
             displayNotifications.map((notification) => (
               <div 
@@ -435,7 +435,7 @@ function NotificationDropdown({ isMobile, closeMenu }) {
           {unreadCount > 0 && (
             <Badge 
               variant="destructive" 
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+              className="absolute flex items-center justify-center w-5 h-5 p-0 text-xs -top-1 -right-1"
             >
               {unreadCount}
             </Badge>
@@ -443,14 +443,14 @@ function NotificationDropdown({ isMobile, closeMenu }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80" dir="rtl">
-        <DropdownMenuLabel className="flex justify-between items-center">
+        <DropdownMenuLabel className="flex items-center justify-between">
           <span>الإشعارات</span>
           {unreadCount > 0 && <Badge variant="secondary">{unreadCount} غير مقروء</Badge>}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <ScrollArea className="h-[300px]">
           {displayNotifications.length === 0 ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">
+            <div className="p-4 text-sm text-center text-muted-foreground">
               لا توجد إشعارات جديدة
             </div>
           ) : (
@@ -468,7 +468,7 @@ function NotificationDropdown({ isMobile, closeMenu }) {
                     {notification.title}
                   </span>
                   {!notification.is_read && (
-                    <span className="h-2 w-2 rounded-full bg-blue-500" />
+                    <span className="w-2 h-2 bg-blue-500 rounded-full" />
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground line-clamp-2">
@@ -504,10 +504,10 @@ function VerificationStatusWidget({ verificationStatus, onBecomeTechnician, isMo
     return (
       <Button
         onClick={onBecomeTechnician}
-        className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white"
+        className="flex items-center space-x-2 text-white bg-blue-600 hover:bg-blue-700"
         size={isMobile ? "sm" : "default"}
       >
-        <Wrench className="h-4 w-4" />
+        <Wrench className="w-4 h-4" />
         <span>أصبح فنياً</span>
       </Button>
     );
@@ -543,16 +543,16 @@ function VerificationStatusWidget({ verificationStatus, onBecomeTechnician, isMo
     return (
       <div className="flex flex-col space-y-2">
         <div className={`flex items-center space-x-2 px-3 py-1 rounded-md border ${config.color}`}>
-          <IconComponent className="h-4 w-4" />
+          <IconComponent className="w-4 h-4" />
           <span className="text-sm font-medium">{config.text}</span>
         </div>
         {config.showButton && (
           <Button
             onClick={onBecomeTechnician}
-            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white"
+            className="flex items-center space-x-2 text-white bg-blue-600 hover:bg-blue-700"
             size="sm"
           >
-            <Wrench className="h-4 w-4" />
+            <Wrench className="w-4 h-4" />
             <span>أصبح فنياً</span>
           </Button>
         )}
@@ -564,7 +564,7 @@ function VerificationStatusWidget({ verificationStatus, onBecomeTechnician, isMo
   if (compact) {
     return (
       <div className={`flex items-center space-x-1 px-2 py-1 rounded-md border ${config.color} h-8`}>
-        <IconComponent className="h-4 w-4" />
+        <IconComponent className="w-4 h-4" />
         <span className="text-xs font-medium">{config.text}</span>
       </div>
     );
@@ -573,16 +573,16 @@ function VerificationStatusWidget({ verificationStatus, onBecomeTechnician, isMo
   return (
     <div className="flex items-center space-x-2">
       <div className={`flex items-center space-x-2 px-3 py-1 rounded-md border ${config.color}`}>
-        <IconComponent className="h-4 w-4" />
+        <IconComponent className="w-4 h-4" />
         <span className="text-sm font-medium">{config.text}</span>
       </div>
       {config.showButton && (
         <Button
           onClick={onBecomeTechnician}
-          className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white"
+          className="flex items-center space-x-2 text-white bg-blue-600 hover:bg-blue-700"
           size="sm"
         >
-          <Wrench className="h-4 w-4" />
+          <Wrench className="w-4 h-4" />
           <span>أصبح فنياً</span>
         </Button>
       )}

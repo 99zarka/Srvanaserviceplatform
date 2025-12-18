@@ -122,36 +122,6 @@ const TechnicianBrowse = () => {
 
   return (
     <div className="container mx-auto p-6 min-h-screen" dir="rtl">
-      {/* Hero Section */}
-      <div className="mb-10 text-center relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-3xl -z-10"></div>
-        <div className="py-12 px-6">
-          <div className="flex items-center justify-center mb-4">
-            <TrendingUp className="h-12 w-12 text-primary ml-3" />
-            <h1 className="text-5xl font-extrabold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              تصفح الفنيين المعتمدين
-            </h1>
-          </div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            اختر من بين أفضل الفنيين المحترفين ووظفهم مباشرة لإنجاز مشاريعك بكفاءة عالية
-          </p>
-          <div className="flex items-center justify-center gap-6 mt-6">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              <span className="text-sm font-medium text-foreground">فنيون موثوقون</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-              <span className="text-sm font-medium text-foreground">تقييمات حقيقية</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Award className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-foreground">جودة مضمونة</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Error/Success Messages */}
       {error && (
         <div className="mb-6 p-4 rounded-md bg-destructive/10 border border-destructive text-destructive flex items-center gap-2">
@@ -414,150 +384,179 @@ const TechnicianBrowse = () => {
           
           {/* Technician cards */}
           {!loading && currentTechnicians.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
               {currentTechnicians.map((technician) => (
-                <Card 
+                <div 
                   key={technician.user_id} 
-                  className="group hover:shadow-2xl transition-all duration-300 border border-border hover:border-primary/40 rounded-xl overflow-hidden bg-gradient-to-br from-card to-card/50"
+                  style={{
+                    background: '#243a5e',
+                    width: '100%',
+                    paddingTop: '25px',
+                    paddingBottom: '25px',
+                    paddingLeft: '20px',
+                    paddingRight: '20px',
+                    border: '4px solid #3d5a7d',
+                    boxShadow: '0 6px 10px rgba(207, 212, 222, 1)',
+                    borderRadius: '10px',
+                    textAlign: 'center',
+                    color: '#fff',
+                    fontFamily: '"Poppins", sans-serif',
+                    transition: 'all 0.3s ease'
+                  }}
+                  className="hover:-translate-y-3"
                 >
-                  {/* Card Header with Profile */}
-                  <div className="relative bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-6 pb-8">
-                    <div className="flex flex-col items-center">
-                      {/* Profile Photo */}
-                      <div className="relative mb-4">
-                        <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-background shadow-lg group-hover:ring-primary/30 transition-all duration-300">
-                          {technician.profile_photo ? (
-                            <img 
-                              src={technician.profile_photo} 
-                              alt={`${technician.first_name} ${technician.last_name}`} 
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-muted flex items-center justify-center">
-                              <User className="h-12 w-12 text-muted-foreground" /> 
-                            </div>
-                          )}
-                        </div>
-                        {/* Verification Badge */}
-                        {technician.verification_status === "Verified" && (
-                          <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-1.5 shadow-lg">
-                            <CheckCircle className="h-5 w-5 text-primary-foreground" />
-                          </div>
-                        )}
-                        {/* Availability Indicator */}
-                        <div className="absolute -top-1 -left-1 bg-green-500 rounded-full p-1.5 shadow-lg animate-pulse">
-                          <div className="w-2 h-2 bg-white rounded-full"></div>
-                        </div>
+                  {/* User Picture */}
+                  <div 
+                    style={{
+                      overflow: 'hidden',
+                      objectFit: 'cover',
+                      width: '5rem',
+                      height: '5rem',
+                      border: '4px solid #3d5a7d',
+                      borderRadius: '999px',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      margin: 'auto',
+                      position: 'relative'
+                    }}
+                  >
+                    {technician.profile_photo ? (
+                      <img 
+                        src={technician.profile_photo} 
+                        alt={`${technician.first_name} ${technician.last_name}`} 
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                    ) : (
+                      <User style={{ width: '2.5rem', height: '2.5rem' }} />
+                    )}
+                    {/* Verification Badge */}
+                    {technician.verification_status === "Verified" && (
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '-5px',
+                        right: '-5px',
+                        background: '#F4C430',
+                        borderRadius: '50%',
+                        padding: '4px',
+                        border: '2px solid #243a5e'
+                      }}>
+                        <CheckCircle style={{ width: '16px', height: '16px', color: '#243a5e' }} />
                       </div>
-
-                      {/* Name and Title */}
-                      <h3 className="text-xl font-bold text-foreground text-center mb-1">
-                        {technician.first_name} {technician.last_name}
-                      </h3>
-                      
-                      {/* Specialization Badge */}
-                      <Badge variant="secondary" className="mb-3 px-3 py-1 text-xs font-medium">
-                        <Wrench className="h-3 w-3 ml-1" />
-                        {technician.specialization || 'غير محدد'}
-                      </Badge>
-
-                      {/* Rating Display */}
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="flex items-center gap-1">
-                          {renderStars(technician.overall_rating || 0)}
-                        </div>
-                        <span className="text-lg font-bold text-foreground">
-                          {technician.overall_rating?.toFixed(1) || '0.0'}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          ({technician.num_reviews || 0} تقييم)
-                        </span>
+                    )}
+                  </div>
+                  
+                  {/* Name */}
+                  <h3 
+                    style={{
+                      margin: 0,
+                      marginTop: '20px',
+                      fontWeight: '600',
+                      fontSize: '18px'
+                    }}
+                  >
+                    {technician.first_name} {technician.last_name}
+                    <span 
+                      style={{
+                        display: 'block',
+                        fontWeight: '200',
+                        fontSize: '14px',
+                        marginTop: '5px'
+                      }}
+                    >
+                      {technician.specialization || 'فني محترف'}
+                    </span>
+                  </h3>
+                  
+                  {/* Rating & Stats */}
+                  <div style={{ marginTop: '15px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', gap: '2px' }}>
+                        {renderStars(technician.overall_rating || 0)}
+                      </div>
+                      <span style={{ fontSize: '14px', fontWeight: '600' }}>
+                        {technician.overall_rating?.toFixed(1) || '0.0'}
+                      </span>
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', fontSize: '13px' }}>
+                      <div>
+                        <span style={{ fontWeight: '700' }}>{technician.num_jobs_completed || 0}</span> وظيفة
+                      </div>
+                      <div style={{ width: '1px', background: '#3d5a7d' }}></div>
+                      <div>
+                        <span style={{ fontWeight: '700' }}>{technician.success_rate || 100}%</span> نجاح
                       </div>
                     </div>
                   </div>
-
-                  {/* Card Content */}
-                  <CardContent className="p-6 space-y-4">
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-muted/50 rounded-lg p-3 text-center">
-                        <div className="flex items-center justify-center mb-1">
-                          <Briefcase className="h-4 w-4 text-primary" />
-                        </div>
-                        <div className="text-xl font-bold text-foreground">
-                          {technician.num_jobs_completed || 0}
-                        </div>
-                        <div className="text-xs text-muted-foreground">وظيفة مكتملة</div>
-                      </div>
-                      
-                      <div className="bg-muted/50 rounded-lg p-3 text-center">
-                        <div className="flex items-center justify-center mb-1">
-                          <Award className="h-4 w-4 text-primary" />
-                        </div>
-                        <div className="text-xl font-bold text-foreground">
-                          {technician.success_rate ? `${technician.success_rate}%` : '100%'}
-                        </div>
-                        <div className="text-xs text-muted-foreground">معدل النجاح</div>
-                      </div>
-                    </div>
-
-                    {/* Skills/Expertise Badges */}
-                    {technician.skills && technician.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {technician.skills.slice(0, 4).map((skill, idx) => (
-                          <Badge 
-                            key={idx} 
-                            variant="outline" 
-                            className="text-xs border-primary/30 text-foreground hover:bg-primary/10"
-                          >
-                            {skill}
-                          </Badge>
-                        ))}
-                        {technician.skills.length > 4 && (
-                          <Badge variant="outline" className="text-xs border-primary/30">
-                            +{technician.skills.length - 4}
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Bio */}
-                    {technician.bio && (
-                      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
-                        {technician.bio}
-                      </p>
-                    )}
-
-                    {/* Location */}
-                    {technician.address && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
-                        <span className="truncate">{technician.address}</span>
-                      </div>
-                    )}
-
-                    {/* Divider */}
-                    <div className="border-t border-border"></div>
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => handleViewTechnicianProfile(technician.user_id)}
-                        className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold group-hover:shadow-lg transition-all duration-300"
-                      >
-                        <Briefcase className="h-4 w-4 ml-2" />
-                        توظيف مباشر
-                      </Button>
-                      <Button
-                        onClick={() => handleViewTechnicianProfile(technician.user_id)}
-                        variant="outline"
-                        className="px-4 border-primary/30 hover:bg-primary/10 hover:border-primary transition-all duration-300"
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                  
+                  {/* Divider */}
+                  <div style={{
+                    width: '100%',
+                    height: '2px',
+                    margin: '20px 0',
+                    background: '#3d5a7d'
+                  }}></div>
+                  
+                  {/* Action Buttons */}
+                  <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                    <button
+                      onClick={() => handleViewTechnicianProfile(technician.user_id)}
+                      style={{
+                        flex: 1,
+                        padding: '10px 20px',
+                        border: '2px solid #F4C430',
+                        borderRadius: '6px',
+                        fontWeight: '600',
+                        fontSize: '13px',
+                        color: '#243a5e',
+                        background: '#F4C430',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s',
+                        textTransform: 'uppercase'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#fff';
+                        e.currentTarget.style.color = '#243a5e';
+                        e.currentTarget.style.borderColor = '#fff';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#F4C430';
+                        e.currentTarget.style.color = '#243a5e';
+                        e.currentTarget.style.borderColor = '#F4C430';
+                      }}
+                    >
+                      عرض الملف
+                    </button>
+                    <button
+                      onClick={() => handleViewTechnicianProfile(technician.user_id)}
+                      style={{
+                        padding: '10px',
+                        border: '2px solid #3d5a7d',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        background: 'transparent',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#3d5a7d';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      <MessageCircle style={{ width: '18px', height: '18px' }} />
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           )}

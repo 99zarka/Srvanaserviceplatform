@@ -154,7 +154,7 @@ const OrderForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8 bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col space-y-4">
       {Object.keys(errors).length > 0 && (
         <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
           <span className="font-medium">الرجاء تصحيح الأخطاء التالية:</span>
@@ -183,7 +183,7 @@ const OrderForm = ({
             control={control}
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger className={errors.service_id ? "border-red-500" : ""}>
+                <SelectTrigger className={`bg-gray-100 text-gray-900 border-0 rounded-md p-2 focus:bg-gray-200 focus:outline-none focus:ring-1 transition ease-in-out duration-150 ${errors.service_id ? "focus:ring-red-500" : "focus:ring-blue-500"}`}>
                   <SelectValue placeholder="اختر خدمة" />
                 </SelectTrigger>
                 <SelectContent>
@@ -216,7 +216,7 @@ const OrderForm = ({
                   type="number"
                   step="1"
                   placeholder="مثال: 250.00"
-                  className={errors.offered_price ? "border-red-500" : ""}
+                  className={`bg-gray-100 text-gray-900 border-0 rounded-md p-2 focus:bg-gray-200 focus:outline-none focus:ring-1 transition ease-in-out duration-150 ${errors.offered_price ? "focus:ring-red-500" : "focus:ring-blue-500"}`}
                   {...field}
                   onChange={(e) => field.onChange(e.target.value === '' ? '' : parseFloat(e.target.value))}
                   value={field.value === 0 ? '' : field.value}
@@ -241,7 +241,7 @@ const OrderForm = ({
                   type="number"
                   step="1"
                   placeholder="مثال: 100.00"
-                  className={errors.final_price ? "border-red-500" : ""}
+                  className={`bg-gray-100 text-gray-900 border-0 rounded-md p-2 focus:bg-gray-200 focus:outline-none focus:ring-1 transition ease-in-out duration-150 ${errors.final_price ? "focus:ring-red-500" : "focus:ring-blue-500"}`}
                   {...field}
                   onChange={(e) => field.onChange(e.target.value === '' ? '' : parseFloat(e.target.value))}
                   value={field.value === 0 ? '' : field.value}
@@ -266,7 +266,7 @@ const OrderForm = ({
                   type="number"
                   step="1"
                   placeholder="مثال: 150.00"
-                  className={errors.expected_price ? "border-red-500" : ""}
+                  className={`bg-gray-100 text-gray-900 border-0 rounded-md p-2 focus:bg-gray-200 focus:outline-none focus:ring-1 transition ease-in-out duration-150 ${errors.expected_price ? "focus:ring-red-500" : "focus:ring-blue-500"}`}
                   {...field}
                   onChange={(e) => field.onChange(e.target.value === '' ? '' : parseFloat(e.target.value))}
                   value={field.value === 0 ? '' : field.value}
@@ -290,7 +290,7 @@ const OrderForm = ({
               id="problem_description"
               placeholder="صف المشكلة بالتفصيل (على سبيل المثال: 'صنبور مطبخ يسرب...')"
               rows={4}
-              className={errors.problem_description ? "border-red-500" : ""}
+              className={`bg-gray-100 text-gray-900 border-0 rounded-md p-2 focus:bg-gray-200 focus:outline-none focus:ring-1 transition ease-in-out duration-150 ${errors.problem_description ? "focus:ring-red-500" : "focus:ring-blue-500"}`}
               {...field}
             />
           )}
@@ -311,7 +311,7 @@ const OrderForm = ({
                           id="governorate"
                           value={field.value}
                           onChange={(e) => field.onChange(e.target.value)}
-                          className={`w-full ${errors.governorate ? "border-red-500" : ""}`}
+                          className={`w-full bg-gray-100 text-gray-900 border-0 rounded-md p-2 focus:bg-gray-200 focus:outline-none focus:ring-1 transition ease-in-out duration-150 ${errors.governorate ? "focus:ring-red-500" : "focus:ring-blue-500"}`}
                         />
                       )}
                     />
@@ -325,7 +325,7 @@ const OrderForm = ({
               <Input
                 id="detailed_address"
                 placeholder="مثال: 123 الشارع الرئيسي، شقة 4ب"
-                className={errors.detailed_address ? "border-red-500" : ""}
+                className={`bg-gray-100 text-gray-900 border-0 rounded-md p-2 focus:bg-gray-200 focus:outline-none focus:ring-1 transition ease-in-out duration-150 ${errors.detailed_address ? "focus:ring-red-500" : "focus:ring-blue-500"}`}
                 {...field}
               />
             )}
@@ -345,9 +345,9 @@ const OrderForm = ({
                   <PopoverTrigger asChild>
                     <Button
                       variant={"outline"}
-                      className={`w-full justify-start text-left font-normal ${
+                      className={`w-full justify-start text-left font-normal bg-gray-100 text-gray-900 border-0 rounded-md p-2 focus:bg-gray-200 focus:outline-none focus:ring-1 transition ease-in-out duration-150 ${
                         !field.value && "text-muted-foreground"
-                      } ${errors.scheduled_date ? "border-red-500" : ""}`}
+                      } ${errors.scheduled_date ? "focus:ring-red-500" : "focus:ring-blue-500"}`}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {field.value ? format(new Date(field.value), "PPP") : <span>اختر تاريخًا</span>}
@@ -378,7 +378,7 @@ const OrderForm = ({
                 <Input
                   id="scheduled_time_start"
                   type="time"
-                  className={errors.scheduled_time_start ? "border-red-500" : ""}
+                  className={`bg-gray-100 text-gray-900 border-0 rounded-md p-2 focus:bg-gray-200 focus:outline-none focus:ring-1 transition ease-in-out duration-150 ${errors.scheduled_time_start ? "focus:ring-red-500" : "focus:ring-blue-500"}`}
                   {...field}
                 />
               )}
@@ -397,7 +397,7 @@ const OrderForm = ({
                 <Input
                   id="scheduled_time_end"
                   type="time"
-                  className={errors.scheduled_time_end ? "border-red-500" : ""}
+                  className={`bg-gray-100 text-gray-900 border-0 rounded-md p-2 focus:bg-gray-200 focus:outline-none focus:ring-1 transition ease-in-out duration-150 ${errors.scheduled_time_end ? "focus:ring-red-500" : "focus:ring-blue-500"}`}
                   {...field}
                 />
               )}
@@ -419,6 +419,7 @@ const OrderForm = ({
                   id="offer_description"
                   placeholder="أضف أي ملاحظات أو أسئلة محددة للفني."
                   rows={3}
+                  className="bg-gray-100 text-gray-900 border-0 rounded-md p-2 focus:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150"
                   {...field}
                 />
               )}
@@ -427,14 +428,19 @@ const OrderForm = ({
         )}
 
         <div className="flex flex-col sm:flex-row-reverse gap-4">
-          <Button type="submit" className="w-full sm:w-auto flex-1" disabled={isSubmitting}>
+          <Button 
+            type="submit" 
+            className="w-full sm:w-auto flex-1 text-white font-bold py-2 px-4 rounded-md mt-4 transition-all ease-in-out duration-300 hover:scale-105 hover:shadow-xl transform" 
+            style={{ background: 'linear-gradient(to right, #1A2B4C, #F4C430)' }}
+            disabled={isSubmitting}
+          >
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 <span>جاري الإرسال...</span>
               </>
             ) : (
-              'إرسال'
+              'إرسال الطلب'
             )}
           </Button>
           {showCancelButton && (
