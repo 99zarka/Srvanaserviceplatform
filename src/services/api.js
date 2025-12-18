@@ -181,7 +181,7 @@ export const api = createApi({
     }),
     // Orders with disputes endpoint for clients
     getClientOrdersWithDisputes: builder.query({
-      query: () => '/orders/?has_dispute=true&role=client',
+      query: () => '/orders/?has_dispute=true&role=client&page_size=2',
       providesTags: ['Order'],
     }),
 

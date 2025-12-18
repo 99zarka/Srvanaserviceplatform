@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { MessageSquare, ArrowRight, User, Clock, MessageCircle } from "lucide-react";
+import { MessageSquare, ArrowRight, User, Clock, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import api from "../../utils/api";
 import { Button } from "../ui/button";
@@ -11,8 +11,11 @@ export function ClientMessages() {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [totalCount, setTotalCount] = useState(0);
 
- useEffect(() => {
+  useEffect(() => {
     const fetchConversations = async () => {
       if (!token || !user) {
         setError("المستخدم غير مصادق عليه.");
@@ -21,23 +24,25 @@ export function ClientMessages() {
       }
       try {
         setLoading(true);
-        // Fetch conversations from the backend
-        const response = await api.get("/chat/conversations/", {
+        setError(null);
+        // Fetch conversations from the backend with pagination
+        const response = await api.get(`/chat/conversations/?page=${page}&page_size=${pageSize}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Handle paginated response - extract results array
-        const data = response.results || response;
-        setConversations(Array.isArray(data) ? data : []);
+        // Handle paginated response
+        setConversations(response.results || []);
+        setTotalCount(response.count || 0);
       } catch (err) {
         setError(err.message || "فشل في جلب الرسائل.");
         setConversations([]);
+        setTotalCount(0);
       } finally {
         setLoading(false);
       }
     };
 
     fetchConversations();
-  }, [token, user]);
+  }, [token, user, page, pageSize]);
 
   if (loading) return (
     <div className="flex items-center justify-center h-screen bg-gradient-to-br from-gray-50 to-blue-50" dir="rtl">
@@ -220,6 +225,52 @@ export function ClientMessages() {
                     </Link>
                   );
                 })}
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="flex justify-between items-center p-4 border-t border-secondary/20">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-secondary/70 font-medium">عدد النتائج لكل صفحة:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(parseInt(e.target.value));
+                      setPage(1); // Reset to first page when page size changes
+                    }}
+                    className="border border-secondary/30 rounded-lg px-3 py-2 bg-white text-secondary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all duration-300"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={15}>15</option>
+                    <option value={20}>20</option>
+                  </select>
+                </div>
+                
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-secondary/70 font-medium">
+                    الصفحة {page} من {Math.ceil(totalCount / pageSize)}
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                      disabled={page === 1}
+                      className="rounded-xl hover:shadow-md transition-all duration-300 border-secondary/30 hover:border-secondary/50 bg-white hover:bg-gradient-to-br hover:from-primary/5 hover:to-secondary/5 text-secondary hover:text-secondary font-semibold"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPage(prev => Math.min(Math.ceil(totalCount / pageSize), prev + 1))}
+                      disabled={page === Math.ceil(totalCount / pageSize) || totalCount === 0}
+                      className="rounded-xl hover:shadow-md transition-all duration-300 border-secondary/30 hover:border-secondary/50 bg-white hover:bg-gradient-to-br hover:from-primary/5 hover:to-secondary/5 text-secondary hover:text-secondary font-semibold"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
