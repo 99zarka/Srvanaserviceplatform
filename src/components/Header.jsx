@@ -295,12 +295,8 @@ function AuthSection({ isMobile = false, closeMenu }) {
         {user.user_type?.user_type_name !== 'technician' && user.user_type?.user_type_name !== 'admin' && (
           <Button
             onClick={handleBecomeTechnician}
-<<<<<<< Updated upstream
-            className="flex items-center gap-2 bg-accent hover:bg-accent-600 text-neutral-900 h-10 px-4 font-semibold shadow-md hover:shadow-lg transition-all duration-300"
-=======
             className="flex items-center gap-1 text-white h-9 px-3"
             style={{ backgroundColor: '#243a5e' }}
->>>>>>> Stashed changes
             size="sm"
           >
             <Wrench className="h-4 w-4" />

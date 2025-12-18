@@ -23,20 +23,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Link } from "react-router-dom";
 import api from "../../utils/api";
 import { useSelector } from "react-redux";
-import BalanceDisplayAndTransfer from "../common/BalanceDisplayAndTransfer";
 
 export function ClientOverview() {
   const { token, user } = useSelector((state) => state.auth);
-  const { userBalances } = useSelector((state) => state.payments); // Get userBalances from paymentSlice
   const [stats, setStats] = useState([]);
   const [recentRequests, setRecentRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Extract balances from Redux state for display
-  const available_balance = parseFloat(userBalances.available_balance) || 0;
-  const in_escrow_balance = parseFloat(userBalances.in_escrow_balance) || 0;
-  const pending_balance = parseFloat(userBalances.pending_balance) || 0;
 
   useEffect(() => {
     const fetchClientDashboardData = async () => {
@@ -47,61 +40,19 @@ export function ClientOverview() {
       }
       try {
         setLoading(true);
-        // Fetch core dashboard stats (excluding balances, which come from Redux)
+        // Fetch core dashboard stats from API
         const statsData = await api.get("/dashboard/client/client-summary/", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // Update local stats, explicitly using balances from Redux state
+        // Update local stats using data from API response
         setStats([
-          { 
-            label: "الرصيد المتاح", 
-            value: `${available_balance.toFixed(2)} ج.م`, 
-            icon: Wallet, 
-            bgColor: "bg-success/10",
-            iconColor: "text-success",
-            accentColor: "bg-success"
-          },
-          { 
-            label: "في الضمان", 
-            value: `${in_escrow_balance.toFixed(2)} ج.م`, 
-            icon: Shield, 
-            bgColor: "bg-blue-50",
-            iconColor: "text-blue-600",
-            accentColor: "bg-blue-500"
-          },
-          { 
-            label: "الرصيد المعلق", 
-            value: `${pending_balance.toFixed(2)} ج.م`, 
-            icon: HourglassIcon, 
-            bgColor: "bg-warning/10",
-            iconColor: "text-warning",
-            accentColor: "bg-warning"
-          },
-          { 
-            label: "الطلبات النشطة", 
-            value: statsData.active_orders || 0, 
-            icon: Clock, 
-            bgColor: "bg-primary/10",
-            iconColor: "text-primary",
-            accentColor: "bg-primary"
-          },
-          { 
-            label: "المكتملة", 
-            value: statsData.completed_orders || 0, 
-            icon: CheckCircle, 
-            bgColor: "bg-success/10",
-            iconColor: "text-success",
-            accentColor: "bg-success"
-          },
-          { 
-            label: "إجمالي الإنفاق", 
-            value: `${statsData.total_spent ? parseFloat(statsData.total_spent).toFixed(2) : '0.00'} ج.م`, 
-            icon: TrendingUp, 
-            bgColor: "bg-accent/10",
-            iconColor: "text-accent-600",
-            accentColor: "bg-accent"
-          },
+          { label: "الرصيد المتاح", value: `${available_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-green-600" },
+          { label: "في الضمان", value: `${in_escrow_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-blue-600" },
+          { label: "الرصيد المعلق", value: `${pending_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-yellow-600" },
+          { label: "الطلبات النشطة", value: statsData.active_orders || 0, icon: Clock, color: "text-primary" },
+          { label: "المكتملة", value: statsData.completed_orders || 0, icon: CheckCircle, color: "text-green-600" },
+          { label: "إجمالي الإنفاق", value: `${statsData.total_spent ? parseFloat(statsData.total_spent).toFixed(2) : '0.00'} ج.م`, icon: CreditCard, color: "text-blue-600" },
         ]);
 
         // Fetch recent orders
@@ -112,6 +63,7 @@ export function ClientOverview() {
           id: req.order_id,
           service: req.service?.arabic_name || req.service?.service_name || "خدمة غير محددة",
           worker: req.associated_offer?.technician_user ? `${req.associated_offer.technician_user.first_name} ${req.associated_offer.technician_user.last_name}` : "لم يتم التعيين بعد",
+          technicianId: req.associated_offer?.technician_user?.user_id,
           status: req.order_status,
           date: new Date(req.creation_timestamp).toLocaleDateString("ar-EG"),
           amount: `${req.final_price || req.updated_price ? parseFloat(req.final_price || req.updated_price).toFixed(2) : '0.00'} ج.م`,
@@ -124,7 +76,7 @@ export function ClientOverview() {
     };
 
     fetchClientDashboardData();
-  }, [token, user, available_balance, in_escrow_balance, pending_balance]); // Include Redux balances in dependencies
+  }, [token, user]); // Remove balance dependencies since we're using API data directly
 
   const getStatusBadge = (status) => {
     const variants = {
@@ -193,8 +145,8 @@ export function ClientOverview() {
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen bg-neutral-50" dir="rtl">
       <div className="text-center">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-accent mb-4"></div>
-        <p className="text-neutral-600 text-lg">جاري تحميل لوحة التحكم...</p>
+        <div className="inline-block w-12 h-12 mb-4 border-4 rounded-full animate-spin border-primary border-t-accent"></div>
+        <p className="text-lg text-neutral-600">جاري تحميل لوحة التحكم...</p>
       </div>
     </div>
   );
@@ -204,10 +156,10 @@ export function ClientOverview() {
       <Card className="max-w-md border-danger">
         <CardContent className="pt-6">
           <div className="text-center">
-            <div className="h-16 w-16 text-danger mx-auto mb-4 rounded-full bg-danger/10 flex items-center justify-center">
+            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full text-danger bg-danger/10">
               <span className="text-2xl">⚠</span>
             </div>
-            <h3 className="text-xl font-bold text-neutral-800 mb-2">خطأ في التحميل</h3>
+            <h3 className="mb-2 text-xl font-bold text-neutral-800">خطأ في التحميل</h3>
             <p className="text-danger">{error}</p>
           </div>
         </CardContent>
@@ -216,27 +168,27 @@ export function ClientOverview() {
   );
 
   return (
-    <div className="min-h-screen bg-neutral-50 p-6" dir="rtl">
+    <div className="min-h-screen p-6 bg-neutral-50" dir="rtl">
       {/* Header Section */}
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-3">
           <div className="p-3 bg-primary rounded-xl">
-            <LayoutDashboard className="h-8 w-8 text-white" />
+            <LayoutDashboard className="w-8 h-8 text-white" />
           </div>
           <div>
             <h1 className="text-4xl font-extrabold text-primary">نظرة عامة على لوحة التحكم</h1>
-            <p className="text-neutral-600 text-lg mt-1">مرحبًا بعودتك! إليك ما يحدث مع طلباتك</p>
+            <p className="mt-1 text-lg text-neutral-600">مرحبًا بعودتك! إليك ما يحدث مع طلباتك</p>
           </div>
         </div>
-        <div className="h-1 w-32 bg-gradient-to-r from-accent to-accent/30 rounded-full"></div>
+        <div className="w-32 h-1 rounded-full bg-gradient-to-r from-accent to-accent/30"></div>
       </div>
 
       {/* Balances and Stats */}
-      <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6 mb-8">
+      <div className="grid gap-6 mb-8 lg:grid-cols-3 md:grid-cols-2">
         {stats.map((stat, index) => (
           <Card 
             key={stat.label}
-            className="relative overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 group"
+            className="relative overflow-hidden transition-all duration-300 border-0 shadow-lg hover:shadow-xl group"
           >
             {/* Accent bar */}
             <div className={`absolute top-0 left-0 right-0 h-1.5 ${stat.accentColor}`}></div>
@@ -253,142 +205,91 @@ export function ClientOverview() {
               </div>
               
               {/* Label */}
-              <p className="text-neutral-600 font-medium text-sm">{stat.label}</p>
+              <p className="text-sm font-medium text-neutral-600">{stat.label}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
       {/* Balance Transfer Component */}
-      <div className="flex justify-center mb-8">
-        <div className="w-full lg:w-2/3">
+      <div className="flex justify-center my-6">
+        <div className="w-full lg:w-1/2">
           <BalanceDisplayAndTransfer />
         </div>
       </div>
 
       {/* Recent Requests */}
-      <Card className="mb-8 border-0 shadow-lg">
-        {/* Card Header with Wavy Gradient */}
-        <div className="relative overflow-hidden p-6 rounded-t-xl" style={{ background: 'linear-gradient(to right, #243a5e, #1A2B4C, #2d4a6e)' }}>
-          {/* Wavy overlay effect */}
-          <div className="absolute inset-0 opacity-20">
-            <svg className="absolute w-full h-full" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern id="wave-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-                  <path d="M0 50 Q 25 30, 50 50 T 100 50" stroke="white" strokeWidth="2" fill="none" opacity="0.3"/>
-                  <path d="M0 60 Q 25 40, 50 60 T 100 60" stroke="white" strokeWidth="2" fill="none" opacity="0.2"/>
-                  <path d="M0 70 Q 25 50, 50 70 T 100 70" stroke="white" strokeWidth="2" fill="none" opacity="0.1"/>
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#wave-pattern)"/>
-            </svg>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center space-x-2">
+              <FileText className="w-5 h-5" />
+              <span>طلبات الخدمة الأخيرة</span>
+            </CardTitle>
+            <Button variant="outline" asChild className="flex items-center space-x-2">
+              <Link to="/dashboard/requests">
+                <Eye className="w-4 h-4" />
+                <span>عرض الكل</span>
+              </Link>
+            </Button>
           </div>
-          
-          <CardHeader className="p-0 relative z-10">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                  <FileText className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-white text-2xl font-bold">طلبات الخدمة الأخيرة</CardTitle>
-                  <CardDescription className="text-white/80 mt-1">
-                    متابعة آخر طلباتك وحالتها
-                  </CardDescription>
-                </div>
-              </div>
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                asChild 
-                className="bg-white hover:bg-neutral-100 text-primary font-semibold shadow-md"
-              >
-                <Link to="/dashboard/requests" className="flex items-center gap-2">
-                  <Eye className="h-4 w-4" />
-                  <span>عرض الكل</span>
-                </Link>
-              </Button>
-            </div>
-          </CardHeader>
-        </div>
-        
-        <CardContent className="p-6 bg-white">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b-2 border-neutral-200">
-                  <TableHead className="text-neutral-700 font-bold">الخدمة</TableHead>
-                  <TableHead className="text-neutral-700 font-bold">العامل</TableHead>
-                  <TableHead className="text-neutral-700 font-bold">التاريخ</TableHead>
-                  <TableHead className="text-neutral-700 font-bold">الحالة</TableHead>
-                  <TableHead className="text-neutral-700 font-bold">المبلغ</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentRequests.length > 0 ? (
-                  recentRequests.map((request) => (
-                    <TableRow 
-                      key={request.id}
-                      className="hover:bg-neutral-50 transition-colors border-b border-neutral-100"
-                    >
-                      <TableCell className="font-medium text-neutral-800">{request.service}</TableCell>
-                      <TableCell className="text-neutral-600">{request.worker || "غير متاح"}</TableCell>
-                      <TableCell className="text-neutral-600">
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-neutral-400" />
-                          {request.date}
-                        </div>
-                      </TableCell>
-                      <TableCell>{getStatusBadge(request.status)}</TableCell>
-                      <TableCell className="font-semibold text-primary">{request.amount}</TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-12">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="p-4 bg-neutral-100 rounded-full">
-                          <FileText className="h-8 w-8 text-neutral-400" />
-                        </div>
-                        <p className="text-neutral-500 font-medium">لا توجد طلبات حديثة</p>
-                      </div>
-                    </TableCell>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>الخدمة</TableHead>
+                <TableHead>العامل</TableHead>
+                <TableHead>التاريخ</TableHead>
+                <TableHead>الحالة</TableHead>
+                <TableHead>المبلغ</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentRequests.length > 0 ? (
+                recentRequests.map((request) => (
+                  <TableRow key={request.id}>
+                    <TableCell>{request.service}</TableCell><TableCell>{request.worker || "غير متاح"}</TableCell><TableCell>{request.date}</TableCell><TableCell>{getStatusBadge(request.status)}</TableCell><TableCell>{request.amount}</TableCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center">لا توجد طلبات حديثة.</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
 
       {/* Quick Actions */}
       <Card className="border-0 shadow-lg">
-        <CardHeader className="bg-neutral-100 border-b border-neutral-200 p-6">
+        <CardHeader className="p-6 border-b bg-neutral-100 border-neutral-200">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-accent/20 rounded-lg">
-              <Zap className="h-5 w-5 text-accent-600" />
+            <div className="p-2 rounded-lg bg-accent/20">
+              <Zap className="w-5 h-5 text-accent-600" />
             </div>
             <CardTitle className="text-2xl font-bold text-neutral-800">إجراءات سريعة</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="p-6">
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <Button
-              className="bg-primary hover:bg-primary-600 text-white font-semibold py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-300 group"
+              className="py-6 text-lg font-semibold text-white transition-all duration-300 shadow-lg bg-primary hover:bg-primary-600 hover:shadow-xl group"
               asChild
             >
               <Link to="/order/create" className="flex items-center justify-center gap-3">
-                <PlusCircle className="h-6 w-6 group-hover:scale-110 transition-transform" />
+                <PlusCircle className="w-6 h-6 transition-transform group-hover:scale-110" />
                 <span>طلب خدمة جديدة</span>
               </Link>
             </Button>
             <Button 
               variant="outline" 
               asChild 
-              className="border-2 border-primary/30 hover:bg-primary/5 hover:border-primary font-semibold py-6 text-lg shadow-md hover:shadow-lg transition-all duration-300 group"
+              className="py-6 text-lg font-semibold transition-all duration-300 border-2 shadow-md border-primary/30 hover:bg-primary/5 hover:border-primary hover:shadow-lg group"
             >
               <Link to="/dashboard/messages" className="flex items-center justify-center gap-3">
-                <MessageSquare className="h-6 w-6 group-hover:scale-110 transition-transform" />
+                <MessageSquare className="w-6 h-6 transition-transform group-hover:scale-110" />
                 <span>عرض الرسائل</span>
               </Link>
             </Button>
