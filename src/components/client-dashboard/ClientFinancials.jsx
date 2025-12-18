@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { CreditCard, Wallet, Banknote, History, DollarSign } from "lucide-react";
+import {
+  CreditCard,
+  Wallet,
+  Banknote,
+  History,
+  DollarSign,
+  Loader2,
+} from "lucide-react";
 import api from "../../utils/api";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
 import { Badge } from "../ui/badge";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -22,27 +36,31 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Label } from "../ui/label"; // Import Label
-import BalanceDisplayAndTransfer from "../common/BalanceDisplayAndTransfer";
-
 
 // Zod schema for Add New Payment Method form
 const AddPaymentMethodSchema = z.object({
   cardHolderName: z.string().min(1, "اسم حامل البطاقة مطلوب"),
   cardType: z.string().min(1, "نوع البطاقة مطلوب"),
-  cardNumber: z.string()
+  cardNumber: z
+    .string()
     .min(1, "رقم البطاقة مطلوب")
     .regex(/^\d{16}$/, "رقم البطاقة يجب أن يكون 16 رقمًا"), // Assuming 16-digit card number
-  expirationDate: z.string()
+  expirationDate: z
+    .string()
     .min(1, "تاريخ انتهاء الصلاحية مطلوب")
-    .regex(/^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/, "صيغة تاريخ انتهاء الصلاحية غير صالحة (MM/YYYY)"),
+    .regex(
+      /^(0[1-9]|1[0-2])\/?([0-9]{4}|[0-9]{2})$/,
+      "صيغة تاريخ انتهاء الصلاحية غير صالحة (MM/YYYY)"
+    ),
 });
 
+// Zod schema for Deposit Funds form
 // Zod schema for Deposit Funds form
 const DepositSchema = z.object({
   amount: z.string().refine((val) => parseFloat(val) > 0, {
     message: "الرجاء إدخال مبلغ صحيح للإيداع.",
   }),
-  paymentMethodId: z.string().min(1, "طريقة الدفع مطلوبة للإيداع."),
+  paymentMethodId: z.string().optional(),
 });
 
 // Zod schema for Withdraw Funds form
@@ -53,117 +71,268 @@ const WithdrawalSchema = z.object({
   paymentMethodId: z.string().min(1, "طريقة الدفع مطلوبة للسحب."),
 });
 
+import { useLocation } from "react-router-dom"; // Add useLocation
 
 export function ClientFinancials() {
   const dispatch = useDispatch();
-  const { token, isLoading: authLoading, error: authError } = useSelector((state) => state.auth);
-  const { transactions, isLoading: transactionsLoading, error: transactionsError, transactionsPagination } = useSelector((state) => state.transactions);
+  const location = useLocation(); // Hook to get current URL containing query params
+  // ... existing selectors ...
+  const {
+    token,
+    isLoading: authLoading,
+    error: authError,
+  } = useSelector((state) => state.auth);
+  const {
+    transactions,
+    pagination,
+    isLoading: transactionsLoading,
+    error: transactionsError,
+  } = useSelector((state) => state.transactions);
+
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [withdrawalError, setWithdrawalError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [paginationLoading, setPaginationLoading] = useState(false);
-  const [minSpinnerTime, setMinSpinnerTime] = useState(false);
+  const [depositSuccessMessage, setDepositSuccessMessage] = useState(null); // Local state for deposit success feedback
+  const [depositMethod, setDepositMethod] = useState("new"); // "new" or "saved"
+  const [pollingTransactionId, setPollingTransactionId] = useState(null); // Keep for backend tracking if needed, or remove if unused. Let's keep it to minimize diffs, but removing usage below.
 
-  // Add New Payment Method form state and methods
-  const { control: addPaymentMethodControl, handleSubmit: handleAddPaymentMethodSubmit, register: addPaymentMethodRegister, formState: { errors: addPaymentMethodErrors, isSubmitting: isAddingPaymentMethod } , reset: resetAddPaymentMethodForm } = useForm({
-    resolver: zodResolver(AddPaymentMethodSchema),
-    defaultValues: {
-      cardHolderName: "",
-      cardType: "",
-      cardNumber: "",
-      expirationDate: "",
-    },
-  });
-
-  // Deposit Funds form state and methods
-  const { control: depositControl, handleSubmit: handleDepositSubmit, register: depositRegister, formState: { errors: depositErrors, isSubmitting: isDepositingFunds }, setValue: setDepositValue, watch: watchDeposit } = useForm({
+  // ... form states ...
+  // ... form states ...
+  // ... form states ...
+  const {
+    control: depositControl,
+    handleSubmit: handleDepositSubmit,
+    register: depositRegister,
+    formState: { errors: depositErrors, isSubmitting: isDepositingFunds },
+    reset: resetDepositForm,
+    setValue: setDepositValue,
+  } = useForm({
     resolver: zodResolver(DepositSchema),
     defaultValues: {
       amount: "",
-      paymentMethodId: "",
     },
   });
-  const selectedDepositPaymentMethod = watchDeposit("paymentMethodId");
 
-  // Withdraw Funds form state and methods
-  const { control: withdrawalControl, handleSubmit: handleWithdrawalSubmit, register: withdrawalRegister, formState: { errors: withdrawalErrors, isSubmitting: isWithdrawingFunds }, setValue: setWithdrawalValue, watch: watchWithdrawal } = useForm({
+  const {
+    control: withdrawalControl,
+    handleSubmit: handleWithdrawalSubmit,
+    register: withdrawalRegister,
+    formState: { errors: withdrawalErrors, isSubmitting: isWithdrawingFunds },
+    reset: resetWithdrawalForm,
+    setValue: setWithdrawalValue,
+  } = useForm({
     resolver: zodResolver(WithdrawalSchema),
     defaultValues: {
       amount: "",
       paymentMethodId: "",
     },
   });
-  const selectedWithdrawalPaymentMethod = watchWithdrawal("paymentMethodId");
 
+  // Removed manual payment method form states
 
   const [paymentMethods, setPaymentMethods] = useState([]);
 
-
-  // Function to fetch payment methods
-  const fetchPaymentMethods = async () => {
+  // Function to fetch all financial data including payment methods and transactions
+  const fetchFinancialData = async () => {
     if (!token) {
       return;
     }
     try {
+      setPaymentsLoading(true);
+      // Fetch payments
+      const paymentsData = await api.get("/payments/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setPayments(
+        paymentsData.results.map((payment) => ({
+          id: payment.id,
+          amount: `$${payment.amount}`,
+          type: payment.payment_type,
+          status: payment.status,
+          date: new Date(payment.timestamp).toLocaleDateString("ar-EG"),
+        }))
+      );
+
+      // Fetch payment methods
       const paymentMethodsData = await api.get("/payments/paymentmethods/", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setPaymentMethods(paymentMethodsData.results);
       if (paymentMethodsData.results.length > 0) {
-        setDepositValue("paymentMethodId", String(paymentMethodsData.results[0].id));
-        setWithdrawalValue("paymentMethodId", String(paymentMethodsData.results[0].id));
+        setDepositValue(
+          "paymentMethodId",
+          String(paymentMethodsData.results[0].id)
+        );
+        setWithdrawalValue(
+          "paymentMethodId",
+          String(paymentMethodsData.results[0].id)
+        );
       } else {
         setDepositValue("paymentMethodId", "");
         setWithdrawalValue("paymentMethodId", "");
       }
     } catch (err) {
-      console.error("Failed to fetch payment methods:", err);
+      setPaymentsError(err.message || "فشل في جلب البيانات المالية.");
+    } finally {
+      setPaymentsLoading(false);
     }
   };
 
-
+  // Effect to handle Payment Callback (Redirect from Paymob)
   useEffect(() => {
-    fetchPaymentMethods();
-    const fetchTransactions = async () => {
-      if (isInitialLoading) {
-        // Only show full loading message during initial load
-        await dispatch(getUserTransactions({ page: currentPage, pageSize }));
-        setIsInitialLoading(false);
-      } else {
-        // For pagination, set pagination loading state
-        setPaginationLoading(true);
-        await dispatch(getUserTransactions({ page: currentPage, pageSize }));
-        setPaginationLoading(false);
-      }
-    };
-    fetchTransactions();
-  }, [token, authLoading, dispatch, currentPage, pageSize]);
+    const queryParams = new URLSearchParams(location.search);
+    const success = queryParams.get("success");
+    const pending = queryParams.get("pending");
+    const id = queryParams.get("id"); // Transaction ID
 
-  // Handle minimum spinner display time
-  useEffect(() => {
-    if (paginationLoading) {
-      setMinSpinnerTime(true);
-      const timer = setTimeout(() => setMinSpinnerTime(false), 300); // 300ms minimum
-      return () => clearTimeout(timer);
+    if (success === "true" && pending === "false" && id) {
+      setDepositSuccessMessage(
+        `تمت عملية الإيداع بنجاح! رقم المعاملة: ${id}. جاري تحديث الرصيد...`
+      );
+
+      // Optional: Clean URL params to avoid re-triggering on refresh
+      // window.history.replaceState({}, document.title, window.location.pathname);
+
+      // Delay fetching data to allow Webhook to process the transaction in background
+      setTimeout(() => {
+        fetchFinancialData();
+        fetchFinancialData();
+        dispatch(getUserTransactions(currentPage));
+        // Consider dispatching fetchUserProfile too if not handled inside fetchFinancialData flow
+      }, 3000);
     }
-  }, [paginationLoading]);
+  }, [location.search, dispatch]);
+
+  useEffect(() => {
+    fetchFinancialData();
+    dispatch(getUserTransactions(currentPage));
+  }, [token, authLoading, dispatch, currentPage]);
 
   const handleDeposit = async (data) => {
-    dispatch(depositFunds({ amount: parseFloat(data.amount), payment_method_id: parseInt(data.paymentMethodId) }))
-      .unwrap()
-      .then(() => {
-        setDepositValue("amount", "");
-        fetchPaymentMethods(); // Refetch payment methods after successful deposit
-      })
-      .catch((err) => {
-        console.error("Deposit failed:", err);
-      });
+    try {
+      // Dispatch depositFunds with just the amount
+      const resultAction = await dispatch(
+        depositFunds({ amount: parseFloat(data.amount) })
+      );
+
+      // Unwrap the result to handle success/failure
+      const response = await unwrapResult(resultAction); // Need to import unwrapResult or use .unwrap()
+
+      // Since unwrap() is available on the returned promise from dispatch, we use that
+      // However, above I used await dispatch(...), so resultAction is the action object.
+      // Correct pattern: dispatch(...).unwrap().then(...) OR const res = await dispatch(...).unwrap()
+    } catch (err) {
+      console.error("Deposit init failed", err);
+    }
+  };
+
+  // 1. Background Polling Effect (Data Fetching)
+  useEffect(() => {
+    let intervalId;
+    if (pollingTransactionId) {
+      intervalId = setInterval(() => {
+        // Just fetch new data
+        // Usually new transactions are on Page 1 (sorted by -timestamp).
+        // So we should check Page 1.
+        dispatch(getUserTransactions(1));
+      }, 5000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [pollingTransactionId, dispatch]);
+
+  // 2. Reactive Success Effect (Data Watching)
+  useEffect(() => {
+    if (pollingTransactionId && transactions.length > 0) {
+      const targetTx = transactions.find(
+        (t) =>
+          String(t.id) === String(pollingTransactionId) ||
+          String(t.external_id) === String(pollingTransactionId)
+      );
+
+      if (targetTx) {
+        if (
+          targetTx.status === "completed" ||
+          targetTx.status === "COMPLETED"
+        ) {
+          setPollingTransactionId(null);
+          setDepositSuccessMessage(`تمت عملية الإيداع بنجاح!`);
+          fetchFinancialData();
+          // Stop any local processing state if we added it back
+        } else if (
+          targetTx.status === "failed" ||
+          targetTx.status === "FAILED"
+        ) {
+          setPollingTransactionId(null);
+          alert("فشلت عملية الدفع.");
+        }
+      }
+    }
+  }, [transactions, pollingTransactionId, fetchFinancialData]);
+
+  // Correct implementation of handleDeposit
+  // Correct implementation of handleDeposit
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  const onDepositSubmit = async (data) => {
+    // FORCE NEW CARD FLOW: Always send null paymentMethodId
+    const paymentMethodId = null;
+
+    setDepositSuccessMessage(null); // Clear previous messages
+    setIsRedirecting(true); // Start processing
+
+    try {
+      const result = await dispatch(
+        depositFunds({
+          amount: parseFloat(data.amount),
+          payment_method_id: paymentMethodId,
+        })
+      ).unwrap();
+
+      // Handle successful response (Should always be iframe_url for New Card)
+      if (result.iframe_url) {
+        // Redirect user to Paymob Iframe in NEW TAB
+        window.open(result.iframe_url, "_blank");
+
+        // Start polling for this transaction ID
+        const txId = result.transaction_id || result.order_id;
+        if (txId) {
+          setPollingTransactionId(txId);
+        }
+
+        setTimeout(() => setIsRedirecting(false), 2000);
+      } else {
+        // Fallback for unexpected success without URL
+        if (result.success) {
+          setDepositSuccessMessage("تم الإيداع بنجاح!");
+          resetDepositForm();
+          fetchFinancialData();
+          dispatch(getUserTransactions(currentPage));
+          setIsRedirecting(false);
+        } else {
+          console.error("Unknown response from deposit API", result);
+          alert("حدث خطأ أثناء تهيئة الدفع.");
+          setIsRedirecting(false);
+        }
+      }
+    } catch (err) {
+      console.error("Deposit failed:", err);
+      // Clean up error message by removing 'Error: ' prefix if present
+      const msg =
+        typeof err === "string" ? err : err.message || "فشل في عملية الإيداع.";
+      alert(msg);
+      setIsRedirecting(false);
+    }
   };
 
   const handleWithdrawal = async (data) => {
-    dispatch(withdrawFunds({ amount: parseFloat(data.amount), payment_method_id: parseInt(data.paymentMethodId) }))
+    dispatch(
+      withdrawFunds({
+        amount: parseFloat(data.amount),
+        payment_method_id: parseInt(data.paymentMethodId),
+      })
+    )
       .unwrap()
       .then(() => {
         setWithdrawalValue("amount", "");
@@ -172,7 +341,11 @@ export function ClientFinancials() {
       })
       .catch((err) => {
         console.error("Withdrawal failed:", err);
-        if (err && err.amount && err.amount === "Insufficient available balance for withdrawal.") {
+        if (
+          err &&
+          err.amount &&
+          err.amount === "Insufficient available balance for withdrawal."
+        ) {
           setWithdrawalError("رصيدك المتاح غير كافٍ للسحب.");
         } else {
           setWithdrawalError(err.message || "فشل السحب.");
@@ -180,35 +353,22 @@ export function ClientFinancials() {
       });
   };
 
-  const onAddPaymentMethod = async (data) => {
-    const lastFourDigits = data.cardNumber.slice(-4);
-
-    try {
-      await dispatch(addPaymentMethod({
-        card_type: data.cardType,
-        card_holder_name: data.cardHolderName,
-        card_number: data.cardNumber,
-        expiration_date: data.expirationDate,
-        last_four_digits: lastFourDigits,
-      })).unwrap();
-      
-      alert("تم إضافة طريقة الدفع بنجاح!");
-      resetAddPaymentMethodForm();
-      fetchPaymentMethods(); // Refresh payment methods after adding a new one
-    } catch (err) {
-      alert(err.message || "فشل في إضافة طريقة الدفع.");
-      console.error("Add payment method failed:", err);
-    }
-  };
+  // Removed onAddPaymentMethod handler
 
   const getStatusBadge = (status) => {
     const variants = {
-      "completed": { variant: "default", className: "bg-green-100 text-green-800" },
-      "pending": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
-      "failed": { variant: "default", className: "bg-red-100 text-red-800" },
-      "مكتملة": { variant: "default", className: "bg-green-100 text-green-800" },
-      "معلقة": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
-      "فاشلة": { variant: "default", className: "bg-red-100 text-red-800" },
+      completed: {
+        variant: "default",
+        className: "bg-green-100 text-green-800",
+      },
+      pending: {
+        variant: "default",
+        className: "bg-yellow-100 text-yellow-800",
+      },
+      failed: { variant: "default", className: "bg-red-100 text-red-800" },
+      مكتملة: { variant: "default", className: "bg-green-100 text-green-800" },
+      معلقة: { variant: "default", className: "bg-yellow-100 text-yellow-800" },
+      فاشلة: { variant: "default", className: "bg-red-100 text-red-800" },
     };
     let translatedStatus = status;
     switch (status) {
@@ -222,8 +382,15 @@ export function ClientFinancials() {
         translatedStatus = "فاشلة";
         break;
     }
-    const config = variants[status] || { variant: "default", className: "bg-gray-100 text-gray-800" };
-    return <Badge variant={config.variant} className={config.className}>{translatedStatus}</Badge>;
+    const config = variants[status] || {
+      variant: "default",
+      className: "bg-gray-100 text-gray-800",
+    };
+    return (
+      <Badge variant={config.variant} className={config.className}>
+        {translatedStatus}
+      </Badge>
+    );
   };
 
   const getTransactionTypeBadge = (type) => {
@@ -275,117 +442,70 @@ export function ClientFinancials() {
     return <Badge className={colorClass}>{translatedType}</Badge>;
   };
 
-  if (authLoading || (transactionsLoading && isInitialLoading)) {
-    return <div className="text-center p-8" dir="rtl">جاري تحميل البيانات المالية...</div>;
+  if (authLoading || paymentsLoading || transactionsLoading) {
+    return (
+      <div className="text-center p-8" dir="rtl">
+        جاري تحميل البيانات المالية...
+      </div>
+    );
   }
-  if (authError) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ في المصادقة: {authError}</div>;
-  if (transactionsError) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ في سجل المعاملات: {transactionsError}</div>;
+  if (authError)
+    return (
+      <div className="text-center p-8 text-red-500" dir="rtl">
+        خطأ في المصادقة: {authError}
+      </div>
+    );
+  if (paymentsError)
+    return (
+      <div className="text-center p-8 text-red-500" dir="rtl">
+        خطأ في سجل الدفعات: {paymentsError}
+      </div>
+    );
+  if (transactionsError)
+    return (
+      <div className="text-center p-8 text-red-500" dir="rtl">
+        خطأ في سجل المعاملات: {transactionsError}
+      </div>
+    );
 
   return (
     <div className="space-y-6" dir="rtl">
+      {depositSuccessMessage && (
+        <div
+          className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
+          role="alert"
+        >
+          <strong className="font-bold ml-2">نجاح!</strong>
+          <span className="block sm:inline">{depositSuccessMessage}</span>
+          <span
+            className="absolute top-0 bottom-0 left-0 px-4 py-3"
+            onClick={() => setDepositSuccessMessage(null)}
+          >
+            <svg
+              className="fill-current h-6 w-6 text-green-500"
+              role="button"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+            >
+              <title>Close</title>
+              <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
+            </svg>
+          </span>
+        </div>
+      )}
       <div>
         <h1 className="mb-2 flex items-center space-x-2">
           <DollarSign className="h-7 w-7" />
           <span>إدارة الأموال والمعاملات</span>
         </h1>
-        <p className="text-muted-foreground">إدارة الإيداعات والسحوبات الخاصة بك وعرض سجل الدفعات والمعاملات.</p>
+        <p className="text-muted-foreground">
+          إدارة الإيداعات والسحوبات الخاصة بك وعرض سجل الدفعات والمعاملات.
+        </p>
       </div>
 
-      {/* Balance Transfer Component */}
-      <div className="flex justify-center my-6">
-        <div className="w-full lg:w-1/2">
-          <BalanceDisplayAndTransfer />
-        </div>
-      </div>
+      {/* Manual Add Payment Method Card REMOVED */}
 
-      {/* Add New Payment Method Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <CreditCard className="h-5 w-5" />
-            <span>إضافة طريقة دفع جديدة</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAddPaymentMethodSubmit(onAddPaymentMethod)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="card-holder-name" className="block text-sm font-medium text-gray-700 mb-1">
-                اسم حامل البطاقة
-              </Label>
-              <Input
-                id="card-holder-name"
-                type="text"
-                placeholder="اسم حامل البطاقة"
-                {...addPaymentMethodRegister("cardHolderName")}
-                className="w-full"
-              />
-              {addPaymentMethodErrors.cardHolderName && (
-                <p className="text-red-500 text-sm mt-1">{addPaymentMethodErrors.cardHolderName.message}</p>
-              )}
-            </div>
-            <div>
-              <Label htmlFor="card-type" className="block text-sm font-medium text-gray-700 mb-1">
-                نوع البطاقة
-              </Label>
-              <Controller
-                name="cardType"
-                control={addPaymentMethodControl}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger id="card-type" className="w-full">
-                      <SelectValue placeholder="اختر نوع البطاقة" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Visa">Visa</SelectItem>
-                      <SelectItem value="MasterCard">MasterCard</SelectItem>
-                      <SelectItem value="American Express">American Express</SelectItem>
-                      <SelectItem value="Discover">Discover</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {addPaymentMethodErrors.cardType && (
-                <p className="text-red-500 text-sm mt-1">{addPaymentMethodErrors.cardType.message}</p>
-              )}
-            </div>
-            <div>
-              <Label htmlFor="card-number" className="block text-sm font-medium text-gray-700 mb-1">
-                رقم البطاقة
-              </Label>
-              <Input
-                id="card-number"
-                type="text"
-                placeholder="رقم البطاقة"
-                {...addPaymentMethodRegister("cardNumber")}
-                className="w-full"
-                dir="ltr"
-              />
-              {addPaymentMethodErrors.cardNumber && (
-                <p className="text-red-500 text-sm mt-1">{addPaymentMethodErrors.cardNumber.message}</p>
-              )}
-            </div>
-            <div>
-              <Label htmlFor="expiration-date" className="block text-sm font-medium text-gray-700 mb-1">
-                تاريخ انتهاء الصلاحية (MM/YYYY)
-              </Label>
-              <Input
-                id="expiration-date"
-                type="text"
-                placeholder="MM/YYYY"
-                {...addPaymentMethodRegister("expirationDate")}
-                className="w-full"
-                dir="ltr"
-              />
-              {addPaymentMethodErrors.expirationDate && (
-                <p className="text-red-500 text-sm mt-1">{addPaymentMethodErrors.expirationDate.message}</p>
-              )}
-            </div>
-            <Button type="submit" disabled={isAddingPaymentMethod} className="mt-4 col-span-full">
-              {isAddingPaymentMethod ? "جاري الإضافة..." : "إضافة طريقة الدفع"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      {/* Loading Overlay REMOVED */}
 
       {/* Deposit Funds Card */}
       <Card>
@@ -396,9 +516,15 @@ export function ClientFinancials() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleDepositSubmit(handleDeposit)} className="flex flex-col md:flex-row gap-4 items-end">
+          <form
+            onSubmit={handleDepositSubmit(onDepositSubmit)}
+            className="flex flex-col md:flex-row gap-4 items-end"
+          >
             <div className="grow">
-              <Label htmlFor="deposit-amount" className="block text-sm font-medium text-gray-700 mb-1">
+              <Label
+                htmlFor="deposit-amount"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 المبلغ
               </Label>
               <Input
@@ -406,48 +532,30 @@ export function ClientFinancials() {
                 type="number"
                 placeholder="أدخل مبلغ الإيداع"
                 {...depositRegister("amount")}
-                min="0.01"
+                min="10.00" // Paymob minimum is usually around 10 EGP
                 step="1"
                 className="w-full mb-2"
                 dir="ltr"
               />
               {depositErrors.amount && (
-                <p className="text-red-500 text-sm mt-1">{depositErrors.amount.message}</p>
-              )}
-
-              <Label htmlFor="deposit-payment-method" className="block text-sm font-medium text-gray-700 mb-1">
-                طريقة الدفع
-              </Label>
-              <Controller
-                name="paymentMethodId"
-                control={depositControl}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger id="deposit-payment-method" className="w-full">
-                      <SelectValue placeholder="اختر طريقة دفع" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {paymentMethods.length > 0 ? (
-                        paymentMethods.map((method) => (
-                          <SelectItem key={method.id} value={String(method.id)}>
-                            {method.card_type} (****{method.last_four_digits})
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="no-methods" disabled>
-                          لا توجد طرق دفع متاحة
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {depositErrors.paymentMethodId && (
-                <p className="text-red-500 text-sm mt-1">{depositErrors.paymentMethodId.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {depositErrors.amount.message}
+                </p>
               )}
             </div>
-            <Button type="submit" disabled={isDepositingFunds || paymentMethods.length === 0}>
-              {isDepositingFunds ? "جاري الإيداع..." : "إيداع"}
+            <Button
+              type="submit"
+              disabled={isDepositingFunds || isRedirecting}
+              className="w-full md:w-auto"
+            >
+              {isDepositingFunds || isRedirecting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <span>جاري تحويلك للدفع...</span>
+                </>
+              ) : (
+                "الدفع "
+              )}
             </Button>
           </form>
         </CardContent>
@@ -462,9 +570,15 @@ export function ClientFinancials() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleWithdrawalSubmit(handleWithdrawal)} className="flex flex-col md:flex-row gap-4 items-end">
+          <form
+            onSubmit={handleWithdrawalSubmit(handleWithdrawal)}
+            className="flex flex-col md:flex-row gap-4 items-end"
+          >
             <div className="grow">
-              <Label htmlFor="withdrawal-amount" className="block text-sm font-medium text-gray-700 mb-1">
+              <Label
+                htmlFor="withdrawal-amount"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 المبلغ
               </Label>
               <Input
@@ -478,10 +592,15 @@ export function ClientFinancials() {
                 dir="ltr"
               />
               {withdrawalErrors.amount && (
-                <p className="text-red-500 text-sm mt-1">{withdrawalErrors.amount.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {withdrawalErrors.amount.message}
+                </p>
               )}
 
-              <Label htmlFor="withdrawal-payment-method" className="block text-sm font-medium text-gray-700 mb-1">
+              <Label
+                htmlFor="withdrawal-payment-method"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 طريقة الدفع
               </Label>
               <Controller
@@ -489,7 +608,10 @@ export function ClientFinancials() {
                 control={withdrawalControl}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger id="withdrawal-payment-method" className="w-full">
+                    <SelectTrigger
+                      id="withdrawal-payment-method"
+                      className="w-full"
+                    >
                       <SelectValue placeholder="اختر طريقة دفع" />
                     </SelectTrigger>
                     <SelectContent>
@@ -509,10 +631,15 @@ export function ClientFinancials() {
                 )}
               />
               {withdrawalErrors.paymentMethodId && (
-                <p className="text-red-500 text-sm mt-1">{withdrawalErrors.paymentMethodId.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {withdrawalErrors.paymentMethodId.message}
+                </p>
               )}
             </div>
-            <Button type="submit" disabled={isWithdrawingFunds || paymentMethods.length === 0}>
+            <Button
+              type="submit"
+              disabled={isWithdrawingFunds || paymentMethods.length === 0}
+            >
               {isWithdrawingFunds ? "جاري السحب..." : "سحب"}
             </Button>
           </form>
@@ -536,154 +663,57 @@ export function ClientFinancials() {
               لا توجد معاملات حاليًا.
             </p>
           ) : (
-            <>
-              {/* Loading overlay for pagination */}
-              {(transactionsLoading && !isInitialLoading) || minSpinnerTime && (
-                <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded-lg">
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                    <span>جاري تحميل البيانات...</span>
-                  </div>
-                </div>
-              )}
-              <div className={!transactionsLoading ? "" : "opacity-50 pointer-events-none"}>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>المبلغ</TableHead>
-                      <TableHead>النوع</TableHead>
-                      <TableHead>طريقة الدفع</TableHead>
-                      <TableHead>العملة</TableHead> {/* New column for Currency */}
-                      <TableHead>الحالة</TableHead>
-                      <TableHead>التاريخ والوقت</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {transactions.map((transaction) => (
-                      <TableRow key={transaction.id}>
-                        <TableCell>{transaction.amount}</TableCell>
-                        <TableCell>{getTransactionTypeBadge(transaction.transaction_type)}</TableCell>
-                        <TableCell>
-                          {(() => {
-                            const method = transaction.payment_method;
-                            if (!method) return 'N/A';
-                            
-                            if (method === 'Available Balance') return 'الرصيد المتاح';
-                            if (method === 'Escrow') return 'الضمان';
-                            
-                            // Handle card types ending in digits
-                            if (method.startsWith('Visa ending in')) {
-                              return method.replace('Visa ending in', 'Visa (آخر أرقام البطاقة)');
-                            }
-                            if (method.startsWith('MasterCard ending in')) {
-                              return method.replace('MasterCard ending in', 'MasterCard (آخر أرقام البطاقة)');
-                            }
-                            if (method.startsWith('American Express ending in')) {
-                              return method.replace('American Express ending in', 'American Express (آخر أرقام البطاقة)');
-                            }
-                            if (method.startsWith('Discover ending in')) {
-                              return method.replace('Discover ending in', 'Discover (آخر أرقام البطاقة)');
-                            }
-                            
-                            return method;
-                          })()}
-                        </TableCell>
-                        <TableCell>{transaction.currency}</TableCell> {/* Display currency */}
-                        <TableCell>{getStatusBadge(transaction.status)}</TableCell>
-                        <TableCell>{new Date(transaction.timestamp).toLocaleString("ar-EG")}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-
-              {/* Pagination Controls */}
-              {transactionsPagination && transactionsPagination.totalPages > 1 && (
-                <div className="flex items-center justify-between mt-6 px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
-                  <div className="flex flex-1 justify-between sm:hidden">
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      disabled={currentPage === 1 || transactionsLoading}
-                      className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      السابق
-                    </button>
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, transactionsPagination.totalPages))}
-                      disabled={currentPage === transactionsPagination.totalPages || transactionsLoading}
-                      className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      التالي
-                    </button>
-                  </div>
-                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm text-gray-700">
-                        عرض <span className="font-medium">{(currentPage - 1) * pageSize + 1}</span> إلى{' '}
-                        <span className="font-medium">
-                          {Math.min(currentPage * pageSize, transactionsPagination.count)}
-                        </span>{' '}
-                        من <span className="font-medium">{transactionsPagination.count}</span> نتائج
-                      </p>
-                    </div>
-                    <div>
-                      <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                        <button
-                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                          disabled={currentPage === 1 || transactionsLoading}
-                          className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {transactionsLoading ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                            </>
-                          ) : (
-                            <>
-                              <span className="sr-only">Previous</span>
-                              &rarr;
-                            </>
-                          )}
-                        </button>
-
-                        {/* Page numbers */}
-                        {Array.from({ length: transactionsPagination.totalPages }, (_, i) => i + 1).map((page) => (
-                          <button
-                            key={page}
-                            onClick={() => setCurrentPage(page)}
-                            className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
-                              page === currentPage
-                                ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
-                                : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
-                            } focus:outline-offset-0`}
-                          >
-                            {page}
-                          </button>
-                        ))}
-
-                        <button
-                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, transactionsPagination.totalPages))}
-                          disabled={currentPage === transactionsPagination.totalPages || transactionsLoading}
-                          className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {transactionsLoading ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                            </>
-                          ) : (
-                            <>
-                              <span className="sr-only">Next</span>
-                              &larr;
-                            </>
-                          )}
-                        </button>
-                      </nav>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>المبلغ</TableHead>
+                  <TableHead>النوع</TableHead>
+                  <TableHead>طريقة الدفع</TableHead>
+                  {/* New column for Payment Method */}
+                  <TableHead>العملة</TableHead> {/* New column for Currency */}
+                  <TableHead>الحالة</TableHead>
+                  <TableHead>التاريخ والوقت</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {transactions.map((transaction) => (
+                  <TableRow key={transaction.id}>
+                    <TableCell>{transaction.amount}</TableCell>
+                    <TableCell>
+                      {getTransactionTypeBadge(transaction.transaction_type)}
+                    </TableCell>
+                    <TableCell>{transaction.payment_method || "N/A"}</TableCell>{" "}
+                    {/* Display payment method, or N/A if null */}
+                    <TableCell>{transaction.currency}</TableCell>{" "}
+                    {/* Display currency */}
+                    <TableCell>{getStatusBadge(transaction.status)}</TableCell>
+                    <TableCell>
+                      {new Date(transaction.timestamp).toLocaleString("ar-EG")}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
+        {/* Pagination Controls */}
+        <div className="flex justify-between items-center px-6 py-4 border-t">
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={!pagination?.previous}
+          >
+            السابق
+          </Button>
+          <span className="text-sm text-gray-500">صفحة {currentPage}</span>
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+            disabled={!pagination?.next}
+          >
+            التالي
+          </Button>
+        </div>
       </Card>
 
     </div>

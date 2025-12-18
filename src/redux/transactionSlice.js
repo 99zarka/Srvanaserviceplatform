@@ -1,17 +1,12 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import api from '../utils/api';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import api from "../utils/api";
 
 // Get all transactions for the current user
 export const getUserTransactions = createAsyncThunk(
-  'transactions/getUserTransactions',
-  async ({ page = 1, pageSize = 20 }, { rejectWithValue }) => {
+  "transactions/getUserTransactions",
+  async (page = 1, { rejectWithValue }) => {
     try {
-      const response = await api.get('/transactions/me/', {
-        params: {
-          page: page,
-          page_size: pageSize
-        }
-      });
+      const response = await api.get(`/transactions/me/?page=${page}`);
       return response; // Corrected: return the parsed data directly
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -21,7 +16,7 @@ export const getUserTransactions = createAsyncThunk(
 
 // Get details of a specific transaction
 export const getTransactionDetail = createAsyncThunk(
-  'transactions/getTransactionDetail',
+  "transactions/getTransactionDetail",
   async (transactionId, { rejectWithValue }) => {
     try {
       const response = await api.get(`/transactions/${transactionId}/`);
@@ -33,9 +28,14 @@ export const getTransactionDetail = createAsyncThunk(
 );
 
 const transactionSlice = createSlice({
-  name: 'transactions',
+  name: "transactions",
   initialState: {
     transactions: [],
+    pagination: {
+      count: 0,
+      next: null,
+      previous: null,
+    },
     currentTransaction: null,
     loading: false,
     error: null,
@@ -63,19 +63,21 @@ const transactionSlice = createSlice({
       .addCase(getUserTransactions.fulfilled, (state, action) => {
         state.loading = false;
         // Ensure action.payload is an object, then safely access results
-        const payload = action.payload || {}; 
-        // Get pageSize from the thunk arguments
-        const pageSize = action.meta.arg.pageSize || 10;
-        state.transactions = (payload.results) ? payload.results : [];
-        state.transactionsPagination = {
+        const payload = action.payload || {};
+        state.transactions = payload.results ? payload.results : [];
+        state.pagination = {
           count: payload.count || 0,
-          totalPages: Math.ceil((payload.count || 0) / pageSize),
-          next: payload.next || null,
-          previous: payload.previous || null,
+          next: payload.next,
+          previous: payload.previous,
         };
-        console.log("transactionSlice: getUserTransactions.fulfilled - action.payload:", action.payload);
-        console.log("transactionSlice: getUserTransactions.fulfilled - state.transactions (after update):", state.transactions);
-        console.log("transactionSlice: getUserTransactions.fulfilled - state.transactionsPagination:", state.transactionsPagination);
+        console.log(
+          "transactionSlice: getUserTransactions.fulfilled - action.payload:",
+          action.payload
+        );
+        console.log(
+          "transactionSlice: getUserTransactions.fulfilled - state.transactions (after update):",
+          state.transactions
+        );
         state.error = null;
       })
       .addCase(getUserTransactions.rejected, (state, action) => {
@@ -100,9 +102,6 @@ const transactionSlice = createSlice({
   },
 });
 
-export const { 
-  clearError, 
-  clearSuccessMessage, 
-  clearCurrentTransaction 
-} = transactionSlice.actions;
+export const { clearError, clearSuccessMessage, clearCurrentTransaction } =
+  transactionSlice.actions;
 export default transactionSlice.reducer;
