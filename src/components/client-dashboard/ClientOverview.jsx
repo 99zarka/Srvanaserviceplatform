@@ -7,20 +7,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Link } from "react-router-dom";
 import api from "../../utils/api";
 import { useSelector } from "react-redux";
-import BalanceDisplayAndTransfer from "../common/BalanceDisplayAndTransfer";
 
 export function ClientOverview() {
   const { token, user } = useSelector((state) => state.auth);
-  const { userBalances } = useSelector((state) => state.payments); // Get userBalances from paymentSlice
   const [stats, setStats] = useState([]);
   const [recentRequests, setRecentRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Extract balances from Redux state for display
-  const available_balance = parseFloat(userBalances.available_balance) || 0;
-  const in_escrow_balance = parseFloat(userBalances.in_escrow_balance) || 0;
-  const pending_balance = parseFloat(userBalances.pending_balance) || 0;
 
   useEffect(() => {
     const fetchClientDashboardData = async () => {
@@ -31,16 +24,16 @@ export function ClientOverview() {
       }
       try {
         setLoading(true);
-        // Fetch core dashboard stats (excluding balances, which come from Redux)
+        // Fetch core dashboard stats from API
         const statsData = await api.get("/dashboard/client/client-summary/", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // Update local stats, explicitly using balances from Redux state
+        // Update local stats using data from API response
         setStats([
-          { label: "الرصيد المتاح", value: `${available_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-green-600" },
-          { label: "في الضمان", value: `${in_escrow_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-blue-600" },
-          { label: "الرصيد المعلق", value: `${pending_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-yellow-600" },
+          { label: "الرصيد المتاح", value: `${parseFloat(statsData.available_balance || 0).toFixed(2)} ج.م`, icon: CreditCard, color: "text-green-600" },
+          { label: "في الضمان", value: `${parseFloat(statsData.in_escrow_balance || 0).toFixed(2)} ج.م`, icon: CreditCard, color: "text-blue-600" },
+          { label: "الرصيد المعلق", value: `${parseFloat(statsData.pending_balance || 0).toFixed(2)} ج.م`, icon: CreditCard, color: "text-yellow-600" },
           { label: "الطلبات النشطة", value: statsData.active_orders || 0, icon: Clock, color: "text-primary" },
           { label: "المكتملة", value: statsData.completed_orders || 0, icon: CheckCircle, color: "text-green-600" },
           { label: "إجمالي الإنفاق", value: `${statsData.total_spent ? parseFloat(statsData.total_spent).toFixed(2) : '0.00'} ج.م`, icon: CreditCard, color: "text-blue-600" },
@@ -54,6 +47,7 @@ export function ClientOverview() {
           id: req.order_id,
           service: req.service?.arabic_name || req.service?.service_name || "خدمة غير محددة",
           worker: req.associated_offer?.technician_user ? `${req.associated_offer.technician_user.first_name} ${req.associated_offer.technician_user.last_name}` : "لم يتم التعيين بعد",
+          technicianId: req.associated_offer?.technician_user?.user_id,
           status: req.order_status,
           date: new Date(req.creation_timestamp).toLocaleDateString("ar-EG"),
           amount: `${req.final_price || req.updated_price ? parseFloat(req.final_price || req.updated_price).toFixed(2) : '0.00'} ج.م`,
@@ -66,7 +60,7 @@ export function ClientOverview() {
     };
 
     fetchClientDashboardData();
-  }, [token, user, available_balance, in_escrow_balance, pending_balance]); // Include Redux balances in dependencies
+  }, [token, user]); // Remove balance dependencies since we're using API data directly
 
   const getStatusBadge = (status) => {
     const variants = {
@@ -162,12 +156,7 @@ export function ClientOverview() {
         ))}
       </div>
 
-      {/* Balance Transfer Component */}
-      <div className="flex justify-center my-6">
-        <div className="w-full lg:w-1/2">
-          <BalanceDisplayAndTransfer />
-        </div>
-      </div>
+
 
       {/* Recent Requests */}
       <Card>
@@ -178,7 +167,7 @@ export function ClientOverview() {
               <span>طلبات الخدمة الأخيرة</span>
             </CardTitle>
             <Button variant="outline" asChild className="flex items-center space-x-2">
-              <Link to="/dashboard/requests">
+              <Link to="/dashboard/orders-offers">
                 <Eye className="h-4 w-4" />
                 <span>عرض الكل</span>
               </Link>
@@ -200,7 +189,15 @@ export function ClientOverview() {
               {recentRequests.length > 0 ? (
                 recentRequests.map((request) => (
                   <TableRow key={request.id}>
-                    <TableCell>{request.service}</TableCell><TableCell>{request.worker || "غير متاح"}</TableCell><TableCell>{request.date}</TableCell><TableCell>{getStatusBadge(request.status)}</TableCell><TableCell>{request.amount}</TableCell>
+                    <TableCell>{request.service}</TableCell><TableCell>
+                      {request.worker && request.technicianId ? (
+                        <Link to={`/profile/${request.technicianId}`} className="text-blue-600 hover:text-blue-800 hover:underline">
+                          {request.worker}
+                        </Link>
+                      ) : (
+                        "غير متاح"
+                      )}
+                    </TableCell><TableCell>{request.date}</TableCell><TableCell>{getStatusBadge(request.status)}</TableCell><TableCell>{request.amount}</TableCell>
                   </TableRow>
                 ))
               ) : (

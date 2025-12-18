@@ -22,6 +22,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Label } from "../ui/label"; // Import Label
+import BalanceDisplayAndTransfer from "../common/BalanceDisplayAndTransfer";
 
 
 // Zod schema for Add New Payment Method form
@@ -281,6 +282,13 @@ export function ClientFinancials() {
           <span>إدارة الأموال والمعاملات</span>
         </h1>
         <p className="text-muted-foreground">إدارة الإيداعات والسحوبات الخاصة بك وعرض سجل الدفعات والمعاملات.</p>
+      </div>
+
+      {/* Balance Transfer Component */}
+      <div className="flex justify-center my-6">
+        <div className="w-full lg:w-1/2">
+          <BalanceDisplayAndTransfer />
+        </div>
       </div>
 
       {/* Add New Payment Method Card */}
