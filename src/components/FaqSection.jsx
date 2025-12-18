@@ -73,7 +73,7 @@ export function FaqSection() {
     <section className="bg-background py-16 md:py-24 w-full text-foreground overflow-hidden">
       <div className="mx-auto max-w-screen-xl px-4 md:px-6 container">
         <div className="flex flex-col gap-10 md:flex-row md:gap-16">
-          <div className="md:w-1/3">
+          <div className="md:w-1/3 text-center">
             <div>
               <h4 className="text-lg text-primary font-semibold mb-2 tracking-wider">
                 الأسئلة الشائعة
