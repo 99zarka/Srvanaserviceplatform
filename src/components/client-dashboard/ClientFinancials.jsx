@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import BalanceDisplayAndTransfer from "../common/BalanceDisplayAndTransfer";
 import {
   CreditCard,
   Wallet,
@@ -91,6 +92,9 @@ export function ClientFinancials() {
 
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [payments, setPayments] = useState([]);
+  const [paymentsLoading, setPaymentsLoading] = useState(true);
+  const [paymentsError, setPaymentsError] = useState(null);
   const [withdrawalError, setWithdrawalError] = useState(null);
   const [depositSuccessMessage, setDepositSuccessMessage] = useState(null); // Local state for deposit success feedback
   const [depositMethod, setDepositMethod] = useState("new"); // "new" or "saved"
@@ -135,6 +139,8 @@ export function ClientFinancials() {
   // Function to fetch all financial data including payment methods and transactions
   const fetchFinancialData = async () => {
     if (!token) {
+      setPaymentsError("المستخدم غير مصادق عليه.");
+      setPaymentsLoading(false);
       return;
     }
     try {
@@ -337,7 +343,7 @@ export function ClientFinancials() {
       .then(() => {
         setWithdrawalValue("amount", "");
         setWithdrawalError(null); // Clear any previous withdrawal errors on success
-        fetchPaymentMethods(); // Refetch payment methods after successful withdrawal
+        fetchFinancialData(); // Refetch financial data after successful withdrawal
       })
       .catch((err) => {
         console.error("Withdrawal failed:", err);
@@ -493,6 +499,8 @@ export function ClientFinancials() {
           </span>
         </div>
       )}
+      
+      
       <div>
         <h1 className="mb-2 flex items-center space-x-2">
           <DollarSign className="h-7 w-7" />
@@ -502,6 +510,7 @@ export function ClientFinancials() {
           إدارة الإيداعات والسحوبات الخاصة بك وعرض سجل الدفعات والمعاملات.
         </p>
       </div>
+      <BalanceDisplayAndTransfer />
 
       {/* Manual Add Payment Method Card REMOVED */}
 
@@ -586,7 +595,7 @@ export function ClientFinancials() {
                 type="number"
                 placeholder="أدخل مبلغ السحب"
                 {...withdrawalRegister("amount")}
-                min="0.01"
+                min="1"
                 step="1"
                 className="w-full mb-2"
                 dir="ltr"
@@ -679,10 +688,32 @@ export function ClientFinancials() {
                 {transactions.map((transaction) => (
                   <TableRow key={transaction.id}>
                     <TableCell>{transaction.amount}</TableCell>
-                    <TableCell>
-                      {getTransactionTypeBadge(transaction.transaction_type)}
-                    </TableCell>
-                    <TableCell>{transaction.payment_method || "N/A"}</TableCell>{" "}
+                    <TableCell>{getTransactionTypeBadge(transaction.transaction_type)}</TableCell>
+                        <TableCell>
+                          {(() => {
+                            const method = transaction.payment_method;
+                            if (!method) return 'N/A';
+                            
+                            if (method === 'Available Balance') return 'الرصيد المتاح';
+                            if (method === 'Escrow') return 'الضمان';
+                            
+                            // Handle card types ending in digits
+                            if (method.startsWith('Visa ending in')) {
+                              return method.replace('Visa ending in', 'Visa (آخر أرقام البطاقة)');
+                            }
+                            if (method.startsWith('MasterCard ending in')) {
+                              return method.replace('MasterCard ending in', 'MasterCard (آخر أرقام البطاقة)');
+                            }
+                            if (method.startsWith('American Express ending in')) {
+                              return method.replace('American Express ending in', 'American Express (آخر أرقام البطاقة)');
+                            }
+                            if (method.startsWith('Discover ending in')) {
+                              return method.replace('Discover ending in', 'Discover (آخر أرقام البطاقة)');
+                            }
+                            
+                            return method;
+                          })()}
+                        </TableCell>{" "}
                     {/* Display payment method, or N/A if null */}
                     <TableCell>{transaction.currency}</TableCell>{" "}
                     {/* Display currency */}
@@ -705,7 +736,45 @@ export function ClientFinancials() {
           >
             السابق
           </Button>
-          <span className="text-sm text-gray-500">صفحة {currentPage}</span>
+          
+          {/* Page Numbers */}
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-500">صفحة</span>
+            {pagination?.count && pagination?.count > 0 ? (
+              (() => {
+                const totalPages = Math.ceil(pagination.count / 20); // Fixed page size of 20
+                const pageNumbers = [];
+                const maxPagesToShow = 5;
+                
+                let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+                let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+                
+                if (endPage - startPage < maxPagesToShow - 1) {
+                  startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                  pageNumbers.push(
+                    <Button
+                      key={i}
+                      variant={i === currentPage ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(i)}
+                      className={i === currentPage ? "bg-blue-500 text-white" : ""}
+                    >
+                      {i}
+                    </Button>
+                  );
+                }
+                
+                return pageNumbers;
+              })()
+            ) : (
+              <span className="text-sm text-gray-500">{currentPage}</span>
+            )}
+            <span className="text-sm text-gray-500">من {pagination?.count ? Math.ceil(pagination.count / 20) : '1'}</span>
+          </div>
+          
           <Button
             variant="outline"
             onClick={() => setCurrentPage((prev) => prev + 1)}
