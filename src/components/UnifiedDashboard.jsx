@@ -20,7 +20,6 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { ClientOverview } from "./client-dashboard/ClientOverview";
-import { ClientRequests } from "./client-dashboard/ClientRequests";
 import { ClientMessages } from "./client-dashboard/ClientMessages";
 import { ClientDisputes } from "./client-dashboard/ClientDisputes";
 import { ClientFinancials } from "./client-dashboard/ClientFinancials";
@@ -72,7 +71,6 @@ export function UnifiedDashboard() {
 
   const mainTools = [
     { icon: Home, label: "نظرة عامة", path: "/dashboard" },
-    { icon: FileText, label: "طلباتي", path: "/dashboard/requests" },
     { icon: DollarSign, label: "الماليات", path: "/dashboard/financials" },
     { icon: ShoppingCart, label: "الطلبات والعروض", path: "/dashboard/orders-offers" },
     { icon: MessageSquare, label: "الرسائل", path: "/dashboard/messages" },
@@ -175,7 +173,6 @@ export function UnifiedDashboard() {
         <Routes location={location}>
           {/* Client Routes */}
           <Route index element={<ClientOverview />} />
-          <Route path="requests" element={<ClientRequests />} />
           <Route path="financials" element={<ClientFinancials />} />
           <Route path="orders-offers" element={<ClientOrdersAndOffers />} />
           <Route path="orders-offers/edit/:orderId" element={<EditOrderPage />} />

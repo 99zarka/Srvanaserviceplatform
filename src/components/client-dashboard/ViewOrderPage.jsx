@@ -158,8 +158,6 @@ const ViewOrderPage = () => {
         return 'مقبولة';
       case 'IN_PROGRESS':
         return 'قيد التنفيذ';
-      case 'AWAITING_RELEASE':
-        return 'بانتظار الإفراج';
       case 'COMPLETED':
         return 'مكتملة';
       case 'DISPUTED':
