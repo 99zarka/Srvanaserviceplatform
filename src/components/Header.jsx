@@ -94,29 +94,29 @@ export function Header() {
   }
 
   return (
-    <header className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
+    <header className="bg-white/95 border-b-2 border-primary/10 sticky top-0 z-50 shadow-md backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" dir="rtl">
-        <div className="flex items-center h-16 gap-4">
+        <div className="flex items-center h-20 gap-4">
           {/* Right Side: Logo + Home Link */}
           <div className="flex items-center gap-6 shrink-0">
             <Link
               to="/"
-              className="flex items-center cursor-pointer"
+              className="flex items-center cursor-pointer group"
             >
               <img 
                 src={SrvanaLogo} 
                 alt="Srvana Logo" 
-                className="h-8 w-auto"
+                className="h-10 w-auto group-hover:scale-105 transition-transform duration-300"
               />
             </Link>
             <Link
               to="/"
-              className={`hidden md:flex hover:text-primary transition-colors flex-row items-center gap-2 whitespace-nowrap ${
-                location.pathname === "/" ? "text-primary" : "text-foreground"
+              className={`hidden md:flex hover:text-primary transition-all duration-300 flex-row items-center gap-2 whitespace-nowrap font-semibold ${
+                location.pathname === "/" ? "text-primary" : "text-neutral-700"
               }`}
             >
               <span>الرئيسية</span>
-              <Home className="h-4 w-4" />
+              <Home className="h-5 w-5" />
             </Link>
           </div>
 
@@ -126,15 +126,25 @@ export function Header() {
               item.isDropdown ? (
                 <DropdownMenu key={item.path}>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex flex-row items-center gap-2 whitespace-nowrap">
+                    <Button 
+                      variant="ghost" 
+                      className="flex flex-row items-center gap-2 whitespace-nowrap font-semibold text-neutral-700 hover:text-primary hover:bg-primary/5 transition-all duration-300"
+                    >
                       <span>{item.name}</span>
-                      {item.icon && <item.icon className="h-4 w-4" />}
+                      {item.icon && <item.icon className="h-5 w-5" />}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" dir="rtl">
+                  <DropdownMenuContent align="start" dir="rtl" className="min-w-[200px] shadow-lg border-primary/20">
                     {item.dropdownItems.map((dropdownItem) => (
-                      <DropdownMenuItem key={dropdownItem.id || dropdownItem.path} asChild>
-                        <Link to={dropdownItem.path}>{dropdownItem.name}</Link>
+                      <DropdownMenuItem 
+                        key={dropdownItem.id || dropdownItem.path} 
+                        asChild 
+                        className="cursor-pointer hover:bg-primary/5 transition-colors"
+                      >
+                        <Link to={dropdownItem.path} className="flex items-center gap-2 py-2">
+                          {dropdownItem.icon && <dropdownItem.icon className="h-4 w-4" />}
+                          <span>{dropdownItem.name}</span>
+                        </Link>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
@@ -143,12 +153,12 @@ export function Header() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`hover:text-primary transition-colors flex flex-row items-center gap-2 whitespace-nowrap ${
-                    location.pathname === item.path ? "text-primary" : "text-foreground"
+                  className={`hover:text-primary transition-all duration-300 flex flex-row items-center gap-2 whitespace-nowrap font-semibold ${
+                    location.pathname === item.path ? "text-primary" : "text-neutral-700"
                   }`}
                 >
                   <span>{item.name}</span>
-                  {item.icon && <item.icon className="h-4 w-4" />}
+                  {item.icon && <item.icon className="h-5 w-5" />}
                 </Link>
               )
             ))}
@@ -161,35 +171,35 @@ export function Header() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden mr-auto"
+            className="md:hidden mr-auto p-2 rounded-lg hover:bg-neutral-100 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
+              <X className="h-6 w-6 text-neutral-700" />
             ) : (
-              <Menu className="h-6 w-6" />
+              <Menu className="h-6 w-6 text-neutral-700" />
             )}
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-border">
-            <nav className="flex flex-col space-y-4">
+          <div className="md:hidden py-6 border-t-2 border-primary/10 bg-neutral-50 rounded-b-xl">
+            <nav className="flex flex-col space-y-3">
               {navItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`text-start hover:text-primary transition-colors flex items-center space-x-2 ${
-                    location.pathname === item.path ? "text-primary" : "text-foreground"
+                  className={`text-start hover:text-primary hover:bg-white transition-all duration-300 flex items-center gap-3 px-4 py-3 rounded-lg font-medium ${
+                    location.pathname === item.path ? "text-primary bg-white shadow-sm" : "text-neutral-700"
                   }`}
                 >
                   {item.icon && <item.icon className="h-5 w-5" />}
                   <span>{item.name}</span>
                 </Link>
               ))}
-              <div className="flex flex-col space-y-2 pt-4 border-t border-border">
+              <div className="flex flex-col space-y-2 pt-4 border-t-2 border-primary/10 mt-4">
                 <AuthSection isMobile={true} closeMenu={() => setMobileMenuOpen(false)} />
               </div>
             </nav>
@@ -243,31 +253,38 @@ function AuthSection({ isMobile = false, closeMenu }) {
 
   if (isAuthenticated && user) {
     return (
-      <div className={`${isMobile ? "flex flex-col space-y-2" : "flex"} items-center gap-2`}>
+      <div className={`${isMobile ? "flex flex-col space-y-3" : "flex"} items-center gap-3`}>
         {/* Notification Dropdown - First */}
         <NotificationDropdown isMobile={isMobile} closeMenu={closeMenu} />
 
         {/* User Dropdown Menu - Second */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="flex items-center gap-1 h-9 px-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="flex items-center gap-2 h-10 px-3 hover:bg-primary/5 hover:text-primary transition-all duration-300 font-medium"
+            >
               <CircleUser className="h-5 w-5" />
-              <span className="text-sm max-w-[80px] truncate">
+              <span className="text-sm max-w-[100px] truncate">
                 {user.first_name ? user.first_name.split(' ')[0] : user.username || "مستخدم"}
               </span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" dir="rtl">
-            <DropdownMenuLabel>حسابي</DropdownMenuLabel>
+          <DropdownMenuContent align="end" dir="rtl" className="min-w-[200px] shadow-lg border-primary/20">
+            <DropdownMenuLabel className="font-bold text-primary">حسابي</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link to={`/profile/${user.user_id}`} className="flex items-center gap-2">
+            <DropdownMenuItem asChild className="cursor-pointer hover:bg-primary/5">
+              <Link to={`/profile/${user.user_id}`} className="flex items-center gap-2 py-2">
                 <CircleUser className="h-4 w-4" />
                 <span>الملف الشخصي</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+            <DropdownMenuItem 
+              onClick={handleLogout} 
+              className="text-danger hover:bg-danger/5 hover:text-danger cursor-pointer py-2"
+            >
               <LogOut className="h-4 w-4 ml-2" />
               <span>تسجيل الخروج</span>
             </DropdownMenuItem>
@@ -278,11 +295,12 @@ function AuthSection({ isMobile = false, closeMenu }) {
         {user.user_type?.user_type_name !== 'technician' && user.user_type?.user_type_name !== 'admin' && (
           <Button
             onClick={handleBecomeTechnician}
-            className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white h-9 px-3"
+            className="flex items-center gap-1 text-white h-9 px-3"
+            style={{ backgroundColor: '#243a5e' }}
             size="sm"
           >
             <Wrench className="h-4 w-4" />
-            <span className="text-sm">كن فني</span>
+            <span className="text-sm">كن فنياً</span>
           </Button>
         )}
 
@@ -300,10 +318,10 @@ function AuthSection({ isMobile = false, closeMenu }) {
   }
 
   return (
-    <div className={`${isMobile ? "flex flex-col space-y-2" : "flex"} items-center gap-3`}>
+    <div className={`${isMobile ? "flex flex-col space-y-3" : "flex"} items-center gap-3`}>
       <Button
         asChild
-        className="bg-[#1e3a5f] hover:bg-[#2c4a6f] text-white flex items-center gap-2"
+        className="bg-primary hover:bg-primary-600 text-white flex items-center gap-2 h-10 px-5 font-semibold shadow-md hover:shadow-lg transition-all duration-300"
         onClick={isMobile ? closeMenu : undefined}
       >
         <Link to="/login">
@@ -314,7 +332,7 @@ function AuthSection({ isMobile = false, closeMenu }) {
       <Button
         variant="outline"
         asChild
-        className="flex items-center gap-2 border-foreground/30"
+        className="flex items-center gap-2 border-2 border-primary/30 hover:bg-primary/5 hover:border-primary text-primary h-10 px-5 font-semibold transition-all duration-300"
         onClick={isMobile ? closeMenu : undefined}
       >
         <Link to="/signup">

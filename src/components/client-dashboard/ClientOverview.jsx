@@ -1,6 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Home, CreditCard, CheckCircle, Clock, LayoutDashboard, FileText, Eye, Zap, PlusCircle, MessageSquare } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { 
+  Home, 
+  CreditCard, 
+  CheckCircle, 
+  Clock, 
+  LayoutDashboard, 
+  FileText, 
+  Eye, 
+  Zap, 
+  PlusCircle, 
+  MessageSquare,
+  ArrowUpRight,
+  TrendingUp,
+  Wallet,
+  Shield,
+  HourglassIcon
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
@@ -31,9 +47,9 @@ export function ClientOverview() {
 
         // Update local stats using data from API response
         setStats([
-          { label: "الرصيد المتاح", value: `${parseFloat(statsData.available_balance || 0).toFixed(2)} ج.م`, icon: CreditCard, color: "text-green-600" },
-          { label: "في الضمان", value: `${parseFloat(statsData.in_escrow_balance || 0).toFixed(2)} ج.م`, icon: CreditCard, color: "text-blue-600" },
-          { label: "الرصيد المعلق", value: `${parseFloat(statsData.pending_balance || 0).toFixed(2)} ج.م`, icon: CreditCard, color: "text-yellow-600" },
+          { label: "الرصيد المتاح", value: `${available_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-green-600" },
+          { label: "في الضمان", value: `${in_escrow_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-blue-600" },
+          { label: "الرصيد المعلق", value: `${pending_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-yellow-600" },
           { label: "الطلبات النشطة", value: statsData.active_orders || 0, icon: Clock, color: "text-primary" },
           { label: "المكتملة", value: statsData.completed_orders || 0, icon: CheckCircle, color: "text-green-600" },
           { label: "إجمالي الإنفاق", value: `${statsData.total_spent ? parseFloat(statsData.total_spent).toFixed(2) : '0.00'} ج.م`, icon: CreditCard, color: "text-blue-600" },
@@ -64,27 +80,27 @@ export function ClientOverview() {
 
   const getStatusBadge = (status) => {
     const variants = {
-      "OPEN": { variant: "default", className: "bg-blue-100 text-blue-800" },
-      "ACCEPTED": { variant: "default", className: "bg-green-100 text-green-800" },
-      "IN_PROGRESS": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
-      "AWAITING_RELEASE": { variant: "default", className: "bg-purple-100 text-purple-800" },
-      "COMPLETED": { variant: "default", className: "bg-green-100 text-green-800" },
-      "DISPUTED": { variant: "default", className: "bg-orange-100 text-orange-800" },
-      "CANCELLED": { variant: "default", className: "bg-red-100 text-red-800" },
-      "REFUNDED": { variant: "default", className: "bg-red-200 text-red-900" },
-      "AWAITING_TECHNICIAN_RESPONSE": { variant: "default", className: "bg-gray-200 text-gray-800" },
-      "AWAITING_CLIENT_ESCROW_CONFIRMATION": { variant: "default", className: "bg-yellow-200 text-yellow-800" },
+      "OPEN": { variant: "default", className: "bg-blue-50 text-blue-700 border-blue-300 font-semibold" },
+      "ACCEPTED": { variant: "default", className: "bg-success/10 text-success border-success/30 font-semibold" },
+      "IN_PROGRESS": { variant: "default", className: "bg-warning/10 text-warning border-warning/30 font-semibold" },
+      "AWAITING_RELEASE": { variant: "default", className: "bg-purple-50 text-purple-700 border-purple-300 font-semibold" },
+      "COMPLETED": { variant: "default", className: "bg-success/10 text-success border-success/30 font-semibold" },
+      "DISPUTED": { variant: "default", className: "bg-orange-50 text-orange-700 border-orange-300 font-semibold" },
+      "CANCELLED": { variant: "default", className: "bg-danger/10 text-danger border-danger/30 font-semibold" },
+      "REFUNDED": { variant: "default", className: "bg-danger/20 text-danger border-danger/40 font-semibold" },
+      "AWAITING_TECHNICIAN_RESPONSE": { variant: "default", className: "bg-neutral-100 text-neutral-700 border-neutral-300 font-semibold" },
+      "AWAITING_CLIENT_ESCROW_CONFIRMATION": { variant: "default", className: "bg-warning/10 text-warning border-warning/30 font-semibold" },
       // Arabic translations
-      "مفتوحة": { variant: "default", className: "bg-blue-100 text-blue-800" },
-      "مقبولة": { variant: "default", className: "bg-green-100 text-green-800" },
-      "قيد التنفيذ": { variant: "default", className: "bg-yellow-100 text-yellow-800" },
-      "بانتظار الإفراج": { variant: "default", className: "bg-purple-100 text-purple-800" },
-      "مكتملة": { variant: "default", className: "bg-green-100 text-green-800" },
-      "متنازع عليها": { variant: "default", className: "bg-orange-100 text-orange-800" },
-      "ملغاة": { variant: "default", className: "bg-red-100 text-red-800" },
-      "مستردة": { variant: "default", className: "bg-red-200 text-red-900" },
-      "بانتظار رد الفني": { variant: "default", className: "bg-gray-200 text-gray-800" },
-      "بانتظار تأكيد العميل للدفع": { variant: "default", className: "bg-yellow-200 text-yellow-800" },
+      "مفتوحة": { variant: "default", className: "bg-blue-50 text-blue-700 border-blue-300 font-semibold" },
+      "مقبولة": { variant: "default", className: "bg-success/10 text-success border-success/30 font-semibold" },
+      "قيد التنفيذ": { variant: "default", className: "bg-warning/10 text-warning border-warning/30 font-semibold" },
+      "بانتظار الإفراج": { variant: "default", className: "bg-purple-50 text-purple-700 border-purple-300 font-semibold" },
+      "مكتملة": { variant: "default", className: "bg-success/10 text-success border-success/30 font-semibold" },
+      "متنازع عليها": { variant: "default", className: "bg-orange-50 text-orange-700 border-orange-300 font-semibold" },
+      "ملغاة": { variant: "default", className: "bg-danger/10 text-danger border-danger/30 font-semibold" },
+      "مستردة": { variant: "default", className: "bg-danger/20 text-danger border-danger/40 font-semibold" },
+      "بانتظار رد الفني": { variant: "default", className: "bg-neutral-100 text-neutral-700 border-neutral-300 font-semibold" },
+      "بانتظار تأكيد العميل للدفع": { variant: "default", className: "bg-warning/10 text-warning border-warning/30 font-semibold" },
     };
 
     let translatedStatus = status;
@@ -122,53 +138,97 @@ export function ClientOverview() {
       default:
         translatedStatus = status;
     }
-    const config = variants[status] || { variant: "default", className: "bg-gray-100 text-gray-800" };
-    return <Badge variant={config.variant} className={config.className}>{translatedStatus}</Badge>;
+    const config = variants[status] || { variant: "default", className: "bg-neutral-100 text-neutral-700 border-neutral-300 font-semibold" };
+    return <Badge variant="outline" className={config.className}>{translatedStatus}</Badge>;
   };
 
-  if (loading) return <div className="text-center py-20" dir="rtl">جاري تحميل لوحة التحكم...</div>;
-  if (error) return <div className="text-center py-20 text-red-500" dir="rtl">خطأ: {error}</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen bg-neutral-50" dir="rtl">
+      <div className="text-center">
+        <div className="inline-block w-12 h-12 mb-4 border-4 rounded-full animate-spin border-primary border-t-accent"></div>
+        <p className="text-lg text-neutral-600">جاري تحميل لوحة التحكم...</p>
+      </div>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="flex items-center justify-center min-h-screen bg-neutral-50" dir="rtl">
+      <Card className="max-w-md border-danger">
+        <CardContent className="pt-6">
+          <div className="text-center">
+            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full text-danger bg-danger/10">
+              <span className="text-2xl">⚠</span>
+            </div>
+            <h3 className="mb-2 text-xl font-bold text-neutral-800">خطأ في التحميل</h3>
+            <p className="text-danger">{error}</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <div>
-        <h1 className="mb-2 flex items-center space-x-2">
-          <LayoutDashboard className="h-7 w-7" />
-          <span>نظرة عامة على لوحة التحكم</span>
-        </h1>
-        <p className="text-muted-foreground">مرحبًا بعودتك! إليك ما يحدث مع طلباتك.</p>
+    <div className="min-h-screen p-6 bg-neutral-50" dir="rtl">
+      {/* Header Section */}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="p-3 bg-primary rounded-xl">
+            <LayoutDashboard className="w-8 h-8 text-white" />
+          </div>
+          <div>
+            <h1 className="text-4xl font-extrabold text-primary">نظرة عامة على لوحة التحكم</h1>
+            <p className="mt-1 text-lg text-neutral-600">مرحبًا بعودتك! إليك ما يحدث مع طلباتك</p>
+          </div>
+        </div>
+        <div className="w-32 h-1 rounded-full bg-gradient-to-r from-accent to-accent/30"></div>
       </div>
 
       {/* Balances and Stats */}
-      <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
-        {stats.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground mb-1">{stat.label}</p>
-                  <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
+      <div className="grid gap-6 mb-8 lg:grid-cols-3 md:grid-cols-2">
+        {stats.map((stat, index) => (
+          <Card 
+            key={stat.label}
+            className="relative overflow-hidden transition-all duration-300 border-0 shadow-lg hover:shadow-xl group"
+          >
+            {/* Accent bar */}
+            <div className={`absolute top-0 left-0 right-0 h-1.5 ${stat.accentColor}`}></div>
+            
+            <CardContent className="pt-6 pb-6">
+              {/* Icon and Value Row */}
+              <div className="flex items-start justify-between mb-3">
+                <div className={`p-3 rounded-xl ${stat.bgColor} group-hover:scale-110 transition-transform duration-300`}>
+                  {stat.icon && <stat.icon className={`h-6 w-6 ${stat.iconColor}`} />}
                 </div>
-                {stat.icon && <stat.icon className={`h-8 w-8 ${stat.color}`} />}
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-neutral-800">{stat.value}</div>
+                </div>
               </div>
+              
+              {/* Label */}
+              <p className="text-sm font-medium text-neutral-600">{stat.label}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-
+      {/* Balance Transfer Component */}
+      <div className="flex justify-center my-6">
+        <div className="w-full lg:w-1/2">
+          <BalanceDisplayAndTransfer />
+        </div>
+      </div>
 
       {/* Recent Requests */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center space-x-2">
-              <FileText className="h-5 w-5" />
+              <FileText className="w-5 h-5" />
               <span>طلبات الخدمة الأخيرة</span>
             </CardTitle>
             <Button variant="outline" asChild className="flex items-center space-x-2">
-              <Link to="/dashboard/orders-offers">
-                <Eye className="h-4 w-4" />
+              <Link to="/dashboard/requests">
+                <Eye className="w-4 h-4" />
                 <span>عرض الكل</span>
               </Link>
             </Button>
@@ -189,15 +249,7 @@ export function ClientOverview() {
               {recentRequests.length > 0 ? (
                 recentRequests.map((request) => (
                   <TableRow key={request.id}>
-                    <TableCell>{request.service}</TableCell><TableCell>
-                      {request.worker && request.technicianId ? (
-                        <Link to={`/profile/${request.technicianId}`} className="text-blue-600 hover:text-blue-800 hover:underline">
-                          {request.worker}
-                        </Link>
-                      ) : (
-                        "غير متاح"
-                      )}
-                    </TableCell><TableCell>{request.date}</TableCell><TableCell>{getStatusBadge(request.status)}</TableCell><TableCell>{request.amount}</TableCell>
+                    <TableCell>{request.service}</TableCell><TableCell>{request.worker || "غير متاح"}</TableCell><TableCell>{request.date}</TableCell><TableCell>{getStatusBadge(request.status)}</TableCell><TableCell>{request.amount}</TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -211,27 +263,33 @@ export function ClientOverview() {
       </Card>
 
       {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Zap className="h-5 w-5" />
-            <span>إجراءات سريعة</span>
-          </CardTitle>
+      <Card className="border-0 shadow-lg">
+        <CardHeader className="p-6 border-b bg-neutral-100 border-neutral-200">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-accent/20">
+              <Zap className="w-5 h-5 text-accent-600" />
+            </div>
+            <CardTitle className="text-2xl font-bold text-neutral-800">إجراءات سريعة</CardTitle>
+          </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 gap-4">
+        <CardContent className="p-6">
+          <div className="grid gap-4 md:grid-cols-2">
             <Button
-              className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center space-x-2"
+              className="py-6 text-lg font-semibold text-white transition-all duration-300 shadow-lg bg-primary hover:bg-primary-600 hover:shadow-xl group"
               asChild
             >
-              <Link to="/order/create">
-                <PlusCircle className="h-5 w-5" />
+              <Link to="/order/create" className="flex items-center justify-center gap-3">
+                <PlusCircle className="w-6 h-6 transition-transform group-hover:scale-110" />
                 <span>طلب خدمة جديدة</span>
               </Link>
             </Button>
-            <Button variant="outline" asChild className="flex items-center space-x-2">
-              <Link to="/dashboard/messages">
-                <MessageSquare className="h-5 w-5" />
+            <Button 
+              variant="outline" 
+              asChild 
+              className="py-6 text-lg font-semibold transition-all duration-300 border-2 shadow-md border-primary/30 hover:bg-primary/5 hover:border-primary hover:shadow-lg group"
+            >
+              <Link to="/dashboard/messages" className="flex items-center justify-center gap-3">
+                <MessageSquare className="w-6 h-6 transition-transform group-hover:scale-110" />
                 <span>عرض الرسائل</span>
               </Link>
             </Button>
