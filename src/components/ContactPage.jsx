@@ -121,126 +121,178 @@ export function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen" dir="rtl">
+    <div className="min-h-screen bg-neutral-50" dir="rtl">
       {/* Hero Section */}
-      <section className="bg-secondary text-secondary-foreground py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="mb-6 flex items-center justify-center space-x-2">
-            <PhoneCall className="h-9 w-9" />
-            <span>اتصل بنا</span>
+      <section className="relative py-24 overflow-hidden text-white bg-gradient-to-br from-primary via-primary-600 to-primary-800">
+        <div className="absolute inset-0 bg-[url('/assets/pattern.svg')] opacity-5"></div>
+        <div className="relative z-10 px-4 mx-auto text-center max-w-7xl sm:px-6 lg:px-8">
+          <div className="inline-flex items-center justify-center p-4 mb-6 bg-white/10 backdrop-blur-sm rounded-2xl">
+            <PhoneCall className="w-12 h-12 text-accent" />
+          </div>
+          <h1 className="mb-6 text-5xl font-extrabold">
+            اتصل بنا
           </h1>
-          <p className="max-w-3xl mx-auto text-secondary-foreground/90">
+          <p className="max-w-3xl mx-auto text-xl leading-relaxed text-white/90">
             هل لديك أسئلة أو تحتاج إلى مساعدة؟ نحن هنا من أجلك. تواصل معنا وسيقوم فريقنا
             بالرد عليك في أقرب وقت ممكن.
           </p>
+          <div className="flex items-center justify-center gap-8 mt-8">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-accent">24/7</div>
+              <div className="text-sm text-white/80">دعم متواصل</div>
+            </div>
+            <div className="w-px h-12 bg-white/20"></div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-accent">10k+</div>
+              <div className="text-sm text-white/80">عميل راضٍ</div>
+            </div>
+            <div className="w-px h-12 bg-white/20"></div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-accent">&lt;2h</div>
+              <div className="text-sm text-white/80">وقت الرد</div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Contact Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12">
+      <section className="py-20">
+        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-2">
             {/* Contact Form */}
             <div>
-              <h2 className="mb-6 flex items-center space-x-2">
-                <Send className="h-6 w-6" />
-                <span>أرسل لنا رسالة</span>
-              </h2>
+              <Card className="border-0 shadow-xl">
+                <div className="p-6 border-b-2 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+                  <h2 className="flex items-center gap-3 text-3xl font-bold text-primary">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Send className="w-6 h-6 text-primary" />
+                    </div>
+                    <span>أرسل لنا رسالة</span>
+                  </h2>
+                  <p className="mt-2 text-neutral-600">املأ النموذج وسنتواصل معك خلال 24 ساعة</p>
+                </div>
+                <CardContent className="p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <Label htmlFor="name">الاسم</Label>
+                  <Label htmlFor="name" className="block mb-2 text-sm font-bold text-neutral-700">الاسم الكامل</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="اسمك"
+                    placeholder="أدخل اسمك الكامل"
                     required
-                    className="bg-input-background"
+                    className="h-12 transition-all border-2 rounded-lg border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email">البريد الإلكتروني</Label>
+                  <Label htmlFor="email" className="block mb-2 text-sm font-bold text-neutral-700">البريد الإلكتروني</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="بريدك.الإلكتروني@مثال.كوم"
+                    placeholder="example@email.com"
                     required
-                    className="bg-input-background"
+                    className="h-12 transition-all border-2 rounded-lg border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="subject">الموضوع</Label>
+                  <Label htmlFor="subject" className="block mb-2 text-sm font-bold text-neutral-700">الموضوع</Label>
                   <Input
                     id="subject"
                     value={formData.subject}
                     onChange={handleChange}
-                    placeholder="كيف يمكننا المساعدة؟"
+                    placeholder="كيف يمكننا مساعدتك؟"
                     required
-                    className="bg-input-background"
+                    className="h-12 transition-all border-2 rounded-lg border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="message">الرسالة</Label>
+                  <Label htmlFor="message" className="block mb-2 text-sm font-bold text-neutral-700">الرسالة</Label>
                   <Textarea
                     id="message"
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="أخبرنا المزيد عن استفسارك..."
+                    placeholder="اكتب رسالتك هنا... أخبرنا بالتفاصيل"
                     rows={6}
                     required
-                    className="bg-input-background resize-none"
+                    className="transition-all border-2 rounded-lg resize-none border-neutral-200 focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center space-x-2"
+                  className="flex items-center justify-center w-full gap-3 text-lg font-semibold text-white transition-all duration-300 shadow-lg bg-primary hover:bg-primary-600 h-14 hover:shadow-xl group"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    <>
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                      <span>جاري الإرسال...</span>
+                    </>
                   ) : (
-                    <Send className="h-5 w-5" />
+                    <>
+                      <Send className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                      <span>إرسال الرسالة</span>
+                    </>
                   )}
-                  <span>إرسال الرسالة</span>
                 </Button>
-                {submitError && <p className="text-red-500 text-sm mt-2">{submitError}</p>}
+                {submitError && (
+                  <div className="p-4 border-2 rounded-lg bg-danger/10 border-danger/30">
+                    <p className="text-sm font-medium text-danger">{submitError}</p>
+                  </div>
+                )}
               </form>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Contact Information */}
-            <div>
-              <h2 className="mb-6">تواصل معنا</h2>
-              <p className="text-muted-foreground mb-8">
-                سواء كنت عميلاً تبحث عن خدمات أو عاملاً يرغب في الانضمام إلى منصتنا،
-                نحن نحب أن نسمع منك.
-              </p>
+            <div className="space-y-6">
+              <div className="p-8 bg-white border shadow-xl rounded-2xl border-primary/10">
+                <h2 className="mb-3 text-3xl font-bold text-primary">تواصل معنا</h2>
+                <p className="text-lg leading-relaxed text-neutral-600">
+                  سواء كنت عميلاً تبحث عن خدمات أو فنياً يرغب في الانضمام إلى منصتنا،
+                  نحن نحب أن نسمع منك.
+                </p>
+              </div>
+
               {isLoadingInfo ? (
-                <div className="text-center p-4">جاري تحميل معلومات الاتصال...</div>
+                <Card className="border-0 shadow-lg">
+                  <CardContent className="p-12 text-center">
+                    <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin text-primary" />
+                    <p className="text-neutral-600">جاري تحميل معلومات الاتصال...</p>
+                  </CardContent>
+                </Card>
               ) : infoError ? (
-                <div className="text-center p-4 text-red-500">{infoError}</div>
+                <Card className="border-2 border-danger/30 bg-danger/5">
+                  <CardContent className="p-8 text-center">
+                    <p className="font-medium text-danger">{infoError}</p>
+                  </CardContent>
+                </Card>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {contactInfo.map((info) => (
-                    <Card key={info.title}>
-                      <CardContent className="pt-6">
-                        <div className="flex items-start space-x-4">
-                          <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center shrink-0">
-                            <info.icon className="h-6 w-6 text-primary" />
+                    <Card 
+                      key={info.title}
+                      className="transition-all duration-300 border-0 shadow-lg hover:shadow-xl group"
+                    >
+                      <CardContent className="p-6">
+                        <div className="flex items-start gap-4">
+                          <div className="flex items-center justify-center transition-transform duration-300 w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 shrink-0 group-hover:scale-110">
+                            <info.icon className="w-7 h-7 text-primary" />
                           </div>
-                          <div>
-                            <h4 className="mb-1">{info.title}</h4>
+                          <div className="flex-1">
+                            <h4 className="mb-2 text-lg font-bold text-primary">{info.title}</h4>
                             {info.link !== "#" ? (
                               <a
                                 href={info.link}
-                                className="text-muted-foreground hover:text-primary transition-colors"
+                                className="text-base font-medium transition-colors text-neutral-700 hover:text-primary"
                               >
                                 {info.content}
                               </a>
                             ) : (
-                              <p className="text-muted-foreground">{info.content}</p>
+                              <p className="text-base text-neutral-700">{info.content}</p>
                             )}
                           </div>
                         </div>
@@ -251,19 +303,31 @@ export function ContactPage() {
               )}
 
               {/* Egyptian-specific notice */}
-              <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="font-semibold text-blue-800 mb-2">ملاحظة مهمة</h3>
-                <p className="text-blue-700 text-sm">
-                  هذه الخدمة متاحة حالياً فقط للمقيمين في مصر. للحصول على الدعم باللغة العربية، 
-                  يرجى الاتصال بنا على الرقم المذكور أعلاه أو إرسال بريد إلكتروني إلينا.
-                </p>
-              </div>
+              <Card className="border-2 shadow-lg border-accent/30 bg-gradient-to-br from-accent/10 to-accent/5">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 rounded-lg bg-accent/20">
+                      <MapPin className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="mb-2 text-lg font-bold text-primary">ملاحظة مهمة</h3>
+                      <p className="leading-relaxed text-neutral-700">
+                        هذه الخدمة متاحة حالياً فقط للمقيمين في مصر. للحصول على الدعم باللغة العربية، 
+                        يرجى الاتصال بنا على الرقم المذكور أعلاه أو إرسال بريد إلكتروني إلينا.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Map Placeholder */}
-              <Card className="mt-6">
+              <Card className="overflow-hidden border-0 shadow-lg">
                 <CardContent className="p-0">
-                  <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                    <MapPin className="h-12 w-12 text-muted-foreground" />
+                  <div className="flex flex-col items-center justify-center rounded-lg aspect-video bg-gradient-to-br from-primary/10 to-primary/5">
+                    <div className="p-6 bg-white/80 backdrop-blur-sm rounded-2xl">
+                      <MapPin className="w-16 h-16 mx-auto mb-3 text-primary" />
+                      <p className="font-medium text-neutral-700">خريطة الموقع قريباً</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -273,18 +337,24 @@ export function ContactPage() {
       </section>
 
       {/* FAQ Teaser */}
-      <section className="py-20 bg-muted">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="mb-4 flex items-center justify-center space-x-2">
-            <HelpCircle className="h-6 w-6" />
-            <span>الأسئلة الشائعة</span>
+      <section className="py-24 bg-gradient-to-br from-neutral-100 to-white">
+        <div className="max-w-4xl px-4 mx-auto text-center sm:px-6 lg:px-8">
+          <div className="inline-flex items-center justify-center p-4 mb-6 bg-primary/10 rounded-2xl">
+            <HelpCircle className="w-12 h-12 text-primary" />
+          </div>
+          <h2 className="mb-4 text-4xl font-extrabold text-primary">
+            الأسئلة الشائعة
           </h2>
-          <p className="text-muted-foreground mb-8">
+          <p className="max-w-2xl mx-auto mb-8 text-lg leading-relaxed text-neutral-600">
             هل تبحث عن إجابات سريعة؟ تحقق من قسم الأسئلة الشائعة لدينا للأسئلة الشائعة
             حول استخدام سرفانا، التسعير، وكيف تعمل منصتنا.
           </p>
-          <Button variant="outline" size="lg" className="flex items-center space-x-2">
-            <HelpCircle className="h-5 w-5" />
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="flex items-center gap-3 px-8 py-6 mx-auto text-lg font-semibold transition-all duration-300 border-2 shadow-md border-primary/30 hover:bg-primary/5 hover:border-primary text-primary hover:shadow-lg group"
+          >
+            <HelpCircle className="w-6 h-6 transition-transform group-hover:rotate-12" />
             <span>عرض الأسئلة الشائعة</span>
           </Button>
         </div>
