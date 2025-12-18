@@ -29,12 +29,10 @@ import ViewOrderPage from "./client-dashboard/ViewOrderPage";
 import { ChatRoom } from "./chat/ChatRoom";
 import { WorkerOverview } from "./worker-dashboard/WorkerOverview";
 import { WorkerTasks } from "./worker-dashboard/WorkerTasks";
-import { WorkerEarnings } from "./worker-dashboard/WorkerEarnings";
 import { WorkerReviews } from "./worker-dashboard/WorkerReviews";
 import { WorkerClientOffers } from "./worker-dashboard/WorkerClientOffers";
 import { WorkerTaskDetails } from "./worker-dashboard/WorkerTaskDetails";
 import { WorkerDisputes } from "./worker-dashboard/WorkerDisputes";
-import { WorkerTransactions } from "./worker-dashboard/WorkerTransactions";
 import { AdminOverview } from "./admin-dashboard/AdminOverview";
 import { AdminUsers } from "./admin-dashboard/AdminUsers";
 import { AdminServices } from "./admin-dashboard/AdminServices";
@@ -82,9 +80,7 @@ export function UnifiedDashboard() {
     { icon: LayoutDashboard, label: "نظرة عامة", path: "/dashboard/overview" },
     { icon: Briefcase, label: "مهامي", path: "/dashboard/tasks" },
     { icon: Mail, label: "عروض العملاء", path: "/dashboard/client-offers" },
-    { icon: DollarSign, label: "الأرباح", path: "/dashboard/earnings" },
     { icon: Star, label: "التقييمات", path: "/dashboard/reviews" },
-    { icon: DollarSign, label: "المعاملات", path: "/dashboard/transactions" },
     { icon: Flag, label: "النزاعات", path: "/dashboard/worker-disputes" },
   ];
 
@@ -184,10 +180,8 @@ export function UnifiedDashboard() {
           {/* Worker Routes */}
           <Route path="tasks" element={<WorkerTasks />} />
           <Route path="tasks/:taskId" element={<WorkerTaskDetails />} />
-          <Route path="earnings" element={<WorkerEarnings />} />
           <Route path="reviews" element={<WorkerReviews />} />
           <Route path="client-offers" element={<WorkerClientOffers />} />
-          <Route path="transactions" element={<WorkerTransactions />} />
           <Route path="overview" element={<WorkerOverview />} />
           <Route path="worker-disputes" element={<WorkerDisputes />} />
           <Route path="disputes/:orderId" element={<DisputeDetailPage />} />
