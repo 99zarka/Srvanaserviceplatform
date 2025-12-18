@@ -57,9 +57,11 @@ const WithdrawalSchema = z.object({
 export function ClientFinancials() {
   const dispatch = useDispatch();
   const { token, isLoading: authLoading, error: authError } = useSelector((state) => state.auth);
-  const { transactions, isLoading: transactionsLoading, error: transactionsError } = useSelector((state) => state.transactions);
+  const { transactions, isLoading: transactionsLoading, error: transactionsError, transactionsPagination } = useSelector((state) => state.transactions);
 
   const [withdrawalError, setWithdrawalError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Add New Payment Method form state and methods
   const { control: addPaymentMethodControl, handleSubmit: handleAddPaymentMethodSubmit, register: addPaymentMethodRegister, formState: { errors: addPaymentMethodErrors, isSubmitting: isAddingPaymentMethod } , reset: resetAddPaymentMethodForm } = useForm({
@@ -121,8 +123,8 @@ export function ClientFinancials() {
 
   useEffect(() => {
     fetchPaymentMethods();
-    dispatch(getUserTransactions());
-  }, [token, authLoading, dispatch]);
+    dispatch(getUserTransactions({ page: currentPage, pageSize }));
+  }, [token, authLoading, dispatch, currentPage, pageSize]);
 
   const handleDeposit = async (data) => {
     dispatch(depositFunds({ amount: parseFloat(data.amount), payment_method_id: parseInt(data.paymentMethodId) }))
@@ -493,7 +495,7 @@ export function ClientFinancials() {
       </Card>
 
       {/* Transaction History Card */}
-      <Card>
+      <Card className="relative">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <History className="h-5 w-5" />
@@ -506,30 +508,128 @@ export function ClientFinancials() {
               لا توجد معاملات حاليًا.
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>المبلغ</TableHead>
-                  <TableHead>النوع</TableHead>
-                  <TableHead>طريقة الدفع</TableHead> {/* New column for Payment Method */}
-                  <TableHead>العملة</TableHead> {/* New column for Currency */}
-                  <TableHead>الحالة</TableHead>
-                  <TableHead>التاريخ والوقت</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {transactions.map((transaction) => (
-                  <TableRow key={transaction.id}>
-                    <TableCell>{transaction.amount}</TableCell>
-                    <TableCell>{getTransactionTypeBadge(transaction.transaction_type)}</TableCell>
-                    <TableCell>{transaction.payment_method || 'N/A'}</TableCell> {/* Display payment method, or N/A if null */}
-                    <TableCell>{transaction.currency}</TableCell> {/* Display currency */}
-                    <TableCell>{getStatusBadge(transaction.status)}</TableCell>
-                    <TableCell>{new Date(transaction.timestamp).toLocaleString("ar-EG")}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <>
+              {/* Loading overlay for pagination */}
+              {transactionsLoading && (
+                <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded-lg">
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    <span>جاري تحميل البيانات...</span>
+                  </div>
+                </div>
+              )}
+              <div className={!transactionsLoading ? "" : "opacity-50 pointer-events-none"}>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>المبلغ</TableHead>
+                      <TableHead>النوع</TableHead>
+                      <TableHead>طريقة الدفع</TableHead> {/* New column for Payment Method */}
+                      <TableHead>العملة</TableHead> {/* New column for Currency */}
+                      <TableHead>الحالة</TableHead>
+                      <TableHead>التاريخ والوقت</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {transactions.map((transaction) => (
+                      <TableRow key={transaction.id}>
+                        <TableCell>{transaction.amount}</TableCell>
+                        <TableCell>{getTransactionTypeBadge(transaction.transaction_type)}</TableCell>
+                        <TableCell>{transaction.payment_method || 'N/A'}</TableCell> {/* Display payment method, or N/A if null */}
+                        <TableCell>{transaction.currency}</TableCell> {/* Display currency */}
+                        <TableCell>{getStatusBadge(transaction.status)}</TableCell>
+                        <TableCell>{new Date(transaction.timestamp).toLocaleString("ar-EG")}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Pagination Controls */}
+              {transactionsPagination && transactionsPagination.totalPages > 1 && (
+                <div className="flex items-center justify-between mt-6 px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+                  <div className="flex flex-1 justify-between sm:hidden">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1 || transactionsLoading}
+                      className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      السابق
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, transactionsPagination.totalPages))}
+                      disabled={currentPage === transactionsPagination.totalPages || transactionsLoading}
+                      className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      التالي
+                    </button>
+                  </div>
+                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm text-gray-700">
+                        عرض <span className="font-medium">{(currentPage - 1) * pageSize + 1}</span> إلى{' '}
+                        <span className="font-medium">
+                          {Math.min(currentPage * pageSize, transactionsPagination.count)}
+                        </span>{' '}
+                        من <span className="font-medium">{transactionsPagination.count}</span> نتائج
+                      </p>
+                    </div>
+                    <div>
+                      <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1 || transactionsLoading}
+                          className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {transactionsLoading ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                            </>
+                          ) : (
+                            <>
+                              <span className="sr-only">Previous</span>
+                              &rarr;
+                            </>
+                          )}
+                        </button>
+
+                        {/* Page numbers */}
+                        {Array.from({ length: transactionsPagination.totalPages }, (_, i) => i + 1).map((page) => (
+                          <button
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+                              page === currentPage
+                                ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
+                                : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
+                            } focus:outline-offset-0`}
+                          >
+                            {page}
+                          </button>
+                        ))}
+
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, transactionsPagination.totalPages))}
+                          disabled={currentPage === transactionsPagination.totalPages || transactionsLoading}
+                          className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {transactionsLoading ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                            </>
+                          ) : (
+                            <>
+                              <span className="sr-only">Next</span>
+                              &larr;
+                            </>
+                          )}
+                        </button>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>

@@ -35,6 +35,7 @@ const transactionSlice = createSlice({
     loading: false,
     error: null,
     successMessage: null,
+    transactionsPagination: null,
   },
   reducers: {
     clearError: (state) => {
@@ -59,8 +60,15 @@ const transactionSlice = createSlice({
         // Ensure action.payload is an object, then safely access results
         const payload = action.payload || {}; 
         state.transactions = (payload.results) ? payload.results : [];
+        state.transactionsPagination = {
+          count: payload.count || 0,
+          totalPages: Math.ceil((payload.count || 0) / 10),
+          next: payload.next || null,
+          previous: payload.previous || null,
+        };
         console.log("transactionSlice: getUserTransactions.fulfilled - action.payload:", action.payload);
         console.log("transactionSlice: getUserTransactions.fulfilled - state.transactions (after update):", state.transactions);
+        console.log("transactionSlice: getUserTransactions.fulfilled - state.transactionsPagination:", state.transactionsPagination);
         state.error = null;
       })
       .addCase(getUserTransactions.rejected, (state, action) => {
