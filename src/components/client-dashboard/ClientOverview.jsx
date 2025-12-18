@@ -268,9 +268,23 @@ export function ClientOverview() {
 
       {/* Recent Requests */}
       <Card className="mb-8 border-0 shadow-lg">
-        {/* Card Header with Accent */}
-        <div className="bg-gradient-to-r from-primary to-primary-600 p-6 rounded-t-xl">
-          <CardHeader className="p-0">
+        {/* Card Header with Wavy Gradient */}
+        <div className="relative overflow-hidden p-6 rounded-t-xl" style={{ background: 'linear-gradient(to right, #243a5e, #1A2B4C, #2d4a6e)' }}>
+          {/* Wavy overlay effect */}
+          <div className="absolute inset-0 opacity-20">
+            <svg className="absolute w-full h-full" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="wave-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                  <path d="M0 50 Q 25 30, 50 50 T 100 50" stroke="white" strokeWidth="2" fill="none" opacity="0.3"/>
+                  <path d="M0 60 Q 25 40, 50 60 T 100 60" stroke="white" strokeWidth="2" fill="none" opacity="0.2"/>
+                  <path d="M0 70 Q 25 50, 50 70 T 100 70" stroke="white" strokeWidth="2" fill="none" opacity="0.1"/>
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#wave-pattern)"/>
+            </svg>
+          </div>
+          
+          <CardHeader className="p-0 relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
