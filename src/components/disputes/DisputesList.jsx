@@ -19,14 +19,20 @@ export function DisputesList({
 }) {
   const { token } = useSelector((state) => state.auth);
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [totalCount, setTotalCount] = useState(0);
+
   // Use appropriate RTK Query hook based on user type
- const { 
+  const { 
     data: ordersData, 
     isLoading: disputesLoading, 
+    isFetching: disputesFetching,
     error: disputesError 
   } = userType === "technician" 
-    ? useGetTechnicianOrdersWithDisputesQuery(undefined, { skip: !token })
-    : useGetClientOrdersWithDisputesQuery(undefined, { skip: !token });
+    ? useGetTechnicianOrdersWithDisputesQuery({ page, page_size: pageSize }, { skip: !token })
+    : useGetClientOrdersWithDisputesQuery({ page, page_size: pageSize }, { skip: !token });
 
   // Handle both paginated (with results) and direct array responses
   const [ordersWithDisputes, setOrdersWithDisputes] = useState([]);
@@ -45,6 +51,11 @@ export function DisputesList({
     // Filter to only include orders that have a dispute
     const ordersWithDispute = array.filter(order => order.dispute);
     setOrdersWithDisputes(ordersWithDispute);
+    
+    // Update total count from pagination metadata
+    if (ordersData && ordersData.count !== undefined) {
+      setTotalCount(ordersData.count);
+    }
   }, [ordersData]);
 
   const getStatusBadge = (status) => {
@@ -71,12 +82,28 @@ export function DisputesList({
     return <Badge className={className}>{translatedStatus}</Badge>;
   };
 
- if (disputesLoading) return <div className="text-center p-8" dir="rtl">جاري تحميل النزاعات...</div>;
+  const isLoading = disputesLoading || disputesFetching;
+
+  if (isLoading) {
+    return (
+      <div className="text-center p-8" dir="rtl">
+        <div className="flex items-center justify-center space-x-3">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+          <span>جاري تحميل النزاعات...</span>
+        </div>
+      </div>
+    );
+  }
   if (disputesError) return <div className="text-center p-8 text-red-50" dir="rtl">خطأ: {disputesError?.message || disputesError}</div>;
 
   if (ordersWithDisputes.length === 0) {
     return <div className="text-center p-8" dir="rtl">لا توجد نزاعات حاليًا.</div>;
   }
+
+  // Pagination calculations
+  const totalPages = Math.ceil(totalCount / pageSize);
+  const hasNextPage = page < totalPages;
+  const hasPrevPage = page > 1;
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -248,6 +275,63 @@ export function DisputesList({
             </Card>
           );
         })}
+
+        {/* Pagination Controls */}
+        <div className="flex items-center justify-between p-4 bg-white border-t border-gray-200 rounded-b-xl">
+          <div className="flex items-center space-x-4">
+            <span className="text-sm text-gray-600">
+              عرض {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, totalCount)} من {totalCount} نزاع
+            </span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                const newSize = parseInt(e.target.value);
+                setPageSize(newSize);
+                setPage(1); // Reset to first page when changing page size
+              }}
+              className="text-sm border border-gray-300 rounded-md px-2 py-1"
+              disabled={isLoading}
+            >
+              <option value={5}>5 لكل صفحة</option>
+              <option value={10}>10 لكل صفحة</option>
+              <option value={20}>20 لكل صفحة</option>
+            </select>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Button
+              onClick={() => setPage(1)}
+              disabled={!hasPrevPage || isLoading}
+              className="px-3 py-1 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              الأول
+            </Button>
+            <Button
+              onClick={() => setPage(page - 1)}
+              disabled={!hasPrevPage || isLoading}
+              className="px-3 py-1 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              السابق
+            </Button>
+            <span className="px-3 py-1 text-sm text-gray-600">
+              الصفحة {page} من {totalPages}
+            </span>
+            <Button
+              onClick={() => setPage(page + 1)}
+              disabled={!hasNextPage || isLoading}
+              className="px-3 py-1 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              التالي
+            </Button>
+            <Button
+              onClick={() => setPage(totalPages)}
+              disabled={!hasNextPage || isLoading}
+              className="px-3 py-1 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              الأخير
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

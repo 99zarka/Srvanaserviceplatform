@@ -176,12 +176,30 @@ export const api = createApi({
 
     // Orders with disputes endpoint for technicians
     getTechnicianOrdersWithDisputes: builder.query({
-      query: () => '/orders/worker-tasks/?has_dispute=true',
+      query: (params = {}) => {
+        let url = '/orders/worker-tasks/?has_dispute=true';
+        if (params.page || params.page_size) {
+          const queryParams = [];
+          if (params.page) queryParams.push(`page=${params.page}`);
+          if (params.page_size) queryParams.push(`page_size=${params.page_size}`);
+          url += `&${queryParams.join('&')}`;
+        }
+        return url;
+      },
       providesTags: ['Order'],
     }),
     // Orders with disputes endpoint for clients
     getClientOrdersWithDisputes: builder.query({
-      query: () => '/orders/?has_dispute=true&role=client&page_size=2',
+      query: (params = {}) => {
+        let url = '/orders/?has_dispute=true&role=client';
+        if (params.page || params.page_size) {
+          const queryParams = [];
+          if (params.page) queryParams.push(`page=${params.page}`);
+          if (params.page_size) queryParams.push(`page_size=${params.page_size}`);
+          url += `&${queryParams.join('&')}`;
+        }
+        return url;
+      },
       providesTags: ['Order'],
     }),
 
