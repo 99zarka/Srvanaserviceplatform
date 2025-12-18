@@ -47,9 +47,9 @@ export function ClientOverview() {
 
         // Update local stats using data from API response
         setStats([
-          { label: "الرصيد المتاح", value: `${available_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-green-600" },
-          { label: "في الضمان", value: `${in_escrow_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-blue-600" },
-          { label: "الرصيد المعلق", value: `${pending_balance.toFixed(2)} ج.م`, icon: CreditCard, color: "text-yellow-600" },
+          { label: "الرصيد المتاح", value: `${parseFloat(statsData.available_balance || 0).toFixed(2)} ج.م`, icon: CreditCard, color: "text-green-600" },
+          { label: "في الضمان", value: `${parseFloat(statsData.in_escrow_balance || 0).toFixed(2)} ج.م`, icon: CreditCard, color: "text-blue-600" },
+          { label: "الرصيد المعلق", value: `${parseFloat(statsData.pending_balance || 0).toFixed(2)} ج.م`, icon: CreditCard, color: "text-yellow-600" },
           { label: "الطلبات النشطة", value: statsData.active_orders || 0, icon: Clock, color: "text-primary" },
           { label: "المكتملة", value: statsData.completed_orders || 0, icon: CheckCircle, color: "text-green-600" },
           { label: "إجمالي الإنفاق", value: `${statsData.total_spent ? parseFloat(statsData.total_spent).toFixed(2) : '0.00'} ج.م`, icon: CreditCard, color: "text-blue-600" },
@@ -211,12 +211,7 @@ export function ClientOverview() {
         ))}
       </div>
 
-      {/* Balance Transfer Component */}
-      <div className="flex justify-center my-6">
-        <div className="w-full lg:w-1/2">
-          <BalanceDisplayAndTransfer />
-        </div>
-      </div>
+
 
       {/* Recent Requests */}
       <Card>
@@ -227,8 +222,8 @@ export function ClientOverview() {
               <span>طلبات الخدمة الأخيرة</span>
             </CardTitle>
             <Button variant="outline" asChild className="flex items-center space-x-2">
-              <Link to="/dashboard/requests">
-                <Eye className="w-4 h-4" />
+              <Link to="/dashboard/orders-offers">
+                <Eye className="h-4 w-4" />
                 <span>عرض الكل</span>
               </Link>
             </Button>
@@ -249,7 +244,15 @@ export function ClientOverview() {
               {recentRequests.length > 0 ? (
                 recentRequests.map((request) => (
                   <TableRow key={request.id}>
-                    <TableCell>{request.service}</TableCell><TableCell>{request.worker || "غير متاح"}</TableCell><TableCell>{request.date}</TableCell><TableCell>{getStatusBadge(request.status)}</TableCell><TableCell>{request.amount}</TableCell>
+                    <TableCell>{request.service}</TableCell><TableCell>
+                      {request.worker && request.technicianId ? (
+                        <Link to={`/profile/${request.technicianId}`} className="text-blue-600 hover:text-blue-800 hover:underline">
+                          {request.worker}
+                        </Link>
+                      ) : (
+                        "غير متاح"
+                      )}
+                    </TableCell><TableCell>{request.date}</TableCell><TableCell>{getStatusBadge(request.status)}</TableCell><TableCell>{request.amount}</TableCell>
                   </TableRow>
                 ))
               ) : (
