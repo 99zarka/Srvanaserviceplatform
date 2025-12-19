@@ -44,11 +44,26 @@ export function Header() {
 
   const navItems = [
     { name: "الرئيسية", path: "/", icon: Home },
-    { name: "الخدمات", path: "/services", icon: Briefcase }, // Services for all users
     { name: "المستخدمين", path: "/browse-users", icon: Users }, // New link
     { name: "المشاريع", path: "/projects", icon: Briefcase }, // Added public projects link
     { name: "اتصل بنا", path: "/contact", icon: Mail },
   ];
+
+  // Create a combined "خدمات وفنيين" dropdown menu (always visible)
+  const combinedItems = [
+    { name: "تصفح الفنيين", path: "/browse-technicians", icon: Users, id: "browse-technicians" },
+    { name: "الخدمات", path: "/services", icon: Briefcase, id: "services" },
+    { name: "طلب خدمة", path: "/order/create", icon: Plus, id: "order-create" },
+  ];
+
+  // Add the combined dropdown menu
+  navItems.splice(1, 0, {
+    name: "الخدمات",
+    path: "#combined",
+    icon: Briefcase,
+    isDropdown: true,
+    dropdownItems: combinedItems
+  });
 
   // Conditionally add navigation items if authenticated
   if (isAuthenticated && user) {
@@ -75,22 +90,6 @@ export function Header() {
       name: "لوحة التحكم",
       path: "/dashboard",
       icon: Wrench
-    });
-
-    // Create a "Services" dropdown menu to reduce horizontal space
-    const serviceItems = [
-      { name: "الخدمات", path: "/services", icon: Briefcase, id: "service-services" },
-      { name: "طلب خدمة", path: "/order/create", icon: Plus, id: "service-order-create" },
-      { name: "تصفح الفنيين", path: "/technicians/browse", icon: Wrench, id: "service-technicians-browse" },
-    ];
-
-    // Add Services dropdown
-    navItems.splice(2, 0, {
-      name: "الخدمات",
-      path: "#services",
-      icon: Briefcase,
-      isDropdown: true,
-      dropdownItems: serviceItems
     });
   }
 
