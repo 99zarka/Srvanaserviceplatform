@@ -13,6 +13,7 @@ import { BrowseUsersPage } from "./components/BrowseUsersPage";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
 import { useState, useEffect } from "react";
+import AIAssistantPage from "./components/ai/AIAssistantPage";
 
 // Import new service ordering components
 import OrderCreateForm from "./components/service-ordering/OrderCreateForm";
@@ -87,6 +88,7 @@ export default function App() {
           <Route path="/technician-verification" element={<TechnicianVerificationPage />} />
           <Route path="/profile/:userId" element={<UserProfilePage />} />
           <Route path="/browse-users" element={<BrowseUsersPage />} />
+          <Route path="/assistant" element={<AIAssistantPage />} />
           
           {/* Public Project Routes */}
           <Route path="/projects" element={<PublicProjectsList />} />

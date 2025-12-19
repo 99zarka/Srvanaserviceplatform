@@ -1,4 +1,4 @@
-import { Menu, X, Home, Users, Briefcase, Mail, CircleUser, LogOut, LogIn, UserPlus, Smile, Shield, Wrench, CheckCircle, Clock, XCircle, Bell, Plus } from "lucide-react";
+import { Menu, X, Home, Users, Briefcase, Mail, CircleUser, LogOut, LogIn, UserPlus, Bot, Shield, Wrench, CheckCircle, Clock, XCircle, Bell, Plus } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom"; // Import useNavigate here
@@ -44,6 +44,7 @@ export function Header() {
 
   const navItems = [
     { name: "الرئيسية", path: "/", icon: Home },
+    { name: "المساعد الذكي", path: "/assistant", icon: Bot }, // AI Assistant link
     { name: "المستخدمين", path: "/browse-users", icon: Users }, // New link
     { name: "المشاريع", path: "/projects", icon: Briefcase }, // Added public projects link
     { name: "اتصل بنا", path: "/contact", icon: Mail },
