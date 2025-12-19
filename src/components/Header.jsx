@@ -51,7 +51,7 @@ export function Header() {
 
   // Create a combined "خدمات وفنيين" dropdown menu (always visible)
   const combinedItems = [
-    { name: "تصفح الفنيين", path: "/browse-technicians", icon: Users, id: "browse-technicians" },
+    { name: "تصفح الفنيين", path: "/technicians/browse", icon: Users, id: "browse-technicians" },
     { name: "الخدمات", path: "/services", icon: Briefcase, id: "services" },
     { name: "طلب خدمة", path: "/order/create", icon: Plus, id: "order-create" },
   ];
