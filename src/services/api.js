@@ -107,7 +107,16 @@ export const api = createApi({
     }),
 
     getAvailableOrders: builder.query({
-      query: () => '/orders/orders/available_for_offer/',
+      query: (params = {}) => {
+        let url = '/orders/available-for-offer/';
+        if (params.page || params.page_size) {
+          const queryParams = [];
+          if (params.page) queryParams.push(`page=${params.page}`);
+          if (params.page_size) queryParams.push(`page_size=${params.page_size}`);
+          url += `?${queryParams.join('&')}`;
+        }
+        return url;
+      },
       providesTags: ['Order'],
     }),
 
@@ -329,4 +338,3 @@ export const {
   useGetAiChatHistoryQuery,
   useSendAiChatMessageMutation,
 } = aiChatApi;
-

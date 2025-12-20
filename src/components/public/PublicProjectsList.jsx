@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAvailableOrders } from '../../redux/orderSlice';
 import { Link } from 'react-router-dom';
-import { Search, Filter, X, MapPin, Calendar, DollarSign } from 'lucide-react';
+import { Search, Filter, X, MapPin, Calendar, DollarSign, Loader2 } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -10,7 +10,7 @@ import { Card, CardContent } from '../ui/card';
 
 const PublicProjectsList = () => {
   const dispatch = useDispatch();
-  const { availableOrders, loading, error } = useSelector((state) => state.orders);
+  const { availableOrders, loading, error, availableOrdersPagination } = useSelector((state) => state.orders);
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,8 +21,13 @@ const PublicProjectsList = () => {
   const [sortBy, setSortBy] = useState('date-desc');
   const [showFilters, setShowFilters] = useState(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
   useEffect(() => {
-    dispatch(getAvailableOrders());
+    // Initial load
+    dispatch(getAvailableOrders({ page: 1, page_size: 10 }));
   }, [dispatch]);
 
   // Extract unique services and locations from orders
@@ -90,6 +95,22 @@ const PublicProjectsList = () => {
     return filtered;
   }, [availableOrders, searchTerm, selectedService, minPrice, maxPrice, selectedLocation, sortBy]);
 
+  // Load more function
+  const loadMore = () => {
+    if (loading || !hasMore) return;
+    
+    const nextPage = currentPage + 1;
+    setCurrentPage(nextPage);
+    
+    dispatch(getAvailableOrders({ page: nextPage, page_size: 10 })).then((action) => {
+      if (action.payload?.next) {
+        setHasMore(true);
+      } else {
+        setHasMore(false);
+      }
+    });
+  };
+
   const handleResetFilters = () => {
     setSearchTerm('');
     setSelectedService('all');
@@ -99,12 +120,32 @@ const PublicProjectsList = () => {
     setSortBy('date-desc');
   };
 
-  if (loading) {
-    return <div className="text-center py-8">جاري تحميل المشاريع المتاحة...</div>;
+  if (loading && currentPage === 1) {
+    return (
+      <div className="text-center py-8">
+        <Loader2 className="animate-spin mx-auto h-8 w-8 text-gray-500 mb-4" />
+        <p>جاري تحميل المشاريع المتاحة...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-center py-8 text-red-500">خطأ: {error.message || 'فشل في جلب المشاريع'}</div>;
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500">خطأ: {error.message || 'فشل في جلب المشاريع'}</p>
+        <Button 
+          onClick={() => dispatch(getAvailableOrders({ page: 1, page_size: 10 }))}
+          className="mt-4"
+          style={{
+            backgroundColor: 'transparent',
+            color: '#1A2B4C',
+            border: '2px solid #1A2B4C'
+          }}
+        >
+          إعادة المحاولة
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -248,7 +289,12 @@ const PublicProjectsList = () => {
 
           {/* Results Count */}
           <div className="mt-4 text-sm text-gray-600">
-            عرض {filteredOrders.length} من {availableOrders?.length || 0} مشروع
+            عرض {filteredOrders.length} من {availableOrdersPagination.count || 0} مشروع
+            {availableOrdersPagination.totalPages > 1 && (
+              <span className="mr-2 text-gray-500">
+                (الصفحة {currentPage} من {availableOrdersPagination.totalPages})
+              </span>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -271,112 +317,149 @@ const PublicProjectsList = () => {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full px-4 sm:px-6 lg:px-8">
-          {filteredOrders.map((order) => (
-            <div
-              key={order.order_id}
-              style={{
-                width: '100%',
-                minHeight: '380px',
-                padding: '20px',
-                color: 'white',
-                background: 'linear-gradient(#1A2B4C, #1A2B4C) padding-box, linear-gradient(145deg, transparent 35%, #F4C430, #1A2B4C) border-box',
-                border: '2px solid transparent',
-                borderRadius: '8px',
-                display: 'flex',
-                flexDirection: 'column',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease-in-out'
-              }}
-              className="hover:-translate-y-2 hover:shadow-xl"
-            >
-                {/* Header */}
-                <div className="mb-4">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-gray-400 text-sm">
-                      مشروع متاح
-                    </span>
-                    <div className="w-12 h-12 bg-gradient-to-br from-[#F4C430] to-[#1A2B4C] rounded-lg flex items-center justify-center">
-                      <Calendar className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Main Content */}
-                <div className="flex-1">
-                  <h3 className="text-2xl font-semibold mb-4">{order.service?.arabic_name || 'غير متوفر'}</h3>
-                  <p className="text-gray-300 mb-4 text-sm line-clamp-3">
-                    {order.problem_description}
-                  </p>
-                  
-                  {/* Info Badges */}
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-sm text-gray-300">
-                      <MapPin className="h-4 w-4 ml-2" />
-                      {order.requested_location}
-                    </div>
-                    <div className="flex items-center text-sm text-gray-300">
-                      <Calendar className="h-4 w-4 ml-2" />
-                      {order.scheduled_date} {order.scheduled_time_start}
-                    </div>
-                    {order.expected_price && (
-                      <div className="flex items-center text-sm text-gray-300">
-                        <DollarSign className="h-4 w-4 ml-2" />
-                        <span className="font-semibold" style={{ color: '#F4C430' }}>
-                          {order.expected_price} ج.م
-                        </span>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full px-4 sm:px-6 lg:px-8">
+            {filteredOrders.map((order) => (
+              <div
+                key={order.order_id}
+                style={{
+                  width: '100%',
+                  minHeight: '380px',
+                  padding: '20px',
+                  color: 'white',
+                  background: 'linear-gradient(#1A2B4C, #1A2B4C) padding-box, linear-gradient(145deg, transparent 35%, #F4C430, #1A2B4C) border-box',
+                  border: '2px solid transparent',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease-in-out'
+                }}
+                className="hover:-translate-y-2 hover:shadow-xl"
+              >
+                  {/* Header */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-gray-400 text-sm">
+                        مشروع متاح
+                      </span>
+                      <div className="w-12 h-12 bg-gradient-to-br from-[#F4C430] to-[#1A2B4C] rounded-lg flex items-center justify-center">
+                        <Calendar className="h-6 w-6 text-white" />
                       </div>
-                    )}
+                    </div>
+                  </div>
+
+                  {/* Main Content */}
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-semibold mb-4">{order.service?.arabic_name || 'غير متوفر'}</h3>
+                    <p className="text-gray-300 mb-4 text-sm line-clamp-3">
+                      {order.problem_description}
+                    </p>
+                    
+                    {/* Info Badges */}
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center text-sm text-gray-300">
+                        <MapPin className="h-4 w-4 ml-2" />
+                        {order.requested_location}
+                      </div>
+                      <div className="flex items-center text-sm text-gray-300">
+                        <Calendar className="h-4 w-4 ml-2" />
+                        {order.scheduled_date} {order.scheduled_time_start}
+                      </div>
+                      {order.expected_price && (
+                        <div className="flex items-center text-sm text-gray-300">
+                          <DollarSign className="h-4 w-4 ml-2" />
+                          <span className="font-semibold" style={{ color: '#F4C430' }}>
+                            {order.expected_price} ج.م
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Footer Buttons */}
+                  <div className="mt-auto space-y-2">
+                    <Link
+                      to={`/projects/${order.order_id}`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '100%',
+                        padding: '10px',
+                        backgroundColor: 'transparent',
+                        color: '#F4C430',
+                        fontWeight: 600,
+                        fontSize: '14px',
+                        borderRadius: '6px',
+                        border: '2px solid #F4C430',
+                        transition: 'all 0.3s',
+                        textDecoration: 'none'
+                      }}
+                      className="hover:bg-[#F4C430] hover:text-[#1A2B4C]"
+                    >
+                      عرض التفاصيل
+                    </Link>
+                    <Link
+                      to={`/projects/${order.order_id}/offer`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '100%',
+                        padding: '10px',
+                        backgroundColor: '#F4C430',
+                        color: '#1A2B4C',
+                        fontWeight: 600,
+                        fontSize: '14px',
+                        borderRadius: '6px',
+                        transition: 'all 0.3s',
+                        textDecoration: 'none'
+                      }}
+                      className="hover:bg-[#FFD700] hover:scale-105"
+                    >
+                      قدم عرض
+                    </Link>
                   </div>
                 </div>
+            ))}
+          </div>
 
-                {/* Footer Buttons */}
-                <div className="mt-auto space-y-2">
-                  <Link
-                    to={`/projects/${order.order_id}`}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '100%',
-                      padding: '10px',
-                      backgroundColor: 'transparent',
-                      color: '#F4C430',
-                      fontWeight: 600,
-                      fontSize: '14px',
-                      borderRadius: '6px',
-                      border: '2px solid #F4C430',
-                      transition: 'all 0.3s',
-                      textDecoration: 'none'
-                    }}
-                    className="hover:bg-[#F4C430] hover:text-[#1A2B4C]"
-                  >
-                    عرض التفاصيل
-                  </Link>
-                  <Link
-                    to={`/projects/${order.order_id}/offer`}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '100%',
-                      padding: '10px',
-                      backgroundColor: '#F4C430',
-                      color: '#1A2B4C',
-                      fontWeight: 600,
-                      fontSize: '14px',
-                      borderRadius: '6px',
-                      transition: 'all 0.3s',
-                      textDecoration: 'none'
-                    }}
-                    className="hover:bg-[#FFD700] hover:scale-105"
-                  >
-                    قدم عرض
-                  </Link>
-                </div>
-              </div>
-          ))}
-        </div>
+          {/* Load More Button */}
+          {hasMore && (
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={loadMore}
+                disabled={loading}
+                className="px-8 py-3 text-lg font-semibold hover:shadow-lg hover:-translate-y-1"
+                style={{
+                  backgroundColor: '#F4C430',
+                  color: '#1A2B4C',
+                  border: 'none',
+                  borderRadius: '8px',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                }}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin h-5 w-5 ml-2" />
+                    جاري التحميل...
+                  </>
+                ) : (
+                  'تحميل المزيد'
+                )}
+              </Button>
+            </div>
+          )}
+
+          {/* End of results message */}
+          {!hasMore && availableOrders.length > 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <p>لقد وصلت إلى نهاية القائمة</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

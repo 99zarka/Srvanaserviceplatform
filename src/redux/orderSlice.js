@@ -63,9 +63,16 @@ export const fetchPublicOrderDetail = createAsyncThunk(
 // Get available orders for technicians (technicians view available orders to apply)
 export const getAvailableOrders = createAsyncThunk(
   'orders/getAvailableOrders',
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await api.get('/orders/available-for-offer/');
+      let url = '/orders/available-for-offer/';
+      if (params.page || params.page_size) {
+        const queryParams = [];
+        if (params.page) queryParams.push(`page=${params.page}`);
+        if (params.page_size) queryParams.push(`page_size=${params.page_size}`);
+        url += `?${queryParams.join('&')}`;
+      }
+      const response = await api.get(url);
       return response; // Return the entire response (paginated object)
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -378,6 +385,14 @@ const orderSlice = createSlice({
   initialState: {
     clientOrders: [],
     availableOrders: [],
+    availableOrdersPagination: {
+      count: 0,
+      next: null,
+      previous: null,
+      currentPage: 1,
+      totalPages: 1,
+      pageSize: 10
+    },
     technicianOrders: [],
     technicianClientOffers: [], // New state to hold client-initiated offers for technicians
     currentOrderOffers: [],
@@ -520,7 +535,29 @@ const orderSlice = createSlice({
       })
       .addCase(getAvailableOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.availableOrders = action.payload?.results || [];
+        const page = action.meta.arg?.page || 1;
+        const pageSize = action.meta.arg?.pageSize || 10;
+        
+        if (page === 1) {
+          // Initial load or refresh
+          state.availableOrders = action.payload?.results || [];
+        } else {
+          // Load more - append to existing orders
+          const newOrders = action.payload?.results || [];
+          const existingOrderIds = new Set(state.availableOrders.map(order => order.order_id));
+          const uniqueNewOrders = newOrders.filter(order => !existingOrderIds.has(order.order_id));
+          state.availableOrders = [...state.availableOrders, ...uniqueNewOrders];
+        }
+        
+        // Update pagination state
+        state.availableOrdersPagination = {
+          count: action.payload?.count || 0,
+          next: action.payload?.next || null,
+          previous: action.payload?.previous || null,
+          currentPage: page,
+          totalPages: Math.ceil((action.payload?.count || 0) / pageSize),
+          pageSize: pageSize
+        };
       })
       .addCase(getAvailableOrders.rejected, (state, action) => {
         state.loading = false;
