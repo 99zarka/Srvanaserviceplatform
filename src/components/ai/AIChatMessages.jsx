@@ -9,7 +9,7 @@ const AIChatMessages = ({ messages, isTyping, messagesEndRef }) => {
     <ScrollArea className="flex-1 min-h-0">
       <div className="p-6 space-y-6">
         {messages.map((message) => (
-          message.type === 'ai' ? (
+          message.role === 'assistant' ? (
             <AIMessageBubble key={message.id} message={message} />
           ) : (
             <UserMessageBubble key={message.id} message={message} />

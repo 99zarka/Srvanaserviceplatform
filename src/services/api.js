@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import BASE_URL from '../config/api.js';
+import BASE_URL, { AI_CHAT_BASE_URL } from '../config/api.js';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
@@ -293,3 +293,40 @@ export const {
   useGetTechnicianOrdersWithDisputesQuery,
   useGetClientOrdersWithDisputesQuery,
 } = api;
+
+// New RTK Query slice for AI chat
+export const aiChatApi = createApi({
+  reducerPath: 'aiChatApi',
+  baseQuery: fetchBaseQuery({
+    baseUrl: AI_CHAT_BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+      const token = getState().auth.token; // Assuming auth state exists
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+      return headers;
+    },
+  }),
+  tagTypes: ['AIChat'],
+  endpoints: (builder) => ({
+    getAiChatHistory: builder.query({
+      query: () => '/ai-chat/history/',
+      providesTags: ['AIChat'],
+    }),
+    sendAiChatMessage: builder.mutation({
+      query: ({ prompt, image_url, file_url, start_new }) => ({
+        url: '/ai-chat/',
+        method: 'POST',
+        body: { prompt, image_url, file_url, start_new },
+      }),
+      invalidatesTags: ['AIChat'],
+    }),
+  }),
+});
+
+// Export hooks for AI chat
+export const {
+  useGetAiChatHistoryQuery,
+  useSendAiChatMessageMutation,
+} = aiChatApi;
+

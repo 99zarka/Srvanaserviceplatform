@@ -27,11 +27,30 @@ const AIMessageBubble = ({ message }) => {
           </div>
           
           {/* File previews if any */}
-          {message.files && message.files.length > 0 && (
+          {(message.image_url || message.file_url) && (
             <div className="mt-3 space-y-2">
-              {message.files.map((file, index) => (
-                <MessageFilePreview key={index} file={file} />
-              ))}
+              {message.image_url && (
+                <MessageFilePreview 
+                  key="image" 
+                  file={{
+                    name: 'صورة',
+                    type: 'image/jpeg',
+                    url: message.image_url.replace('image/upload/https://', 'https://'),
+                    size: 0
+                  }} 
+                />
+              )}
+              {message.file_url && (
+                <MessageFilePreview 
+                  key="file" 
+                  file={{
+                    name: 'ملف',
+                    type: 'application/octet-stream',
+                    url: message.file_url,
+                    size: 0
+                  }} 
+                />
+              )}
             </div>
           )}
           
