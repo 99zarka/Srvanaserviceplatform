@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-const API_URL = 'http://127.0.0.1:8000/api/notifications/notifications/';
+import BASE_URL from '../config/api';
+
+const API_URL = `${BASE_URL}/notifications/notifications/`;
 
 // Helper to get auth header
 const getAuthHeader = (thunkAPI) => {
