@@ -194,7 +194,7 @@ const AIChatContainer = () => {
       {historyError && <div className="text-center p-4 text-red-500">Error loading history: {historyError.message}</div>}
       
       {!isLoadingHistory && !historyError && messages.length === 0 && (
-        <div className="border-b border-gray-100 bg-gray-50 p-6">
+        <div className="border-b border-gray-100 bg-gray-50 p-6" dir="rtl">
           <div className="text-center">
             <div className="text-2xl font-bold text-gray-900 mb-2">مرحبًا بك في مساعدنا الذكي</div>
             <div className="text-gray-600 mb-4">كيف يمكنني مساعدتك اليوم؟</div>

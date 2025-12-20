@@ -8,7 +8,7 @@ const UserMessageBubble = ({ message }) => {
     <div className="flex items-start justify-end space-x-3">
       <div className="flex-1 max-w-xs md:max-w-sm lg:max-w-md">
         <div className="bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-2xl rounded-tr-sm shadow-lg p-4">
-          <div className="leading-relaxed whitespace-pre-wrap">
+          <div className="leading-relaxed whitespace-pre-wrap text-right" dir="rtl">
             {message.content}
           </div>
           
