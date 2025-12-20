@@ -10,6 +10,7 @@ import { TechnicianVerificationPage } from "./components/TechnicianVerificationP
 import { UnifiedDashboard } from "./components/UnifiedDashboard";
 import { UserProfilePage } from "./components/UserProfilePage";
 import { BrowseUsersPage } from "./components/BrowseUsersPage";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
 import { useState, useEffect } from "react";
@@ -28,6 +29,7 @@ import { NotificationDisplay } from "./components/NotificationDisplay";
 // Import public project components
 import PublicProjectsList from "./components/public/PublicProjectsList";
 import ProjectDetail from "./components/public/ProjectDetail";
+import { PublicRoute } from "./components/PublicRoute";
 
 export default function App() {
   const location = useLocation();
@@ -83,26 +85,54 @@ export default function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/login" element={
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          } />
+          <Route path="/signup" element={
+            <PublicRoute>
+              <SignupPage />
+            </PublicRoute>
+          } />
           <Route path="/technician-verification" element={<TechnicianVerificationPage />} />
           <Route path="/profile/:userId" element={<UserProfilePage />} />
           <Route path="/browse-users" element={<BrowseUsersPage />} />
-          <Route path="/assistant" element={<AIAssistantPage />} />
+          <Route path="/assistant" element={
+            <ProtectedRoute>
+              <AIAssistantPage />
+            </ProtectedRoute>
+          } />
           
           {/* Public Project Routes */}
           <Route path="/projects" element={<PublicProjectsList />} />
           <Route path="/projects/:order_id" element={<ProjectDetail />} />
 
           {/* Service Ordering Routes */}
-          <Route path="/order/create" element={<OrderCreateForm />} />
+          <Route path="/order/create" element={
+            <ProtectedRoute>
+              <OrderCreateForm />
+            </ProtectedRoute>
+          } />
           {/* <Route path="/orders/dashboard" element={<ClientOrdersDashboard />} /> */} {/* Removed */}
           <Route path="/technicians/browse" element={<TechnicianBrowse />} />
-          <Route path="/offer/:technicianId" element={<DirectOfferForm />} />
+          <Route path="/offer/:technicianId" element={
+            <ProtectedRoute>
+              <DirectOfferForm />
+            </ProtectedRoute>
+          } />
           {/* <Route path="/client-offers" element={<ClientOffersPage />} /> */} {/* Removed */}
-          <Route path="/transactions/:transactionId" element={<TransactionDetailPage />} />
+          <Route path="/transactions/:transactionId" element={
+            <ProtectedRoute>
+              <TransactionDetailPage />
+            </ProtectedRoute>
+          } />
 
-          <Route path="/dashboard/*" element={<UnifiedDashboard />} />
+          <Route path="/dashboard/*" element={
+            <ProtectedRoute>
+              <UnifiedDashboard />
+            </ProtectedRoute>
+          } />
           <Route path="*" element={<HomePage />} />
         </Routes>
       </div>

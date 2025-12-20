@@ -4,7 +4,7 @@ import { LogIn, HelpCircle, UserPlus, LayoutDashboard, Users, Wrench, Shield, Ho
 import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Separator } from "./ui/separator";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -22,6 +22,7 @@ const loginSchema = z.object({
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const { isLoading, error, isAuthenticated } = useSelector((state) => state.auth);
 
@@ -101,8 +102,10 @@ export function LoginPage() {
     if (login.fulfilled.match(resultAction)) {
       console.log("Login successful!");
       // Redux will handle updating the state and localStorage
-      // Navigate to dashboard
-      navigate("/dashboard");
+      
+      // Check if user was redirected from a protected route
+      const from = location.state?.from?.pathname || "/dashboard";
+      navigate(from, { replace: true });
     } else if (login.rejected.match(resultAction)) {
       console.log("Login failed:", resultAction.payload);
 
