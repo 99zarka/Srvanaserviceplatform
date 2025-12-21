@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card } from '../ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog';
 import AIChatHeader from './AIChatHeader';
 import AIChatMessages from './AIChatMessages';
 import AIChatInput from './AIChatInput';
+import AIOrderForm from './AIOrderForm';
 import { useGetAiChatHistoryQuery, useSendAiChatMessageMutation } from '../../services/api';
 import { toast } from 'sonner';
 import BASE_URL from '../../config/api'; // Import BASE_URL
@@ -12,6 +14,13 @@ const AIChatContainer = () => {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [enhancedResponse, setEnhancedResponse] = useState(null);
+  const [editingProjectData, setEditingProjectData] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showOrderForm, setShowOrderForm] = useState(false);
+  const [showOfferForm, setShowOfferForm] = useState(false);
+  const [selectedTechnicianId, setSelectedTechnicianId] = useState(null);
+  const [formMode, setFormMode] = useState('order'); // 'order' or 'offer'
   const messagesEndRef = useRef(null);
 
   const { data: historyData, isLoading: isLoadingHistory, error: historyError, refetch: refetchHistory } = useGetAiChatHistoryQuery();
@@ -49,7 +58,6 @@ const AIChatContainer = () => {
       return null;
     }
   };
-
 
   // Load history on initial mount
   useEffect(() => {
@@ -113,20 +121,28 @@ const AIChatContainer = () => {
     setUploadedFiles([]);
 
     try {
+      setIsLoading(true);
       // Send message to backend
-      await sendChatMessage({ 
+      const response = await sendChatMessage({ 
         prompt: inputText.trim(), 
         image_url: imageUrl, 
         file_url: fileUrl, 
         start_new: startNew 
       }).unwrap();
-      
+
+      // Parse enhanced response if available
+      if (response && typeof response === 'object') {
+        setEnhancedResponse(response);
+      }
+
       // History will be refetched automatically due to `invalidatesTags: ['AIChat']`
     } catch (error) {
       console.error('Failed to send message:', error);
       toast.error('Failed to send message. Please try again.');
       // Revert optimistic update if necessary, or just rely on refetch to correct state
       setMessages(prev => prev.filter(msg => msg.id !== userMessage.id)); // Simple revert
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -150,22 +166,37 @@ const AIChatContainer = () => {
     setMessages(prev => [...prev, userMessage]);
 
     try {
-      await sendChatMessage({ prompt: action, start_new: false }).unwrap();
+      setIsLoading(true);
+      const response = await sendChatMessage({ prompt: action, start_new: false }).unwrap();
+
+      // Parse enhanced response if available
+      if (response && typeof response === 'object') {
+        setEnhancedResponse(response);
+      }
     } catch (error) {
       console.error('Failed to send quick action:', error);
       toast.error('Failed to send quick action. Please try again.');
       setMessages(prev => prev.filter(msg => msg.id !== userMessage.id)); // Simple revert
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleStartNewConversation = async () => {
     // Clear current UI messages immediately
     setMessages([]);
+    setEnhancedResponse(null);
+    setEditingProjectData(false);
+    setShowOrderForm(false);
+    setShowOfferForm(false);
+    setSelectedTechnicianId(null);
+    setFormMode('order');
     setInputText('');
     setUploadedFiles([]);
     toast.info('Starting a new conversation...');
     
     try {
+      setIsLoading(true);
       // Send a message with start_new flag to backend to reset context
       // Only send if there's content, otherwise just reset locally
       if (inputText.trim() || uploadedFiles.length > 0) {
@@ -182,10 +213,68 @@ const AIChatContainer = () => {
       toast.error('Failed to start new conversation. Please try again.');
       // If new conversation failed, try to refetch old history or show error state
       refetchHistory();
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const currentTypingStatus = isLoadingHistory || isSendingMessage;
+  const handleEditProjectData = (field, value) => {
+    setEnhancedResponse(prev => ({
+      ...prev,
+      project_data: {
+        ...prev.project_data,
+        [field]: value
+      }
+    }));
+  };
+
+  const handleShowOrderForm = (projectData) => {
+    setFormMode('order');
+    setShowOrderForm(true);
+    setShowOfferForm(false);
+    setSelectedTechnicianId(null);
+    // Set enhanced response with project data if provided
+    if (projectData) {
+      setEnhancedResponse(prev => ({
+        ...prev,
+        project_data: projectData
+      }));
+    }
+  };
+
+  const handleShowOfferForm = (projectData, technicianId) => {
+    setFormMode('offer');
+    setShowOfferForm(true);
+    setShowOrderForm(false);
+    setSelectedTechnicianId(technicianId);
+    // Set enhanced response with project data if provided
+    if (projectData) {
+      setEnhancedResponse(prev => ({
+        ...prev,
+        project_data: projectData
+      }));
+    }
+  };
+
+  const handleFormSuccess = (mode, response) => {
+    if (mode === 'order') {
+      toast.success('تم إنشاء المشروع بنجاح!');
+      setShowOrderForm(false);
+    } else if (mode === 'offer') {
+      toast.success('تم إرسال عرض السعر بنجاح!');
+      setShowOfferForm(false);
+      setSelectedTechnicianId(null);
+    }
+  };
+
+  const handleFormClose = () => {
+    setShowOrderForm(false);
+    setShowOfferForm(false);
+    setSelectedTechnicianId(null);
+    setFormMode('order');
+  };
+
+  const currentTypingStatus = isLoadingHistory || isSendingMessage || isLoading;
 
   return (
     <div className="max-w-4xl mx-auto shadow-xl border-0 overflow-hidden h-full flex flex-col">
@@ -230,8 +319,50 @@ const AIChatContainer = () => {
           messages={messages}
           isTyping={currentTypingStatus}
           messagesEndRef={messagesEndRef}
+          onEditProjectData={handleEditProjectData}
+          onPostProject={() => handleShowOrderForm(enhancedResponse?.project_data)}
+          onDirectHire={(technicianId) => handleShowOfferForm(enhancedResponse?.project_data, technicianId)}
+          onShowOrderForm={handleShowOrderForm}
+          onShowOfferForm={handleShowOfferForm}
+          selectedTechnicianId={selectedTechnicianId}
+          onTechnicianSelect={setSelectedTechnicianId}
         />
       )}
+
+      {/* Order Form Dialog */}
+      <Dialog open={showOrderForm} onOpenChange={setShowOrderForm}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-right" dir="rtl">نموذج إنشاء مشروع</DialogTitle>
+            <DialogDescription className="text-right" dir="rtl">Project Creation Form</DialogDescription>
+          </DialogHeader>
+          <AIOrderForm
+            projectData={enhancedResponse?.project_data}
+            selectedTechnicianId={null}
+            onClose={() => setShowOrderForm(false)}
+            onSuccess={handleFormSuccess}
+            mode="order"
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Offer Form Dialog */}
+      <Dialog open={showOfferForm} onOpenChange={setShowOfferForm}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-right" dir="rtl">نموذج عرض سعر</DialogTitle>
+            <DialogDescription className="text-right" dir="rtl">Offer Form</DialogDescription>
+          </DialogHeader>
+          <AIOrderForm
+            projectData={enhancedResponse?.project_data}
+            selectedTechnicianId={selectedTechnicianId}
+            onClose={() => setShowOfferForm(false)}
+            onSuccess={handleFormSuccess}
+            mode="offer"
+          />
+        </DialogContent>
+      </Dialog>
+
       <AIChatInput
         inputText={inputText}
         setInputText={setInputText}

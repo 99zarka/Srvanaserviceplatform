@@ -134,6 +134,9 @@ const OrderForm = ({
         governorate: governorate,
         detailed_address: detailed_address,
         scheduled_date: initialData.scheduled_date ? new Date(initialData.scheduled_date) : new Date(),
+        // Ensure textarea fields are never null
+        problem_description: initialData.problem_description || '',
+        offer_description: initialData.offer_description || '',
       });
     }
     if (formSetError) formSetError.current = setError;
