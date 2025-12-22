@@ -14,7 +14,7 @@ import { fetchServices } from '../../redux/servicesSlice';
 import { fetchPublicUserProfile } from '../../redux/authSlice';
 
 const AIOrderForm = ({
-  projectData,
+  enhancedResponse,
   selectedTechnicianId,
   onClose,
   onSuccess,
@@ -35,26 +35,111 @@ const AIOrderForm = ({
   const [technicianError, setTechnicianError] = useState(null);
 
   const [currentFormData, setCurrentFormData] = useState(() => {
-    let scheduledDate = new Date();
-    if (projectData?.scheduled_date) {
-      const date = new Date(projectData.scheduled_date);
-      if (!isNaN(date.getTime())) {
-        scheduledDate = date;
+    if (mode === 'offer') {
+      // Offer Mode: Use enhancedResponse.offer_data.order for order fields, enhancedResponse.offer_data for offer fields
+      const offerData = enhancedResponse?.offer_data;
+      const orderData = offerData?.order;
+      let scheduledDate = new Date();
+      if (orderData?.scheduled_date) {
+        const date = new Date(orderData.scheduled_date);
+        if (!isNaN(date.getTime())) {
+          scheduledDate = date;
+        }
       }
-    }
 
-    return {
-      service_id: projectData?.service_id ? String(projectData.service_id) : '',
-      problem_description: projectData?.problem_description || '',
-      requested_location: projectData?.requested_location || '',
-      scheduled_date: scheduledDate,
-      scheduled_time_start: projectData?.scheduled_time_start || '',
-      scheduled_time_end: projectData?.scheduled_time_end || '',
-      expected_price: projectData?.expected_price || '',
-      offered_price: projectData?.expected_price || '', // For offer mode, pre-fill with expected price
-      offer_description: projectData?.offer_description || '',
-    };
+      return {
+        service_id: orderData?.service ? String(orderData.service) : '',
+        problem_description: orderData?.problem_description || '',
+        requested_location: orderData?.requested_location || '',
+        scheduled_date: scheduledDate,
+        scheduled_time_start: orderData?.scheduled_time_start || '',
+        scheduled_time_end: orderData?.scheduled_time_end || '',
+        expected_price: offerData?.client_agreed_price || '',
+        offered_price: offerData?.client_agreed_price || '',
+        offer_description: offerData?.offer_description || '',
+      };
+    } else {
+      // Order Mode: Use enhancedResponse.project_data for all fields
+      const projectData = enhancedResponse?.project_data;
+      let scheduledDate = new Date();
+      if (projectData?.scheduled_date) {
+        const date = new Date(projectData.scheduled_date);
+        if (!isNaN(date.getTime())) {
+          scheduledDate = date;
+        }
+      }
+
+      return {
+        service_id: projectData?.service_id ? String(projectData.service_id) : '',
+        problem_description: projectData?.problem_description || '',
+        requested_location: projectData?.requested_location || '',
+        scheduled_date: scheduledDate,
+        scheduled_time_start: projectData?.scheduled_time_start || '',
+        scheduled_time_end: projectData?.scheduled_time_end || '',
+        expected_price: projectData?.expected_price || '',
+        offered_price: '',
+        offer_description: '',
+      };
+    }
   });
+
+  // Update form data when enhancedResponse changes
+  useEffect(() => {
+    if (mode === 'offer' && enhancedResponse?.offer_data) {
+      // Offer Mode: Update with enhancedResponse.offer_data
+      const offerData = enhancedResponse.offer_data;
+      const orderData = offerData.order;
+      let scheduledDate = new Date();
+      if (orderData?.scheduled_date) {
+        const date = new Date(orderData.scheduled_date);
+        if (!isNaN(date.getTime())) {
+          scheduledDate = date;
+        }
+      }
+
+      setCurrentFormData(prev => ({
+        ...prev,
+        service_id: orderData?.service ? String(orderData.service) : '',
+        problem_description: orderData?.problem_description || '',
+        requested_location: orderData?.requested_location || '',
+        scheduled_date: scheduledDate,
+        scheduled_time_start: orderData?.scheduled_time_start || '',
+        scheduled_time_end: orderData?.scheduled_time_end || '',
+        expected_price: offerData.client_agreed_price || '',
+        offered_price: offerData.client_agreed_price || '',
+        offer_description: offerData.offer_description || '',
+      }));
+    } else if (mode === 'order' && enhancedResponse?.project_data) {
+      // Order Mode: Update with enhancedResponse.project_data
+      const projectData = enhancedResponse.project_data;
+      let scheduledDate = new Date();
+      if (projectData.scheduled_date) {
+        const date = new Date(projectData.scheduled_date);
+        if (!isNaN(date.getTime())) {
+          scheduledDate = date;
+        }
+      }
+
+      setCurrentFormData(prev => ({
+        ...prev,
+        service_id: projectData.service_id ? String(projectData.service_id) : '',
+        problem_description: projectData.problem_description || '',
+        requested_location: projectData.requested_location || '',
+        scheduled_date: scheduledDate,
+        scheduled_time_start: projectData.scheduled_time_start || '',
+        scheduled_time_end: projectData.scheduled_time_end || '',
+        expected_price: projectData.expected_price || '',
+        offered_price: '',
+        offer_description: '',
+      }));
+    }
+  }, [enhancedResponse, mode]);
+
+  // Debug: Log enhancedResponse when it changes
+  useEffect(() => {
+    console.log('AIOrderForm enhancedResponse:', enhancedResponse);
+    console.log('AIOrderForm mode:', mode);
+  }, [enhancedResponse, mode]);
 
   // Fetch services for order mode
   useEffect(() => {

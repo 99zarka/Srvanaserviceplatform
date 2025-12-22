@@ -44,7 +44,7 @@ const AIMessageBubble = ({ message, onEditProjectData, onPostProject, onDirectHi
 
   const handlePostProject = () => {
     if (onShowOrderForm && enhancedResponse?.project_data) {
-      onShowOrderForm(enhancedResponse.project_data);
+      onShowOrderForm(enhancedResponse);
     } else if (onPostProject) {
       onPostProject();
     }
@@ -52,8 +52,8 @@ const AIMessageBubble = ({ message, onEditProjectData, onPostProject, onDirectHi
 
   const handleDirectHire = (technicianId) => {
     onTechnicianSelect(technicianId);
-    if (onShowOfferForm && enhancedResponse?.project_data) {
-      onShowOfferForm(enhancedResponse.project_data, technicianId);
+    if (onShowOfferForm && enhancedResponse?.offer_data) {
+      onShowOfferForm(technicianId, enhancedResponse);
     } else if (onDirectHire) {
       onDirectHire(technicianId);
     }

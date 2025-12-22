@@ -14,13 +14,12 @@ const AIChatContainer = () => {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [enhancedResponse, setEnhancedResponse] = useState(null);
-  const [editingProjectData, setEditingProjectData] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [showOfferForm, setShowOfferForm] = useState(false);
   const [selectedTechnicianId, setSelectedTechnicianId] = useState(null);
   const [formMode, setFormMode] = useState('order'); // 'order' or 'offer'
+  const [formData, setFormData] = useState(null); // Store form data for the currently open form
   const messagesEndRef = useRef(null);
 
   const { data: historyData, isLoading: isLoadingHistory, error: historyError, refetch: refetchHistory } = useGetAiChatHistoryQuery();
@@ -130,10 +129,7 @@ const AIChatContainer = () => {
         start_new: startNew 
       }).unwrap();
 
-      // Parse enhanced response if available
-      if (response && typeof response === 'object') {
-        setEnhancedResponse(response);
-      }
+      // Enhanced response will be handled by the history refetch
 
       // History will be refetched automatically due to `invalidatesTags: ['AIChat']`
     } catch (error) {
@@ -169,10 +165,7 @@ const AIChatContainer = () => {
       setIsLoading(true);
       const response = await sendChatMessage({ prompt: action, start_new: false }).unwrap();
 
-      // Parse enhanced response if available
-      if (response && typeof response === 'object') {
-        setEnhancedResponse(response);
-      }
+      // Enhanced response will be handled by the history refetch
     } catch (error) {
       console.error('Failed to send quick action:', error);
       toast.error('Failed to send quick action. Please try again.');
@@ -185,8 +178,7 @@ const AIChatContainer = () => {
   const handleStartNewConversation = async () => {
     // Clear current UI messages immediately
     setMessages([]);
-    setEnhancedResponse(null);
-    setEditingProjectData(false);
+    setFormData(null);
     setShowOrderForm(false);
     setShowOfferForm(false);
     setSelectedTechnicianId(null);
@@ -218,42 +210,21 @@ const AIChatContainer = () => {
     }
   };
 
-  const handleEditProjectData = (field, value) => {
-    setEnhancedResponse(prev => ({
-      ...prev,
-      project_data: {
-        ...prev.project_data,
-        [field]: value
-      }
-    }));
-  };
 
-  const handleShowOrderForm = (projectData) => {
+  const handleShowOrderForm = (projectData = null) => {
+    setFormData(projectData);
     setFormMode('order');
     setShowOrderForm(true);
     setShowOfferForm(false);
     setSelectedTechnicianId(null);
-    // Set enhanced response with project data if provided
-    if (projectData) {
-      setEnhancedResponse(prev => ({
-        ...prev,
-        project_data: projectData
-      }));
-    }
   };
 
-  const handleShowOfferForm = (projectData, technicianId) => {
+  const handleShowOfferForm = (technicianId, projectData = null) => {
+    setFormData(projectData);
     setFormMode('offer');
     setShowOfferForm(true);
     setShowOrderForm(false);
     setSelectedTechnicianId(technicianId);
-    // Set enhanced response with project data if provided
-    if (projectData) {
-      setEnhancedResponse(prev => ({
-        ...prev,
-        project_data: projectData
-      }));
-    }
   };
 
   const handleFormSuccess = (mode, response) => {
@@ -272,6 +243,7 @@ const AIChatContainer = () => {
     setShowOfferForm(false);
     setSelectedTechnicianId(null);
     setFormMode('order');
+    setFormData(null);
   };
 
   const currentTypingStatus = isLoadingHistory || isSendingMessage || isLoading;
@@ -319,7 +291,6 @@ const AIChatContainer = () => {
           messages={messages}
           isTyping={currentTypingStatus}
           messagesEndRef={messagesEndRef}
-          onEditProjectData={handleEditProjectData}
           onPostProject={() => handleShowOrderForm(enhancedResponse?.project_data)}
           onDirectHire={(technicianId) => handleShowOfferForm(enhancedResponse?.project_data, technicianId)}
           onShowOrderForm={handleShowOrderForm}
@@ -337,7 +308,7 @@ const AIChatContainer = () => {
             <DialogDescription className="text-right" dir="rtl">Project Creation Form</DialogDescription>
           </DialogHeader>
           <AIOrderForm
-            projectData={enhancedResponse?.project_data}
+            enhancedResponse={formData}
             selectedTechnicianId={null}
             onClose={() => setShowOrderForm(false)}
             onSuccess={handleFormSuccess}
@@ -354,7 +325,7 @@ const AIChatContainer = () => {
             <DialogDescription className="text-right" dir="rtl">Offer Form</DialogDescription>
           </DialogHeader>
           <AIOrderForm
-            projectData={enhancedResponse?.project_data}
+            enhancedResponse={formData}
             selectedTechnicianId={selectedTechnicianId}
             onClose={() => setShowOfferForm(false)}
             onSuccess={handleFormSuccess}
