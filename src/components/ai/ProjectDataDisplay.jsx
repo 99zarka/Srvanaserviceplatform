@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -8,7 +9,13 @@ const ProjectDataDisplay = ({
   projectData,
   onPostProject
 }) => {
+  const { services } = useSelector((state) => state.services);
+
   if (!projectData) return null;
+
+  // Find the service by service_id to get arabic_name
+  const service = services.find(s => s.service_id === projectData.service_id);
+  const serviceName = service?.arabic_name || service?.service_name || 'غير محدد';
 
   return (
     <Card className="border border-gray-200 shadow-sm" dir="rtl">
@@ -22,15 +29,15 @@ const ProjectDataDisplay = ({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Service ID */}
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+          {/* Service Name */}
           <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
             <div className="flex items-center space-x-2 space-x-reverse">
               <Wrench className="h-4 w-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">رقم الخدمة</span>
+              <span className="text-sm font-medium text-gray-700">اسم الخدمة</span>
             </div>
             <Badge variant="outline" className="text-xs">
-              {projectData.service_id || 'غير محدد'}
+              {serviceName || 'غير محدد'}
             </Badge>
           </div>
 
@@ -74,7 +81,7 @@ const ProjectDataDisplay = ({
               <span className="text-sm font-medium text-gray-700">تاريخ الإنشاء</span>
             </div>
             <Badge variant="outline" className="text-xs">
-              {projectData.creation_timestamp || 'غير محدد'}
+              {projectData.scheduled_date || 'غير محدد'}
             </Badge>
           </div>
 

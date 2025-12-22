@@ -9,7 +9,7 @@ import TechnicianRecommendations from './TechnicianRecommendations';
 
 const AIMessageBubble = ({ message, onEditProjectData, onPostProject, onDirectHire, onShowOrderForm, onShowOfferForm, selectedTechnicianId, onTechnicianSelect }) => {
   // Parse enhanced response if message has structured data
-  const [enhancedResponse, setEnhancedResponse] = React.useState(null);
+  const [enhancedResponse, setEnhancedResponse] = React.useState(message.content);
   const [editingProjectData, setEditingProjectData] = React.useState(false);
 
   React.useEffect(() => {
