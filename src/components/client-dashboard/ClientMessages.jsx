@@ -125,7 +125,7 @@ export function ClientMessages() {
                           <div className="flex items-start space-x-3 flex-1 min-w-0">
                             <div className="flex-shrink-0">
                               <div className="relative group cursor-pointer">
-                                <Link to={`/dashboard/profile/${otherUserId}`} onClick={(e) => e.stopPropagation()}>
+                                <Link to={`/profile/${otherUserId}`} onClick={(e) => e.stopPropagation()}>
                                   {otherParticipant?.profile_photo ? (
                                     <img
                                       src={otherParticipant?.profile_photo}
@@ -146,7 +146,7 @@ export function ClientMessages() {
                             
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center space-x-2 mb-2">
-                                <Link to={`/dashboard/profile/${otherUserId}`} onClick={(e) => e.stopPropagation()}>
+                                <Link to={`/profile/${otherUserId}`} onClick={(e) => e.stopPropagation()}>
                                   <h3 className="text-sm sm:text-base font-bold text-secondary hover:text-secondary/80 transition-colors truncate cursor-pointer group-hover:text-secondary/80">
                                     {otherParticipant?.full_name || "مستخدم غير معروف"}
                                   </h3>

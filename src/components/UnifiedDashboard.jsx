@@ -73,7 +73,7 @@ export function UnifiedDashboard() {
     { icon: ShoppingCart, label: "الطلبات والعروض", path: "/dashboard/orders-offers" },
     { icon: MessageSquare, label: "الرسائل", path: "/dashboard/messages" },
     { icon: Flag, label: "النزاعات", path: "/dashboard/disputes" },
-    { icon: User, label: "الملف الشخصي", path: `/dashboard/profile/${userId}` },
+    { icon: User, label: "الملف الشخصي", path: `/profile/${userId}` },
   ];
 
  const technicianTools = [

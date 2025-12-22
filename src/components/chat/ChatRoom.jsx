@@ -337,7 +337,7 @@ export function ChatRoom() {
               </Button>
               <div className="flex items-center space-x-3">
                 <Link 
-                  to={`/dashboard/profile/${conversation?.participants_info?.filter(p => p.id !== user?.user_id)[0]?.id || ''}`}
+                  to={`/profile/${conversation?.participants_info?.filter(p => p.id !== user?.user_id)[0]?.id || ''}`}
                   className="relative group cursor-pointer"
                 >
                   {conversation?.participants_info?.filter(p => p.id !== user?.user_id)[0]?.profile_photo ? (
@@ -354,7 +354,7 @@ export function ChatRoom() {
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-3 border-white rounded-full shadow-sm"></div>
                 </Link>
                 <Link 
-                  to={`/dashboard/profile/${conversation?.participants_info?.filter(p => p.id !== user?.user_id)[0]?.id || ''}`}
+                  to={`/profile/${conversation?.participants_info?.filter(p => p.id !== user?.user_id)[0]?.id || ''}`}
                   className="hover:text-primary transition-colors duration-300"
                 >
                   <CardTitle className="text-xl font-bold text-secondary">
@@ -439,7 +439,7 @@ export function ChatRoom() {
                 >
                   {!isCurrentUser && senderInfo && (
                     <Link 
-                      to={`/dashboard/profile/${senderInfo.id}`}
+                      to={`/profile/${senderInfo.id}`}
                       className="flex items-center space-x-2 mb-3 hover:text-primary transition-colors duration-300"
                     >
                       <div className="w-5 h-5 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-secondary/30">

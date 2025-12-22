@@ -264,7 +264,7 @@ export function WorkerOverview() {
                 </Link>
               </Button>
               <Button variant="outline" asChild className="w-full flex items-center justify-center space-x-2">
-                <Link to={`/dashboard/profile/${user?.user_id}`}>
+                <Link to={`/profile/${user?.user_id}`}>
                   <Edit className="h-5 w-5" />
                   <span>تعديل الملف الشخصي</span>
                 </Link>
