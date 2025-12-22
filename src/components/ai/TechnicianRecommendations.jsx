@@ -6,6 +6,7 @@ import { Button } from '../ui/button';
 import { Star, MapPin, Wrench, Clock, User, MessageCircle, Calendar } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useIsMobile } from '../ui/use-mobile';
+import BASE_URL from '../../config/api';
 
 const TechnicianRecommendations = ({ recommendations, onHire, showDirectHire = true }) => {
   const isMobile = useIsMobile();
@@ -74,15 +75,16 @@ const TechnicianRecommendations = ({ recommendations, onHire, showDirectHire = t
                 <div className="flex items-center space-x-reverse space-x-3 mb-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-reverse space-x-2 mb-1">
-                      <Badge className={`text-xs font-medium px-2 py-1 ${getUrgencyColor(tech.urgency)}`}>
-                        {getExperienceText(tech.experience_years)}
-                      </Badge>
+
                       <Link
                         to={`/profile/${tech.id}`}
                         className="text-lg font-semibold text-blue-600 hover:text-blue-800 truncate hover:underline"
                       >
                         {tech.name}
                       </Link>
+                      <Badge className={`text-xs font-medium px-2 py-1 ${getUrgencyColor(tech.urgency)}`}>
+                        {getExperienceText(tech.experience_years)}
+                      </Badge>
                     </div>
 
                     <div className="flex items-center space-x-reverse space-x-1 mb-2">
@@ -96,12 +98,14 @@ const TechnicianRecommendations = ({ recommendations, onHire, showDirectHire = t
                     </div>
                   </div>
 
-                  <Avatar className="w-12 h-12 border-2 border-gray-200 flex-shrink-0">
-                    <AvatarImage src={tech.avatar_url} alt={tech.name} />
-                    <AvatarFallback className="bg-blue-600 text-white">
-                      {tech.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
+                  <Link to={`/profile/${tech.id}`}>
+ <Avatar className="w-12 h-12 border-2 border-gray-200 flex-shrink-0">
+ <AvatarImage src={`${BASE_URL}/users/${tech.id}/profile_photo/`} alt={tech.name} />
+ <AvatarFallback className="bg-blue-600 text-white">
+ {tech.name.split(' ').map(n => n[0]).join('')}
+ </AvatarFallback>
+ </Avatar>
+ </Link>
                 </div>
 
                 {/* Details Row */}
