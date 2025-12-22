@@ -6,7 +6,6 @@ import MessageTimestamp from './MessageTimestamp';
 import { Button } from '../ui/button';
 import ProjectDataDisplay from './ProjectDataDisplay';
 import TechnicianRecommendations from './TechnicianRecommendations';
-import ActionButtons from './ActionButtons';
 
 const AIMessageBubble = ({ message, onEditProjectData, onPostProject, onDirectHire, onShowOrderForm, onShowOfferForm, selectedTechnicianId, onTechnicianSelect }) => {
   // Parse enhanced response if message has structured data
@@ -180,21 +179,6 @@ const AIMessageBubble = ({ message, onEditProjectData, onPostProject, onDirectHi
                 </div>
               )}
 
-              {/* Action Buttons */}
-              {(enhancedResponse.show_post_project || enhancedResponse.show_direct_hire) && (
-                <div className="border-t border-gray-200 pt-4">
-                  <ActionButtons
-                    showPostProject={enhancedResponse.show_post_project}
-                    showDirectHire={enhancedResponse.show_direct_hire}
-                    onPostProject={handlePostProject}
-                    onDirectHire={handleDirectHire}
-                    projectData={enhancedResponse.project_data}
-                    selectedTechnicianId={selectedTechnicianId}
-                    onShowOrderForm={onShowOrderForm}
-                    onShowOfferForm={onShowOfferForm}
-                  />
-                </div>
-              )}
             </div>
           )}
 
