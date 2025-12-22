@@ -1,133 +1,291 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { X, Save, Calendar, Wrench } from 'lucide-react';
+import { X, Save, Calendar, Wrench, Loader2, CircleUser, DollarSign, MapPin } from 'lucide-react';
 import OrderForm from '../OrderForm';
-import api from '../../utils/api';
+import { toast } from 'sonner';
+import { format } from 'date-fns';
 
-const AIOrderForm = ({ 
-  projectData, 
-  selectedTechnicianId, 
-  onClose, 
+import { createOrder, clearError } from '../../redux/orderSlice';
+import { makeClientOffer, clearError as clearOfferError, clearSuccessMessage } from '../../redux/orderSlice';
+import { fetchServices } from '../../redux/servicesSlice';
+import { fetchPublicUserProfile } from '../../redux/authSlice';
+
+const AIOrderForm = ({
+  projectData,
+  selectedTechnicianId,
+  onClose,
   onSuccess,
   mode = 'order' // 'order' or 'offer'
 }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [serverError, setServerError] = useState(null);
-  const [formError, setFormError] = useState(null);
-  const [currentFormData, setCurrentFormData] = useState({
-    service_id: '',
-    problem_description: '',
-    governorate: '',
-    detailed_address: '',
-    scheduled_date: new Date(),
-    scheduled_time_start: '',
-    scheduled_time_end: '',
-    expected_price: '',
-    offered_price: '',
-    offer_description: '',
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading, error, successMessage } = useSelector((state) => state.orders);
+  const { services } = useSelector((state) => state.services);
+  const user = useSelector((state) => state.auth.user);
+
+  const [serverErrorMessage, setServerErrorMessage] = useState(null);
+  const formSetErrorRef = useRef(null);
+  const formClearErrorsRef = useRef(null);
+
+  const [localTechnician, setLocalTechnician] = useState(null);
+  const [isTechnicianLoading, setIsTechnicianLoading] = useState(false);
+  const [technicianError, setTechnicianError] = useState(null);
+
+  const [currentFormData, setCurrentFormData] = useState(() => {
+    let scheduledDate = new Date();
+    if (projectData?.scheduled_date) {
+      const date = new Date(projectData.scheduled_date);
+      if (!isNaN(date.getTime())) {
+        scheduledDate = date;
+      }
+    }
+
+    return {
+      service_id: projectData?.service_id ? String(projectData.service_id) : '',
+      problem_description: projectData?.problem_description || '',
+      requested_location: projectData?.requested_location || '',
+      scheduled_date: scheduledDate,
+      scheduled_time_start: projectData?.scheduled_time_start || '',
+      scheduled_time_end: projectData?.scheduled_time_end || '',
+      expected_price: projectData?.expected_price || '',
+      offered_price: projectData?.expected_price || '', // For offer mode, pre-fill with expected price
+      offer_description: projectData?.offer_description || '',
+    };
   });
 
-  // Refs for form error handling
-  const formSetErrorRef = React.useRef(null);
-  const formClearErrorsRef = React.useRef(null);
-
-  // Update form data when projectData changes
+  // Fetch services for order mode
   useEffect(() => {
-    if (projectData) {
+    if (mode === 'order') {
+      dispatch(fetchServices({ page_size: 50 }));
+    }
+  }, [dispatch, mode]);
+
+  // Fetch technician profile for offer mode
+  useEffect(() => {
+    if (mode === 'offer' && selectedTechnicianId) {
+      setIsTechnicianLoading(true);
+      dispatch(fetchPublicUserProfile(selectedTechnicianId))
+        .then((action) => {
+          if (fetchPublicUserProfile.fulfilled.match(action)) {
+            setLocalTechnician(action.payload);
+            setTechnicianError(null);
+          } else {
+            setTechnicianError(action.error.message || 'فشل جلب تفاصيل الفني.');
+            toast.error(action.error.message || 'فشل جلب تفاصيل الفني.');
+          }
+        })
+        .finally(() => {
+          setIsTechnicianLoading(false);
+        });
+    }
+  }, [dispatch, selectedTechnicianId, mode]);
+
+  // Handle success and errors from Redux
+  useEffect(() => {
+    if (successMessage) {
+      toast.success(successMessage);
+      dispatch(clearSuccessMessage());
+      onSuccess?.(mode, { success: true });
+      if (mode === 'order') {
+        navigate('/dashboard/orders-offers');
+      } else {
+        navigate('/dashboard');
+      }
+      // Reset form data
       setCurrentFormData({
         service_id: '',
-        problem_description: projectData.problem_description || '',
-        governorate: projectData.location || '',
+        problem_description: '',
+        governorate: '',
         detailed_address: '',
-        scheduled_date: projectData.scheduled_date ? new Date(projectData.scheduled_date) : new Date(),
-        scheduled_time_start: projectData.scheduled_time || '',
-        scheduled_time_end: projectData.scheduled_time ? 
-          // Add 2 hours to start time for end time if not provided
-          new Date(new Date(projectData.scheduled_time).getTime() + 2 * 60 * 60 * 1000).toTimeString().slice(0, 5) : '',
-        expected_price: projectData.budget_range ? parseFloat(projectData.budget_range.replace(/[^\d.]/g, '')) : '',
+        scheduled_date: new Date(),
+        scheduled_time_start: '',
+        scheduled_time_end: '',
+        expected_price: '',
         offered_price: '',
         offer_description: '',
       });
     }
-  }, [projectData]);
+    if (error) {
+      toast.error(error?.detail || error?.message || error || "حدث خطأ أثناء العملية.");
+      dispatch(clearError());
+    }
+  }, [successMessage, error, dispatch, navigate, onSuccess, mode]);
 
-  const handleSubmit = async (formData) => {
-    setIsSubmitting(true);
-    setServerError(null);
-    setFormError(null);
+  const mapBackendErrorsToForm = (backendErrors) => {
+    if (formClearErrorsRef.current) {
+      formClearErrorsRef.current();
+    }
 
-    try {
-      if (mode === 'order') {
-        // Create order with correct structure - match OrderCreateForm pattern
-        const orderData = {
-          service_id: parseInt(formData.service_id),
-          problem_description: formData.problem_description,
-          requested_location: `${formData.governorate}, ${formData.detailed_address}`,
-          scheduled_date: formData.scheduled_date.toISOString().split('T')[0],
-          scheduled_time_start: formData.scheduled_time_start,
-          scheduled_time_end: formData.scheduled_time_end,
-          order_type: 'service_request',
-          expected_price: parseFloat(formData.expected_price) || null
-        };
-        const response = await api.post('/orders/orders/', orderData);
-        onSuccess('order', response);
-      } else if (mode === 'offer' && selectedTechnicianId) {
-        // Create offer with correct structure - match DirectOfferForm pattern
-        const offerData = {
-          client_agreed_price: parseFloat(formData.offered_price),
-          offer_description: formData.offer_description,
-          order: {
-            service: parseInt(formData.service_id),
-            problem_description: formData.problem_description,
-            requested_location: `${formData.governorate}, ${formData.detailed_address}`,
-            scheduled_date: formData.scheduled_date.toISOString().split('T')[0],
-            scheduled_time_start: formData.scheduled_time_start,
-            scheduled_time_end: formData.scheduled_time_end,
-            order_type: 'direct_hire'
-          }
-        };
-        const response = await api.post('/orders/projectoffers/', offerData);
-        onSuccess('offer', response);
+    if (!backendErrors) {
+      console.error("mapBackendErrorsToForm received undefined or null errors.");
+      toast.error("حدث خطأ غير معروف أثناء معالجة استجابة الخادم.");
+      setServerErrorMessage("حدث خطأ غير معروف أثناء معالجة استجابة الخادم.");
+      return;
+    }
+
+    if (formSetErrorRef.current && backendErrors) {
+      if (typeof backendErrors === 'string') {
+        const errorMessage = backendErrors.replace(/\\"/g, '"');
+        toast.error(errorMessage);
+        setServerErrorMessage(errorMessage);
+        return;
       }
-    } catch (error) {
-      console.error('Form submission error:', error);
-      
-      if (error.response) {
-        // Server returned error response
-        const errorData = error.response.data;
-        setServerError(JSON.stringify(errorData, null, 2));
-        
-        // Set form field errors if available
-        if (formSetErrorRef.current && errorData) {
-          Object.entries(errorData).forEach(([field, messages]) => {
-            if (Array.isArray(messages)) {
-              formSetErrorRef.current(field, { type: 'server', message: messages[0] });
-            }
+
+      if (Object.keys(backendErrors).length === 0 && backendErrors.constructor === Object) {
+        toast.error("حدث خطأ غير معروف من الخادم.");
+        setServerErrorMessage("حدث خطأ غير معروف من الخادم.");
+        return;
+      }
+
+      Object.entries(backendErrors).forEach(([field, messages]) => {
+        if (field === 'non_field_errors' || field === 'detail' || field === 'message') {
+          let errorMessage = Array.isArray(messages) ? messages.join(', ') : messages;
+          errorMessage = String(errorMessage).replace(/\\"/g, '"');
+          toast.error(errorMessage);
+          setServerErrorMessage(errorMessage);
+        } else if (field === 'order' && typeof messages === 'object') {
+          Object.entries(messages).forEach(([orderField, orderMessages]) => {
+            let orderErrorMessage = Array.isArray(orderMessages) ? orderMessages.join(', ') : String(orderMessages);
+            orderErrorMessage = String(orderErrorMessage).replace(/\\"/g, '"');
+            formSetErrorRef.current(orderField, { type: 'server', message: orderErrorMessage });
           });
+        } else {
+          let fieldErrorMessage = Array.isArray(messages) ? messages.join(', ') : String(messages);
+          fieldErrorMessage = String(fieldErrorMessage).replace(/\\"/g, '"');
+          formSetErrorRef.current(field, { type: 'server', message: fieldErrorMessage });
         }
-      } else if (error.request) {
-        // Network error
-        setFormError('حدث خطأ في الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت.');
-      } else {
-        // Other error
-        setFormError('حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
+      });
+    }
+  };
+
+  const handleSubmitOrderForm = async (data) => {
+    if (mode === 'order') {
+      const orderData = {
+        service_id: parseInt(data.service_id),
+        problem_description: data.problem_description,
+        requested_location: data.requested_location,
+        scheduled_date: data.scheduled_date.toISOString().split('T')[0],
+        scheduled_time_start: data.scheduled_time_start,
+        scheduled_time_end: data.scheduled_time_end,
+        order_type: 'service_request',
+        creation_timestamp: new Date().toISOString().split('T')[0],
+        client_user: user?.user_id,
+        expected_price: parseFloat(data.expected_price),
+      };
+
+      if (formClearErrorsRef.current) formClearErrorsRef.current();
+
+      try {
+        setServerErrorMessage(null);
+        await dispatch(createOrder(orderData)).unwrap();
+      } catch (backendError) {
+        console.error('Backend error during order creation:', backendError);
+        mapBackendErrorsToForm(backendError);
+        dispatch(clearError());
       }
-    } finally {
-      setIsSubmitting(false);
+    } else if (mode === 'offer') {
+      if (!localTechnician) {
+        toast.error("بيانات الفني غير متوفرة.");
+        return;
+      }
+
+      const offerData = {
+        client_agreed_price: parseFloat(data.offered_price),
+        offer_description: data.offer_description,
+        order: {
+          service: parseInt(data.service_id),
+          problem_description: data.problem_description,
+          requested_location: data.requested_location,
+          scheduled_date: format(data.scheduled_date, 'yyyy-MM-dd'),
+          scheduled_time_start: data.scheduled_time_start,
+          scheduled_time_end: data.scheduled_time_end,
+          order_type: 'direct_hire',
+        }
+      };
+
+      try {
+        setServerErrorMessage(null);
+        await dispatch(makeClientOffer({ technicianId: localTechnician.user_id, offerData })).unwrap();
+      } catch (backendError) {
+        console.error('Backend error during direct offer:', backendError);
+        mapBackendErrorsToForm(backendError);
+        dispatch(clearError());
+      }
     }
   };
 
   const handleClose = () => {
-    // Clear any form errors before closing
     if (formClearErrorsRef.current) {
       formClearErrorsRef.current();
     }
     onClose();
   };
 
+  if (mode === 'offer' && isTechnicianLoading) {
+    return (
+      <div className="text-center text-gray-600 p-8" dir="rtl">
+        <Loader2 className="h-8 w-8 animate-spin inline-block mr-2 text-primary" />
+        <p className="mt-2 text-lg">جاري تحميل تفاصيل الفني...</p>
+      </div>
+    );
+  }
+
+  if (mode === 'offer' && technicianError) {
+    return (
+      <div className="text-center text-red-600 p-8" dir="rtl">
+        <p className="text-lg">خطأ: {technicianError}</p>
+        <p className="text-md mt-2">تعذر تحميل تفاصيل الفني. الرجاء المحاولة مرة أخرى لاحقًا.</p>
+      </div>
+    );
+  }
+
+  if (mode === 'offer' && !localTechnician) {
+    return (
+      <div className="text-center text-gray-600 p-8" dir="rtl">
+        <p className="text-lg">لم يتم العثور على الفني.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-blue-50 rounded-lg">
+      {/* Technician Info Card for Offer Mode */}
+      {mode === 'offer' && localTechnician && (
+        <div className="mb-8 p-6 bg-linear-to-r from-primary-50 to-blue-100 dark:from-gray-700 dark:to-gray-900 rounded-xl shadow-inner">
+          <div className="text-center sm:text-left">
+            <h3 className="font-bold text-3xl text-gray-900 dark:text-gray-100 mb-2">
+              أرسل عرضًا إلى {localTechnician.first_name} {localTechnician.last_name}
+            </h3>
+            <p className="text-base text-gray-700 dark:text-gray-300 mb-4">
+              أنت على وشك إرسال عرض خدمة مباشر لهذا الفني.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm text-gray-800 dark:text-gray-200">
+              {localTechnician.specialization && (
+                <p className="flex items-center gap-2">
+                  <Wrench className="h-4 w-4 text-primary-600" />
+                  {localTechnician.specialization}
+                </p>
+              )}
+              {localTechnician.address && (
+                <p className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary-600" />
+                  {localTechnician.address}
+                </p>
+              )}
+              {localTechnician.hourly_rate && (
+                <p className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-primary-600" />
+                  السعر بالساعة: ${localTechnician.hourly_rate}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <CardHeader className="bg-white rounded-t-lg border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -158,27 +316,19 @@ const AIOrderForm = ({
           </Button>
         </div>
       </CardHeader>
-      
-      <CardContent className="p-6">
-        {formError && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-700 text-sm">{formError}</p>
-          </div>
-        )}
 
-        {serverError && (
+      <CardContent className="p-6">
+        {serverErrorMessage && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-700 text-sm font-medium mb-2">خطأ من الخادم:</p>
-            <pre className="text-red-600 text-xs bg-red-100 p-2 rounded overflow-auto max-h-32">
-              {serverError}
-            </pre>
+            <p className="text-red-700 text-sm">{serverErrorMessage}</p>
           </div>
         )}
 
         <OrderForm
           initialData={currentFormData}
-          onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
+          onSubmit={handleSubmitOrderForm}
+          isSubmitting={loading}
+          services={services}
           showOfferedPrice={mode === 'offer'}
           showOfferDescription={mode === 'offer'}
           showFinalPrice={false}
@@ -187,7 +337,7 @@ const AIOrderForm = ({
           onCancel={handleClose}
           formSetError={formSetErrorRef}
           formClearErrors={formClearErrorsRef}
-          serverErrorMessage={serverError}
+          serverErrorMessage={serverErrorMessage}
         />
       </CardContent>
     </div>
