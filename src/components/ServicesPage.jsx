@@ -4,33 +4,16 @@ import { Card, CardContent, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Link } from "react-router-dom";
-import api from "../utils/api"; // Import the API utility
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchServices } from '../redux/servicesSlice';
 
 export function ServicesPage() {
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  const { services, loading, error } = useSelector((state) => state.services);
 
   useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        setLoading(true);
-        const data = await api.get("/services/services/?page_size=50"); // Backend endpoint
-        // Handle paginated response or direct array
-        const servicesData = data.results || data || [];
-        setServices(Array.isArray(servicesData) ? servicesData : []);
-      } catch (err) {
-        console.error('Failed to fetch services:', err);
-        console.error('Error details:', err.status, err.message);
-        setError(err);
-        setServices([]); // Set empty array on error
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchServices();
-  }, []);
+    dispatch(fetchServices({ page_size: 50 }));
+  }, [dispatch]);
 
   const serviceIcons = {
     // Home Repair
@@ -62,7 +45,7 @@ export function ServicesPage() {
   };
 
   if (loading) return <div className="text-center py-20">جاري تحميل الخدمات...</div>;
-  if (error) return <div className="text-center py-20 text-red-500">خطأ: {error.message}</div>;
+  if (error) return <div className="text-center py-20 text-red-500">خطأ: {typeof error === 'string' ? error : 'حدث خطأ في تحميل الخدمات'}</div>;
 
   return (
     <div className="min-h-screen" dir="rtl">

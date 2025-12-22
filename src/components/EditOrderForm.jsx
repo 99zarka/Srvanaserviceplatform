@@ -17,13 +17,14 @@ import { Calendar } from './ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { toast } from 'sonner';
 import { getOrderOffers, updateClientOffer, clearError, clearSuccessMessage } from '../redux/orderSlice';
-import api from '../utils/api';
+import { fetchServices } from '../redux/servicesSlice';
 
 import GovernorateSelect from './common/GovernorateSelect';
 
 const EditOrderForm = ({ orderId, onClose }) => {
   const dispatch = useDispatch();
   const { currentOrderOffers, loading, error, successMessage } = useSelector((state) => state.orders);
+  const { services } = useSelector((state) => state.services);
   const { user } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
@@ -37,7 +38,6 @@ const EditOrderForm = ({ orderId, onClose }) => {
     offer_description: '',
   });
 
-  const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [order, setOrder] = useState(null);
 
@@ -86,17 +86,8 @@ const EditOrderForm = ({ orderId, onClose }) => {
   }, [successMessage, error, dispatch, onClose]);
 
   useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const response = await api.get('/services/services/');
-        setServices(response.results);
-      } catch (err) {
-        toast.error('فشل جلب الخدمات.');
-        console.error('Error fetching services:', err);
-      }
-    };
-    fetchServices();
-  }, []);
+    dispatch(fetchServices({ page_size: 50 }));
+  }, [dispatch]);
 
   const handleChange = (e) => {
     const { id, value } = e.target;

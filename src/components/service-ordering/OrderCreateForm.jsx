@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createOrder, clearError } from '../../redux/orderSlice'; // Import clearError
-import api from '../../utils/api';
+import { fetchServices } from '../../redux/servicesSlice'; // Import fetchServices
 import OrderForm from '../OrderForm'; // Import the reusable OrderForm
 import { toast } from 'sonner';
 
@@ -12,9 +12,8 @@ const OrderCreateForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error, successMessage } = useSelector((state) => state.orders);
+  const { services } = useSelector((state) => state.services);
   const user = useSelector((state) => state.auth.user);
-  const [services, setServices] = useState([]);
-  const [isLoadingServices, setIsLoadingServices] = useState(false);
   const [formKey, setFormKey] = useState(0); // Key to force OrderForm remount
   const [serverErrorMessage, setServerErrorMessage] = useState(null); // New state for global server error
   const [searchParams] = useSearchParams();
@@ -56,21 +55,8 @@ const OrderCreateForm = () => {
   const formClearErrorsRef = useRef(null); // Ref to hold clearErrors function from OrderForm
 
   useEffect(() => {
-    const fetchServices = async () => {
-      setIsLoadingServices(true);
-      try {
-        const response = await api.get('/services/services/?page_size=50');
-        setServices(response.results);
-      } catch (error) {
-        console.error('Failed to fetch services:', error);
-        toast.error('فشل في تحميل الخدمات');
-      } finally {
-        setIsLoadingServices(false);
-      }
-    };
-
-    fetchServices();
-  }, []);
+    dispatch(fetchServices({ page_size: 50 }));
+  }, [dispatch]);
 
   // Function to map backend errors to form fields
   const mapBackendErrorsToForm = (backendErrors) => {
@@ -149,11 +135,10 @@ const OrderCreateForm = () => {
             onSubmit={handleSubmitOrderForm}
             isSubmitting={loading}
             services={services}
-            isLoadingServices={isLoadingServices}
             submitButtonText="إنشاء طلب"
             showFinalPrice={false} // Changed to showFinalPrice, set to false
             showExpectedPrice={true} // New prop for expected_price
-            showOfferDescription={false} 
+            showOfferDescription={false}
             formSetError={formSetErrorRef} // Pass ref for setError
             formClearErrors={formClearErrorsRef} // Pass ref for clearErrors
             serverErrorMessage={serverErrorMessage} // Pass global server error message

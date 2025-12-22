@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchServices } from '../redux/servicesSlice';
 
 import { Input } from './ui/input';
 import { Button } from './ui/button';
@@ -18,7 +20,6 @@ import {
 } from './ui/select';
 import { Calendar } from './ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import api from '../utils/api'; 
 
 import GovernorateSelect from './common/GovernorateSelect';
 
@@ -62,7 +63,8 @@ const OrderForm = ({
   formClearErrors,
   serverErrorMessage = null,
 }) => {
-  const [services, setServices] = useState([]);
+  const dispatch = useDispatch();
+  const { services } = useSelector((state) => state.services);
 
   const formSchema = baseOrderSchema
     .safeExtend(showOfferedPrice ? { offered_price: z.coerce.number().min(0.01, "السعر المعروض مطلوب").or(z.nan()) } : {})
@@ -101,16 +103,8 @@ const OrderForm = ({
   const selectedServiceDetails = services.find(s => s.service_id?.toString() === watchedServiceId);
 
   useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const response = await api.get('/services/services/?page_size=50');
-        setServices(response.results);
-      } catch (err) {
-        console.error('Error fetching services:', err);
-      }
-    };
-    fetchServices();
-  }, []);
+    dispatch(fetchServices({ page_size: 50 }));
+  }, [dispatch]);
 
   useEffect(() => {
     if (initialData) {
