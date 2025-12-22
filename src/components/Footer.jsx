@@ -1,6 +1,6 @@
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin, Home, Info, Briefcase, UserPlus, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
-import SrvanaLogo from "../../assets/srvana-logo.svg";
+import SrvanaLogo from "../../assets/srvana-logo-2.svg";
 
 export function Footer() {
   return (

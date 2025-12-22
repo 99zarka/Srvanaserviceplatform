@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../redux/authSlice";
-import SrvanaLogo from "../../assets/srvana-logo.svg";
+import SrvanaLogo from "../../assets/srvana-logo-2.svg";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
