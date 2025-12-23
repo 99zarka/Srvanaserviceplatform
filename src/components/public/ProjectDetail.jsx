@@ -5,6 +5,7 @@ import { fetchPublicOrderDetail, createProjectOffer, updateProjectOffer } from '
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Sparkles, Loader2 } from 'lucide-react';
+import BASE_URL from '../../config/api';
 
 const ProjectDetail = () => {
   const { order_id } = useParams();
@@ -45,7 +46,7 @@ const ProjectDetail = () => {
 
     setIsGenerating(true);
     try {
-      const response = await fetch('http://localhost:8000/api/ai/generate-proposal/', {
+      const response = await fetch(`${BASE_URL}/ai/generate-proposal/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
