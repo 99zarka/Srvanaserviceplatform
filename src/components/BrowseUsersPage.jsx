@@ -29,7 +29,7 @@ export function BrowseUsersPage() {
 
   useEffect(() => {
     if (error) {
-      toast.error(error);
+      toast.error(`خطأ: ${error}`);
       dispatch(clearError());
     }
   }, [error, dispatch]);

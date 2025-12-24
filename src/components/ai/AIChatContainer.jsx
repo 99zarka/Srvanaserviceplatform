@@ -45,7 +45,7 @@ const AIChatContainer = () => {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Backend file upload error:', errorData);
-        toast.error('Failed to upload file to backend.');
+        toast.error('فشل في رفع الملف إلى الخادم.');
         return null;
       }
 
@@ -53,7 +53,7 @@ const AIChatContainer = () => {
       return data.url; // Expecting { "url": "..." }
     } catch (error) {
       console.error('Error uploading file to backend:', error);
-      toast.error('Error uploading file.');
+      toast.error('خطأ في رفع الملف.');
       return null;
     }
   };
@@ -97,7 +97,7 @@ const AIChatContainer = () => {
       fileUrl = uploadedUrls.find((url, index) => url && !uploadedFiles[index].type.startsWith('image'));
       
       if (!imageUrl && !fileUrl) {
-        toast.error('Failed to upload files.');
+        toast.error('فشل في رفع الملفات.');
         return;
       }
     }
@@ -134,7 +134,7 @@ const AIChatContainer = () => {
       // History will be refetched automatically due to `invalidatesTags: ['AIChat']`
     } catch (error) {
       console.error('Failed to send message:', error);
-      toast.error('Failed to send message. Please try again.');
+      toast.error('فشل في إرسال الرسالة. يرجى المحاولة مرة أخرى.');
       // Revert optimistic update if necessary, or just rely on refetch to correct state
       setMessages(prev => prev.filter(msg => msg.id !== userMessage.id)); // Simple revert
     } finally {
@@ -168,7 +168,7 @@ const AIChatContainer = () => {
       // Enhanced response will be handled by the history refetch
     } catch (error) {
       console.error('Failed to send quick action:', error);
-      toast.error('Failed to send quick action. Please try again.');
+      toast.error('فشل في إرسال الإجراء السريع. يرجى المحاولة مرة أخرى.');
       setMessages(prev => prev.filter(msg => msg.id !== userMessage.id)); // Simple revert
     } finally {
       setIsLoading(false);
@@ -185,7 +185,7 @@ const AIChatContainer = () => {
     setFormMode('order');
     setInputText('');
     setUploadedFiles([]);
-    toast.info('Starting a new conversation...');
+    toast.info('جاري بدء محادثة جديدة...');
     
     try {
       setIsLoading(true);
@@ -197,12 +197,12 @@ const AIChatContainer = () => {
         // For empty new conversation, just send the flag without content
         await sendChatMessage({ prompt: '', start_new: true }).unwrap();
       }
-      toast.success('New conversation started!');
+      toast.success('تم بدء محادثة جديدة!');
       // Refetch history which should now be empty or a new initial message if backend provides one
       refetchHistory(); 
     } catch (error) {
       console.error('Failed to start new conversation:', error);
-      toast.error('Failed to start new conversation. Please try again.');
+      toast.error('فشل في بدء محادثة جديدة. يرجى المحاولة مرة أخرى.');
       // If new conversation failed, try to refetch old history or show error state
       refetchHistory();
     } finally {

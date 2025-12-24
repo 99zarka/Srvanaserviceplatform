@@ -171,7 +171,7 @@ const AIOrderForm = ({
   // Handle success and errors from Redux
   useEffect(() => {
     if (successMessage) {
-      toast.success(successMessage);
+      toast.success(`نجح: ${successMessage}`);
       dispatch(clearSuccessMessage());
       onSuccess?.(mode, { success: true });
       if (mode === 'order') {

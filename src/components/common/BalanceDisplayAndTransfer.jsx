@@ -51,13 +51,13 @@ const BalanceDisplayAndTransfer = () => {
 
   useEffect(() => {
     if (paymentSuccessMessage) {
-      toast.success(paymentSuccessMessage);
+      toast.success(`نجح: ${paymentSuccessMessage}`);
       dispatch(clearPaymentSuccessMessage());
       setIsConfirmModalOpen(false); // Close modal on success
     }
     if (paymentError) {
-      const errorMessageToDisplay = paymentError.detail || paymentError.message || 'An unknown error occurred.';
-      toast.error(errorMessageToDisplay);
+      const errorMessageToDisplay = paymentError.detail || paymentError.message || 'حدث خطأ غير معروف.';
+      toast.error(`خطأ: ${errorMessageToDisplay}`);
       dispatch(clearPaymentError());
       setIsConfirmModalOpen(false); // Close modal on error
     }

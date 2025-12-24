@@ -55,7 +55,7 @@ export function DisputeDetailsPage() {
 
   useEffect(() => {
     if (successMessage) {
-      toast.success(successMessage);
+      toast.success(`نجح: ${successMessage}`);
       dispatch(fetchSingleDispute(disputeId)); // Refresh dispute after successful action
       dispatch(clearSuccessMessage());
     }

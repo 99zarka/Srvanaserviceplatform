@@ -57,7 +57,7 @@ const ViewOrderPage = () => {
 
   useEffect(() => {
     if (successMessage) {
-      toast.success(successMessage);
+      toast.success(`نجح: ${successMessage}`);
       dispatch(fetchSingleOrder(orderId)); // Refresh the order after successful action
       // Clear success message after displaying and refreshing
       dispatch(clearSuccessMessage());

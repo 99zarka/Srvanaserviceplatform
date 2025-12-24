@@ -60,7 +60,7 @@ const DirectOfferForm = ({ onOfferSuccess }) => {
   useEffect(() => {
     console.log('DirectOfferForm useEffect - loading:', loading, 'successMessage:', successMessage, 'error:', error); // Debug log
     if (successMessage) {
-      toast.success(successMessage);
+      toast.success(`نجح: ${successMessage}`);
       dispatch(clearSuccessMessage());
       onOfferSuccess?.();
       navigate('/dashboard');

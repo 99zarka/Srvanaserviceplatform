@@ -58,12 +58,12 @@ const ClientOrdersAndOffers = () => {
 
   useEffect(() => {
     if (successMessage) {
-      toast.success(successMessage);
+      toast.success(`نجح: ${successMessage}`);
       dispatch(clearSuccessMessage());
     }
     if (error) {
-      const errorMessageToDisplay = error.detail || error.message || 'An unknown error occurred.';
-      toast.error(errorMessageToDisplay);
+      const errorMessageToDisplay = error.detail || error.message || 'حدث خطأ غير معروف.';
+      toast.error(`خطأ: ${errorMessageToDisplay}`);
       dispatch(clearError());
     }
   }, [successMessage, error, dispatch]);

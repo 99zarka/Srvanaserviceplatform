@@ -105,7 +105,7 @@ export function UserProfilePage() {
 
   useEffect(() => {
     if (error) {
-      toast.error(error);
+      toast.error(`خطأ: ${error}`);
       dispatch(clearError());
     }
   }, [error, dispatch]);

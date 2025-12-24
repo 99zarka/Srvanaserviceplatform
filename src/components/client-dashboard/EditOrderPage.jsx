@@ -37,7 +37,7 @@ const EditOrderPage = () => {
     if (successMessage) {
       console.log('EditOrderPage: successMessage received:', successMessage); // Debug log
       console.log('EditOrderPage: navigating to:', `/dashboard/orders-offers/view/${orderId}`); // Debug log
-      toast.success(successMessage);
+      toast.success(`نجح: ${successMessage}`);
       dispatch(clearSuccessMessage());
       if (successMessage.includes("cancelled")) {
         navigate('/dashboard/orders-offers');
