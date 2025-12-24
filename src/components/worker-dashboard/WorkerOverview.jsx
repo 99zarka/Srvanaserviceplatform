@@ -37,18 +37,19 @@ export function WorkerOverview() {
         ]);
 
         // Fetch active tasks (orders) for the worker
-        const tasksData = await api.get("/orders/worker-tasks/?status__in=scheduled,in_progress&limit=3", {
+        const tasksData = await api.get("/orders/worker-tasks/?in_progress&limit=3", {
           headers: { Authorization: `Bearer ${token}` },
         }); // Adjust endpoint and query params
         setActiveTasks(tasksData.results.map(task => ({
-          id: task.id,
-          client: task.client_name || "غير متاح", // Assuming client_name is available
-          service: task.service_name,
-          location: task.location || "غير متاح", // Assuming location is available
-          date: new Date(task.scheduled_date).toLocaleDateString("ar-EG"), // Assuming scheduled_date
-          amount: `${task.total_price || 0} ج.م`,
-          status: task.status,
-          detailsLink: `/dashboard/tasks/${task.id}`, // Placeholder
+          id: task.order_id,
+          client: task.client_user ? `${task.client_user.first_name} ${task.client_user.last_name}` : "غير متاح",
+          client_user_id: task.client_user ? task.client_user.user_id : null,
+          service: task.service ? task.service.arabic_name : "غير متاح",
+          location: task.requested_location || "غير متاح",
+          date: new Date(task.scheduled_date).toLocaleDateString("ar-EG"),
+          amount: `${task.final_price || 0} ج.م`,
+          status: task.order_status,
+          detailsLink: `/dashboard/tasks/${task.order_id}`,
         })));
 
         // Fetch monthly performance (example, assuming an endpoint)
@@ -197,7 +198,11 @@ export function WorkerOverview() {
               {activeTasks.length > 0 ? (
                 activeTasks.map((task) => (
                   <TableRow key={task.id}>
-                    <TableCell>{task.client}</TableCell>
+                    <TableCell>
+                      <Link to={`/profile/${task.client_user_id}`} className="text-blue-600 hover:text-blue-800 hover:underline">
+                        {task.client}
+                      </Link>
+                    </TableCell>
                     <TableCell>{task.service}</TableCell>
                     <TableCell>{task.location}</TableCell>
                     <TableCell>{task.date}</TableCell>
