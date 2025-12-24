@@ -234,19 +234,19 @@ const ViewOrderPage = () => {
             {currentViewingOrder.final_price && currentViewingOrder.order_type === 'direct_hire' && (
               <div className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-gray-500" />
-                <p>السعر النهائي: <span className="font-medium">${currentViewingOrder.final_price}</span></p>
+                <p>السعر النهائي: <span className="font-medium">{currentViewingOrder.final_price} ج.م</span></p>
               </div>
             )}
             {currentViewingOrder.expected_price && currentViewingOrder.order_type === 'service_request' && (
               <div className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-gray-500" />
-                <p>السعر المتوقع: <span className="font-medium">${currentViewingOrder.expected_price}</span></p>
+                <p>السعر المتوقع: <span className="font-medium">{currentViewingOrder.expected_price} ج.م</span></p>
               </div>
             )}
             {associatedOfferedPrice && (currentViewingOrder.order_type === 'service_request' || currentViewingOrder.order_type === 'direct_hire') && (
               <div className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-gray-500" />
-                <p>السعر المعروض (العرض المحدد): <span className="font-medium">${associatedOfferedPrice}</span></p>
+                <p>السعر المعروض (العرض المحدد): <span className="font-medium">{associatedOfferedPrice} ج.م</span></p>
               </div>
             )}
           </div>
@@ -280,7 +280,7 @@ const ViewOrderPage = () => {
                     </div>
                     <div className="flex items-center gap-2 mb-2">
                       <DollarSign className="h-4 w-4 text-gray-500" />
-                      <p>السعر المقترح: <span className="font-medium">${offer.offered_price}</span></p>
+                      <p>السعر المقترح: <span className="font-medium">{offer.offered_price} ج.م</span></p>
                     </div>
                     {offer.offer_description && (
                       <div className="space-y-1">

@@ -210,7 +210,7 @@ export function WorkerTaskDetails() {
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">المبلغ النهائي</p>
-              <p className="text-lg">{task.final_price ? `$${task.final_price}` : "غير متاح"}</p>
+              <p className="text-lg">{task.final_price ? `${task.final_price} ج.م` : "غير متاح"}</p>
             </div>
           </div>
 
@@ -247,7 +247,7 @@ export function WorkerTaskDetails() {
                 {task.updated_price && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">السعر المحدث</p>
-                    <p className="text-lg">{`$${task.updated_price}`}</p>
+                    <p className="text-lg">{`${task.updated_price} ج.م`}</p>
                   </div>
                 )}
                 {task.updated_schedule_date && (

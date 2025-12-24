@@ -287,7 +287,7 @@ export function AdminVerifications() {
                       <div className="flex items-center gap-2">
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">السعر/ساعة:</span>
-                        <span>{verification.hourly_rate ? `${verification.hourly_rate} ريال` : "غير محدد"}</span>
+                        <span>{verification.hourly_rate ? `${verification.hourly_rate} ج.م` : "غير محدد"}</span>
                       </div>
 
                       <div>

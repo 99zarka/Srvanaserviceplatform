@@ -168,7 +168,7 @@ const ProjectDetail = () => {
             <div className="mb-4 flex items-center justify-between">
               <div className="flex-1">
                 <label htmlFor="offerPrice" className="block text-gray-700 text-sm font-bold mb-2">
-                  سعر عرضك (جنيه مصري)
+                  سعر عرضك (ج.م)
                 </label>
                 <input
                   type="number"
@@ -264,7 +264,7 @@ const ProjectDetail = () => {
               <div key={offer.offer_id} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <p className="text-lg font-semibold text-gray-800">${offer.offered_price}</p>
+                    <p className="text-lg font-semibold text-gray-800">{offer.offered_price} ج.م</p>
                     <p className="text-gray-600">{offer.offer_description}</p>
                   </div>
                   <div className="text-right">
@@ -355,7 +355,7 @@ const ProjectDetail = () => {
             >
               <div>
                 <label htmlFor="editPrice" className="block text-gray-700 text-sm font-bold mb-2">
-                  سعر العرض ($)
+                  سعر العرض (ج.م)
                 </label>
                 <input
                   type="number"

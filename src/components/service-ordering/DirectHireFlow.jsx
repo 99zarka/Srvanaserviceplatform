@@ -313,7 +313,7 @@ const DirectHireFlow = () => {
 
               {/* Budget */}
               <div className="space-y-2">
-                <Label htmlFor="budget">ميزانيتك (جنيه مصري)</Label>
+                <Label htmlFor="budget">ميزانيتك (ج.م)</Label>
                 <Input
                   id="budget"
                   type="number"

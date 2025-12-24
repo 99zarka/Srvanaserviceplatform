@@ -206,7 +206,7 @@ export function WorkerTasks() {
                   <TableCell>{task.requested_location}</TableCell>
                   <TableCell>{task.scheduled_date}</TableCell>
                   <TableCell>{getStatusBadge(task.order_status)}</TableCell>
-                  <TableCell>{task.final_price}</TableCell>
+                  <TableCell>{task.final_price} ج.م</TableCell>
                   <TableCell className="space-x-2 flex">
                     <> {/* Added Fragment here */}
                       <Button variant="ghost" size="sm" asChild className="flex items-center space-x-2">

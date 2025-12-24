@@ -225,7 +225,7 @@ const DirectOfferForm = ({ onOfferSuccess }) => {
             {localTechnician.hourly_rate && (
               <p className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-primary-600" />
-                السعر بالساعة: ${localTechnician.hourly_rate}
+                السعر بالساعة: {localTechnician.hourly_rate} ج.م
               </p>
             )}
           </div>

@@ -79,12 +79,12 @@ export function AdminOverview() {
             iconColor: "text-purple-600",
             accentColor: "bg-purple-500"
           },
-          { 
-            label: "إجمالي الإيرادات", 
-            value: `${statsData.total_revenue || 0} ر.س`, 
-            change: "+22%", 
+          {
+            label: "إجمالي الإيرادات",
+            value: `${statsData.total_revenue || 0} ج.م`,
+            change: "+22%",
             trend: "up",
-            icon: DollarSign, 
+            icon: DollarSign,
             bgColor: "bg-accent-50",
             iconColor: "text-accent-600",
             accentColor: "bg-accent-500"

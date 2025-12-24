@@ -303,10 +303,10 @@ export function ServicesCRUD() {
                       </TableCell>
                       <TableCell>{service.category?.category_name || service.category || "-"}</TableCell>
                       <TableCell>{service.service_type}</TableCell>
-                      <TableCell>{service.base_inspection_fee} ر.س</TableCell>
+                      <TableCell>{service.base_inspection_fee} ج.م</TableCell>
                       <TableCell>
                         {service.estimated_price_range_min && service.estimated_price_range_max
-                          ? `${service.estimated_price_range_min} - ${service.estimated_price_range_max} ر.س`
+                          ? `${service.estimated_price_range_min} - ${service.estimated_price_range_max} ج.م`
                           : "-"}
                       </TableCell>
                       <TableCell>

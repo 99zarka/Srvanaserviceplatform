@@ -152,7 +152,7 @@ export function ClientFinancials() {
       setPayments(
         paymentsData.results.map((payment) => ({
           id: payment.id,
-          amount: `$${payment.amount}`,
+          amount: `${payment.amount} ج.م`,
           type: payment.payment_type,
           status: payment.status,
           date: new Date(payment.timestamp).toLocaleDateString("ar-EG"),

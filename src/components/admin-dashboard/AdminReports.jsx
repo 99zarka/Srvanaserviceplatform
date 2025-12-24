@@ -82,7 +82,7 @@ export function AdminReports() {
                   <span className="h-4 w-4 text-muted-foreground">💰</span>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{reportsSummary.total_revenue || "0.00"} ر.س</div>
+                  <div className="text-2xl font-bold">{reportsSummary.total_revenue || "0.00"} ج.م</div>
                   <p className="text-xs text-muted-foreground">{reportsSummary.revenue_change_percentage || "+0%"} عن الشهر الماضي</p>
                 </CardContent>
               </Card>

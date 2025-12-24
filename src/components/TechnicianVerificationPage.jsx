@@ -82,7 +82,7 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
     },
     hourly_rate: {
       required: "السعر لكل ساعة مطلوب",
-      min: { value: 1, message: "السعر يجب أن يكون جنيه مصري واحد على الأقل" },
+      min: { value: 1, message: "السعر يجب أن يكون ج.م واحد على الأقل" },
     },
     governorate: {
       required: "المحافظة مطلوبة",
@@ -353,7 +353,7 @@ export function TechnicianVerificationPage({ isDialog = false, onSuccess }) {
                       {errors.experience_years && <p className="text-sm text-red-600 mt-1">{errors.experience_years.message}</p>}
                     </div>
                     <div>
-                      <Label htmlFor="hourly_rate">السعر لكل ساعة (بالجنيه المصري) *</Label>
+                      <Label htmlFor="hourly_rate">السعر لكل ساعة (ج.م) *</Label>
                       <Input id="hourly_rate" type="number" min="1" {...register('hourly_rate', validationRules.hourly_rate)} />
                       {errors.hourly_rate && <p className="text-sm text-red-600 mt-1">{errors.hourly_rate.message}</p>}
                     </div>

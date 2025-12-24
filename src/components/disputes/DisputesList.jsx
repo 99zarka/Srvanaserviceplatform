@@ -167,9 +167,9 @@ export function DisputesList({
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-sm">{service?.arabic_name || service?.service_name}</h3>
                     <p className="text-xs text-muted-foreground">{service?.description}</p>
-                    <p className="text-sm font-medium mt-1">
+                      <p className="text-sm font-medium mt-1">
                       <DollarSign className="h-3 w-3 inline mr-1" />
-                      السعر النهائي: {order.final_price} جنيه
+                      السعر النهائي: {order.final_price} ج.م
                     </p>
                   </div>
                 </div>

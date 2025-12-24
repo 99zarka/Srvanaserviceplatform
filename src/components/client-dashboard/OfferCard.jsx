@@ -62,7 +62,7 @@ const OfferCard = ({ offer, onAcceptOffer, loading, orderStatus }) => {
           <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-green-600" />
             <span className="text-lg font-bold text-green-600">
-              ${offer.offered_price}
+              {offer.offered_price} ج.م
             </span>
           </div>
 

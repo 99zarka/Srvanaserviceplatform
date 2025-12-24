@@ -90,7 +90,7 @@ export function TransactionDetailPage() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
-            <p><strong>المبلغ:</strong> ${currentTransaction.amount}</p>
+            <p><strong>المبلغ:</strong> {currentTransaction.amount} ج.م</p>
             <p><strong>المرسل:</strong> {currentTransaction.sender_user?.username || 'غير متاح'}</p>
             <p><strong>المستلم:</strong> {currentTransaction.receiver_user?.username || 'غير متاح'}</p>
             <p><strong>العملة:</strong> {currentTransaction.currency}</p>

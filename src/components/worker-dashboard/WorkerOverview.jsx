@@ -32,7 +32,7 @@ export function WorkerOverview() {
         setStats([
           { label: "المهام النشطة", value: summaryData.active_tasks, icon: Clock, color: "text-primary" },
           { label: "المهام المكتملة", value: summaryData.completed_tasks, icon: CheckCircle, color: "text-green-600" },
-          { label: "إجمالي الأرباح", value: `$${summaryData.total_earnings}`, icon: DollarSign, color: "text-blue-600" },
+          { label: "إجمالي الأرباح", value: `${summaryData.total_earnings} ج.م`, icon: DollarSign, color: "text-blue-600" },
           { label: "التقييم", value: `${summaryData.average_rating}/5`, icon: Star, color: "text-yellow-600" },
         ]);
 
@@ -46,7 +46,7 @@ export function WorkerOverview() {
           service: task.service_name,
           location: task.location || "غير متاح", // Assuming location is available
           date: new Date(task.scheduled_date).toLocaleDateString("ar-EG"), // Assuming scheduled_date
-          amount: `$${task.total_price || 0}`,
+          amount: `${task.total_price || 0} ج.م`,
           status: task.status,
           detailsLink: `/dashboard/tasks/${task.id}`, // Placeholder
         })));
@@ -232,7 +232,7 @@ export function WorkerOverview() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">الأرباح</span>
-                <span className="text-green-600">${performance.earnings}</span>
+                <span className="text-green-600">{performance.earnings} ج.م</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">متوسط التقييم</span>

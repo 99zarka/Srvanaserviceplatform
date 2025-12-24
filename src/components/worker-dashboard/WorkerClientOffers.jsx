@@ -99,7 +99,7 @@ export function WorkerClientOffers() {
                 </div>
                 <CardDescription className="flex items-center gap-1">
                   <DollarSign className="h-4 w-4" />
-                  <span className="font-semibold">{offer.offered_price} ريال</span>
+                  <span className="font-semibold">{offer.offered_price} ج.م</span>
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

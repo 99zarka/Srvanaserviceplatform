@@ -220,7 +220,7 @@ export function DisputeDetailPage() {
                       <Coins className="h-4 w-4 ml-2" />
                       <span className="font-medium">السعر النهائي:</span>
                     </div>
-                    <p className="text-gray-80">${order.final_price}</p>
+                    <p className="text-gray-80">{order.final_price} ج.م</p>
                   </div>
                 </div>
 
@@ -389,7 +389,7 @@ export function DisputeDetailPage() {
                       {resolutionType === "SPLIT_PAYMENT" && (
                         <>
                           <div className="space-y-2">
-                            <Label htmlFor="clientRefundAmount">مبلغ رد العميل ($)</Label>
+                            <Label htmlFor="clientRefundAmount">مبلغ رد العميل (ج.م)</Label>
                             <div className="flex items-center space-x-2">
                               <DollarSign className="h-4 w-4 text-gray-500" />
                               <input
@@ -406,7 +406,7 @@ export function DisputeDetailPage() {
                             </div>
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="technicianPayoutAmount">مبلغ دفع الفني ($)</Label>
+                            <Label htmlFor="technicianPayoutAmount">مبلغ دفع الفني (ج.م)</Label>
                             <div className="flex items-center space-x-2">
                               <DollarSign className="h-4 w-4 text-gray-500" />
                               <input
