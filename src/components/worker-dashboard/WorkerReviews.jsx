@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Star } from "lucide-react";
+import { Link } from "react-router-dom";
 import api from "../../utils/api"; // Import the API utility
 
 export function WorkerReviews() {
@@ -22,9 +23,9 @@ export function WorkerReviews() {
       try {
         setLoading(true);
         // Fetch reviews from the backend
-        const data = await api.get("/reviews/worker-reviews/", {
+        const data = await api.get("/dashboard/technician/worker-reviews/", {
           headers: { Authorization: `Bearer ${token}` },
-        }); // Assuming "/reviews/worker-reviews/" is your backend endpoint
+        }); // Using the dashboard endpoint that provides average rating
         setReviews(data.results || []); // Assuming results is an array of review objects
         setAverageRating(data.average_rating || 0);
         setTotalReviews(data.count || 0);
@@ -79,18 +80,41 @@ export function WorkerReviews() {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold mt-6">جميع المراجعات</h2>
           {reviews.map((review) => (
-            <Card key={review.id}>
+            <Card key={review.id} className="border-l-4 border-l-yellow-400 hover:shadow-lg transition-shadow">
               <CardContent className="pt-6">
-                <div className="flex items-center mb-2">
-                  {renderStars(review.rating)}
-                  <span className="ml-2 text-sm text-muted-foreground">
-                    {new Date(review.created_at).toLocaleDateString("ar-EG")}
-                  </span>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-1">
+                        {renderStars(review.rating)}
+                        <span className="text-lg font-bold text-gray-900 mr-2">
+                          {review.rating}/5
+                        </span>
+                      </div>
+                      <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                        {new Date(review.created_at).toLocaleDateString("ar-EG")}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-1 mb-3">
+                      <Link 
+                        to={`/profile/${review.order?.client_user?.user_id}`}
+                        className="text-lg font-semibold text-gray-900 hover:text-blue-600 hover:underline block"
+                      >
+                        {review.order?.client_user?.first_name && review.order?.client_user?.last_name 
+                          ? `${review.order.client_user.first_name} ${review.order.client_user.last_name}`
+                          : "عميل غير معروف"}
+                      </Link>
+                      <p className="text-sm text-gray-600 bg-blue-50 px-3 py-1 rounded inline-block">
+                        {review.order?.service?.arabic_name || review.order?.service?.service_name || "خدمة غير معروفة"}
+                      </p>
+                    </div>
+                    
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-gray-800 leading-relaxed">{review.comment}</p>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-lg font-medium mb-1">
-                  {review.client_name || "عميل غير معروف"}
-                </p>
-                <p className="text-muted-foreground">{review.comment}</p>
               </CardContent>
             </Card>
           ))}
