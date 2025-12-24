@@ -44,10 +44,8 @@ export function Header() {
 
   const navItems = [
     { name: "الرئيسية", path: "/", icon: Home },
-    { name: "المساعد الذكي", path: "/assistant", icon: Bot }, // AI Assistant link
-    { name: "المستخدمين", path: "/browse-users", icon: Users }, // New link
     { name: "المشاريع", path: "/projects", icon: Briefcase }, // Added public projects link
-    { name: "اتصل بنا", path: "/contact", icon: Mail },
+    { name: "المساعد الذكي", path: "/assistant", icon: Bot }, // AI Assistant link
   ];
 
   // Create a combined "خدمات وفنيين" dropdown menu (always visible)
@@ -69,22 +67,7 @@ export function Header() {
   // Conditionally add navigation items if authenticated
   if (isAuthenticated && user) {
     // Determine dashboard link based on user type
-    let userDashboardPath = "";
-    let dashboardLabel = "";
     const userTypeName = user.user_type?.user_type_name || user.user_type;
-
-    // Determine appropriate dashboard based on user type
-    if (userTypeName === 'technician') {
-      userDashboardPath = "/dashboard";
-      dashboardLabel = "لوحة تحكم الفني";
-    } else if (userTypeName === 'admin') {
-      userDashboardPath = "/dashboard";
-      dashboardLabel = "لوحة تحكم المدير";
-    } else {
-      // Default to client dashboard for clients and other user types
-      userDashboardPath = "/dashboard";
-      dashboardLabel = "لوحة تحكم العميل";
-    }
 
     // Add Dashboard link (not a dropdown anymore)
     navItems.splice(1, 0, {
