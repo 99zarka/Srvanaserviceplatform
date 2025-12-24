@@ -140,7 +140,7 @@ export const withdrawFunds = createAsyncThunk(
       }
 
       const response = await fetch(
-        `${API_BASE_URL}/payments/payments/withdraw/`,
+        `${API_BASE_URL}/payments/withdraw/`,
         {
           method: "POST",
           headers: {

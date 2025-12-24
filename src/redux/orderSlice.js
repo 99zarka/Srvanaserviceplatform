@@ -268,6 +268,19 @@ export const updateProjectOffer = createAsyncThunk(
   }
 );
 
+// Delete a technician's project offer
+export const deleteProjectOffer = createAsyncThunk(
+  'orders/deleteProjectOffer',
+  async (offerId, { rejectWithValue }) => {
+    try {
+      const response = await api.delete(`/orders/projectoffers/${offerId}/`);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 // Update an order
 export const updateOrder = createAsyncThunk(
   'orders/updateOrder',
@@ -898,6 +911,56 @@ const orderSlice = createSlice({
         const errorMessage = typeof action.payload === 'object' && action.payload?.message
                              ? String(action.payload.message)
                              : (typeof action.payload === 'string' ? action.payload : 'Failed to update client offer.');
+        state.error = { message: errorMessage };
+        state.successMessage = null;
+      })
+
+      // Update Project Offer
+      .addCase(updateProjectOffer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(updateProjectOffer.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload?.message || 'Offer updated successfully!';
+        // Update the offer in currentViewingOrder if applicable
+        if (state.currentViewingOrder) {
+          state.currentViewingOrder.project_offers = state.currentViewingOrder.project_offers?.map(offer =>
+            offer.offer_id === action.meta.arg.offerId ? { ...offer, ...action.payload } : offer
+          ) || [];
+        }
+      })
+      .addCase(updateProjectOffer.rejected, (state, action) => {
+        state.loading = false;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to update project offer.');
+        state.error = { message: errorMessage };
+        state.successMessage = null;
+      })
+
+      // Delete Project Offer
+      .addCase(deleteProjectOffer.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(deleteProjectOffer.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successMessage = action.payload?.message || 'Offer deleted successfully!';
+        // Remove the offer from currentViewingOrder if applicable
+        if (state.currentViewingOrder) {
+          state.currentViewingOrder.project_offers = state.currentViewingOrder.project_offers?.filter(offer =>
+            offer.offer_id !== action.meta.arg
+          ) || [];
+        }
+      })
+      .addCase(deleteProjectOffer.rejected, (state, action) => {
+        state.loading = false;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to delete project offer.');
         state.error = { message: errorMessage };
         state.successMessage = null;
       })

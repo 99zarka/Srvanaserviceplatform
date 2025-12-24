@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchPublicOrderDetail, createProjectOffer, updateProjectOffer } from '../../redux/orderSlice';
+import { fetchPublicOrderDetail, createProjectOffer, updateProjectOffer, deleteProjectOffer } from '../../redux/orderSlice';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Sparkles, Loader2 } from 'lucide-react';
 import BASE_URL from '../../config/api';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../ui/dialog';
 
 const ProjectDetail = () => {
   const { order_id } = useParams();
@@ -26,6 +34,8 @@ const ProjectDetail = () => {
   const [editPrice, setEditPrice] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [deletingOffer, setDeletingOffer] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (order_id) {
@@ -178,7 +188,7 @@ const ProjectDetail = () => {
                   value={offerPrice}
                   onChange={(e) => setOfferPrice(e.target.value)}
                   required
-                  min="0.01"
+                  min="1"
                   step="1"
                 />
               </div>
@@ -288,19 +298,30 @@ const ProjectDetail = () => {
                         <p className="text-sm text-gray-600">فني</p>
                       </div>
                     </div>
-                    {/* Show edit button for technician's own offers */}
+                    {/* Show edit and delete buttons for technician's own offers */}
                     {isTechnician && currentUser?.user_id === offer.technician_user.user_id && offer.status === 'pending' && (
-                      <button
-                        onClick={() => {
-                          setEditingOffer(offer);
-                          setEditPrice(offer.offered_price);
-                          setEditDescription(offer.offer_description);
-                          setIsEditing(true);
-                        }}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium"
-                      >
-                        تحرير العرض
-                      </button>
+                      <div className="flex flex-col space-y-2">
+                        <button
+                          onClick={() => {
+                            setEditingOffer(offer);
+                            setEditPrice(offer.offered_price);
+                            setEditDescription(offer.offer_description);
+                            setIsEditing(true);
+                          }}
+                          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium"
+                        >
+                          تحرير العرض
+                        </button>
+                        <button
+                          onClick={() => {
+                            setDeletingOffer(offer);
+                            setIsDeleting(true);
+                          }}
+                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm font-medium"
+                        >
+                          حذف العرض
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}
@@ -311,96 +332,138 @@ const ProjectDetail = () => {
       )}
 
       {/* Edit Offer Modal */}
-      {isEditing && editingOffer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4" dir="rtl">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-800">تحرير عرضك</h2>
-              <button
-                onClick={() => setIsEditing(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <span className="text-2xl">&times;</span>
-              </button>
+      <Dialog open={isEditing} onOpenChange={setIsEditing}>
+        <DialogContent className="sm:max-w-[425px]" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>تحرير عرضك</DialogTitle>
+          </DialogHeader>
+
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              // Handle edit form submission
+              if (!editPrice || !editDescription) {
+                toast.error('يرجى تقديم كل من سعر العرض ووصفه.');
+                return;
+              }
+
+              try {
+                await dispatch(updateProjectOffer({
+                  offerId: editingOffer.offer_id,
+                  offerData: {
+                    offered_price: parseFloat(editPrice),
+                    offer_description: editDescription
+                  }
+                })).unwrap();
+
+                toast.success('تم تحديث العرض بنجاح!');
+                setIsEditing(false);
+                // Refresh the order to show the updated offer
+                dispatch(fetchPublicOrderDetail(order_id));
+              } catch (err) {
+                const errorMessage = err.message || 'فشل في تحديث العرض.';
+                toast.error(errorMessage);
+              }
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label htmlFor="editPrice" className="block text-gray-700 text-sm font-bold mb-2">
+                سعر العرض (ج.م)
+              </label>
+              <input
+                type="number"
+                id="editPrice"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                value={editPrice}
+                onChange={(e) => setEditPrice(e.target.value)}
+                required
+                min="1"
+                step="1"
+              />
             </div>
 
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                // Handle edit form submission
-                if (!editPrice || !editDescription) {
-                  toast.error('يرجى تقديم كل من سعر العرض ووصفه.');
-                  return;
-                }
+            <div>
+              <label htmlFor="editDescription" className="block text-gray-700 text-sm font-bold mb-2">
+                وصف العرض
+              </label>
+              <textarea
+                id="editDescription"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-32"
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                required
+              ></textarea>
+            </div>
 
+            <DialogFooter>
+              <button
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded"
+              >
+                إلغاء
+              </button>
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+              >
+                تحديث العرض
+              </button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Offer Confirmation Modal */}
+      <Dialog open={isDeleting} onOpenChange={setIsDeleting}>
+        <DialogContent className="sm:max-w-[425px]" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>تأكيد حذف العرض</DialogTitle>
+            <DialogDescription>
+              هل أنت متأكد من حذف هذا العرض؟ هذا الإجراء لا يمكن التراجع عنه.
+            </DialogDescription>
+          </DialogHeader>
+
+          {deletingOffer && (
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <p className="text-sm text-gray-600">
+                <strong>السعر:</strong> {deletingOffer.offered_price} ج.م
+              </p>
+              <p className="text-sm text-gray-600 mt-1">
+                <strong>الوصف:</strong> {deletingOffer.offer_description}
+              </p>
+            </div>
+          )}
+
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setIsDeleting(false)}
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded"
+            >
+              إلغاء
+            </button>
+            <button
+              onClick={async () => {
                 try {
-                  await dispatch(updateProjectOffer({
-                    offerId: editingOffer.offer_id,
-                    offerData: {
-                      offered_price: parseFloat(editPrice),
-                      offer_description: editDescription
-                    }
-                  })).unwrap();
-
-                  toast.success('تم تحديث العرض بنجاح!');
-                  setIsEditing(false);
-                  // Refresh the order to show the updated offer
+                  await dispatch(deleteProjectOffer(deletingOffer.offer_id)).unwrap();
+                  toast.success('تم حذف العرض بنجاح!');
+                  setIsDeleting(false);
+                  setDeletingOffer(null);
                   dispatch(fetchPublicOrderDetail(order_id));
                 } catch (err) {
-                  const errorMessage = err.message || 'فشل في تحديث العرض.';
+                  const errorMessage = err.message || 'فشل في حذف العرض.';
                   toast.error(errorMessage);
                 }
               }}
-              className="space-y-4"
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
             >
-              <div>
-                <label htmlFor="editPrice" className="block text-gray-700 text-sm font-bold mb-2">
-                  سعر العرض (ج.م)
-                </label>
-                <input
-                  type="number"
-                  id="editPrice"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  value={editPrice}
-                  onChange={(e) => setEditPrice(e.target.value)}
-                  required
-                  min="0.01"
-                  step="1"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="editDescription" className="block text-gray-700 text-sm font-bold mb-2">
-                  وصف العرض
-                </label>
-                <textarea
-                  id="editDescription"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-32"
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                  required
-                ></textarea>
-              </div>
-
-              <div className="flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded"
-                >
-                  إلغاء
-                </button>
-                <button
-                  type="submit"
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-                >
-                  تحديث العرض
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+              حذف العرض
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

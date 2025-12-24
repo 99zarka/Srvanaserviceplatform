@@ -69,7 +69,6 @@ const WithdrawalSchema = z.object({
   amount: z.string().refine((val) => parseFloat(val) > 0, {
     message: "الرجاء إدخال مبلغ صحيح للسحب.",
   }),
-  paymentMethodId: z.string().min(1, "طريقة الدفع مطلوبة للسحب."),
 });
 
 import { useLocation } from "react-router-dom"; // Add useLocation
@@ -128,7 +127,6 @@ export function ClientFinancials() {
     resolver: zodResolver(WithdrawalSchema),
     defaultValues: {
       amount: "",
-      paymentMethodId: "",
     },
   });
 
@@ -169,13 +167,8 @@ export function ClientFinancials() {
           "paymentMethodId",
           String(paymentMethodsData.results[0].id)
         );
-        setWithdrawalValue(
-          "paymentMethodId",
-          String(paymentMethodsData.results[0].id)
-        );
       } else {
         setDepositValue("paymentMethodId", "");
-        setWithdrawalValue("paymentMethodId", "");
       }
     } catch (err) {
       setPaymentsError(err.message || "فشل في جلب البيانات المالية.");
@@ -336,7 +329,6 @@ export function ClientFinancials() {
     dispatch(
       withdrawFunds({
         amount: parseFloat(data.amount),
-        payment_method_id: parseInt(data.paymentMethodId),
       })
     )
       .unwrap()
@@ -605,49 +597,10 @@ export function ClientFinancials() {
                   {withdrawalErrors.amount.message}
                 </p>
               )}
-
-              <Label
-                htmlFor="withdrawal-payment-method"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                طريقة الدفع
-              </Label>
-              <Controller
-                name="paymentMethodId"
-                control={withdrawalControl}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger
-                      id="withdrawal-payment-method"
-                      className="w-full"
-                    >
-                      <SelectValue placeholder="اختر طريقة دفع" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {paymentMethods.length > 0 ? (
-                        paymentMethods.map((method) => (
-                          <SelectItem key={method.id} value={String(method.id)}>
-                            {method.card_type} (****{method.last_four_digits})
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="no-methods" disabled>
-                          لا توجد طرق دفع متاحة
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {withdrawalErrors.paymentMethodId && (
-                <p className="text-red-500 text-sm mt-1">
-                  {withdrawalErrors.paymentMethodId.message}
-                </p>
-              )}
             </div>
             <Button
               type="submit"
-              disabled={isWithdrawingFunds || paymentMethods.length === 0}
+              disabled={isWithdrawingFunds}
             >
               {isWithdrawingFunds ? "جاري السحب..." : "سحب"}
             </Button>
