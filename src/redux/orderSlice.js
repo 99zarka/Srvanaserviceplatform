@@ -47,6 +47,19 @@ export const fetchSingleOrder = createAsyncThunk(
   }
 );
 
+// Fetch a single order by ID for technicians
+export const fetchTechnicianSingleOrder = createAsyncThunk(
+  'orders/fetchTechnicianSingleOrder',
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/orders/worker-tasks/${orderId}/`);
+      return response; // Return the entire response, as api.get already returns parsed data
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message || 'Failed to fetch technician order');
+    }
+  }
+);
+
 // Fetch a single public order by ID
 export const fetchPublicOrderDetail = createAsyncThunk(
   'orders/fetchPublicOrderDetail',
@@ -505,6 +518,27 @@ const orderSlice = createSlice({
         const errorMessage = typeof action.payload === 'object' && action.payload?.message
                              ? String(action.payload.message)
                              : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch single order.');
+        state.error = { message: errorMessage };
+        state.currentViewingOrder = null; // Ensure it's cleared on error
+      })
+
+      // Fetch Technician Single Order
+      .addCase(fetchTechnicianSingleOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.currentViewingOrder = null; // Clear previous order when fetching new one
+      })
+      .addCase(fetchTechnicianSingleOrder.fulfilled, (state, action) => {
+        console.log('fetchTechnicianSingleOrder.fulfilled:', action.payload); // Added debug log
+        state.loading = false;
+        state.currentViewingOrder = action.payload;
+      })
+      .addCase(fetchTechnicianSingleOrder.rejected, (state, action) => {
+        console.error('fetchTechnicianSingleOrder.rejected:', action.payload); // Added debug log
+        state.loading = false;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch technician order.');
         state.error = { message: errorMessage };
         state.currentViewingOrder = null; // Ensure it's cleared on error
       })

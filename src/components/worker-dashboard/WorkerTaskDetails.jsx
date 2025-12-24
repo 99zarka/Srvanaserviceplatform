@@ -17,7 +17,7 @@ import {
 } from "../ui/dialog"; // Import dialog components
 import { Textarea } from "../ui/textarea"; // Import Textarea
 import { toast } from "sonner"; // Assuming sonner is used for toasts
-import { markJobDone, cancelOrder, fetchSingleOrder } from "../../redux/orderSlice"; // Import Redux thunks
+import { markJobDone, cancelOrder, fetchTechnicianSingleOrder } from "../../redux/orderSlice"; // Import Redux thunks
 
 export function WorkerTaskDetails() {
   const { taskId } = useParams();
@@ -32,7 +32,7 @@ export function WorkerTaskDetails() {
 
   useEffect(() => {
     if (token && taskId) {
-      dispatch(fetchSingleOrder(taskId));
+      dispatch(fetchTechnicianSingleOrder(taskId));
     }
   }, [taskId, token, dispatch]);
 
@@ -74,7 +74,7 @@ export function WorkerTaskDetails() {
   };
 
   if (loading && !task) return <div className="text-center p-8" dir="rtl">جاري تحميل تفاصيل المهمة...</div>;
-  if (error && !task) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ: {error}</div>;
+  if (error && !task) return <div className="text-center p-8 text-red-500" dir="rtl">خطأ: {error?.message || String(error)}</div>;
   if (!task) {
     return <div className="text-center p-8" dir="rtl">لم يتم العثور على المهمة.</div>;
   }
