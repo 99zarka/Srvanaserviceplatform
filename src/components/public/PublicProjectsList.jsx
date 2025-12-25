@@ -150,7 +150,7 @@ const PublicProjectsList = () => {
     return (
       <div className="flex items-center justify-center min-h-screen" dir="rtl">
         <div className="text-center">
-          <p className="text-xl text-red-500 mb-6">خطأ: {error.message || 'فشل في جلب المشاريع'}</p>
+          <p className="mb-6 text-xl text-red-500">خطأ: {error.message || 'فشل في جلب المشاريع'}</p>
           <Button 
             onClick={() => dispatch(getAvailableOrders({ page: 1, page_size: 10 }))}
             className="bg-gradient-to-r from-[#F4C430] to-[#FFD700] text-[#1A2B4C] hover:shadow-xl"
@@ -164,25 +164,13 @@ const PublicProjectsList = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white" dir="rtl">
-      {/* Hero Header */}
-      <section className="py-16 px-4 text-center bg-gradient-to-r from-[#1A2B4C] to-[#2A3B5C]">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            المشاريع المتاحة للفنيين
-          </h1>
-          <p className="text-xl text-gray-200 mb-8">
-            استعرض مشاريع العملاء وقدم عروضك الاحترافية
-          </p>
-        </div>
-      </section>
-      
       {/* Search and Filter Section */}
-      <section className="py-8 sticky top-0 bg-white shadow-md z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="sticky top-0 z-30 py-8 bg-white shadow-md">
+        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           {/* Search Bar */}
           <div className="flex gap-3 mb-4">
             <div className="relative flex-1">
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Search className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 right-3 top-1/2" />
               <Input
                 type="text"
                 placeholder="ابحث عن المشاريع..."
@@ -196,17 +184,17 @@ const PublicProjectsList = () => {
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 h-12 px-6 ${showFilters ? 'bg-gradient-to-r from-[#F4C430] to-[#FFD700] text-[#1A2B4C] border-none' : 'border-2 border-[#1A2B4C] text-[#1A2B4C]'}`}
             >
-              <Filter className="h-5 w-5" />
+              <Filter className="w-5 h-5" />
               <span className="font-bold">تصفية</span>
             </Button>
           </div>
 
           {/* Filters */}
           {showFilters && (
-            <div className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">{/* Service Filter */}
+            <div className="p-6 border-2 border-gray-200 bg-gray-50 rounded-xl">
+              <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2 lg:grid-cols-4">{/* Service Filter */}
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                  <label className="block mb-2 text-sm font-bold text-gray-700">
                     نوع الخدمة
                   </label>
                   <Select value={selectedService} onValueChange={setSelectedService}>
@@ -226,7 +214,7 @@ const PublicProjectsList = () => {
 
                 {/* Location Filter */}
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                  <label className="block mb-2 text-sm font-bold text-gray-700">
                     الموقع
                   </label>
                   <Select value={selectedLocation} onValueChange={setSelectedLocation}>
@@ -246,7 +234,7 @@ const PublicProjectsList = () => {
 
                 {/* Price Range */}
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                  <label className="block mb-2 text-sm font-bold text-gray-700">
                     السعر الأدنى
                   </label>
                   <Input
@@ -259,7 +247,7 @@ const PublicProjectsList = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                  <label className="block mb-2 text-sm font-bold text-gray-700">
                     السعر الأقصى
                   </label>
                   <Input
@@ -296,7 +284,7 @@ const PublicProjectsList = () => {
                   className="flex items-center gap-2 hover:bg-[#F4C430]/20 font-bold"
                   style={{ color: '#1A2B4C' }}
                 >
-                  <X className="h-5 w-5" />
+                  <X className="w-5 h-5" />
                   <span>إعادة تعيين</span>
                 </Button>
               </div>
@@ -319,8 +307,8 @@ const PublicProjectsList = () => {
       {filteredOrders.length === 0 ? (
         <section className="py-20">
           <div className="text-center">
-            <Briefcase className="h-20 w-20 text-gray-300 mx-auto mb-6" />
-            <p className="text-2xl text-gray-600 font-bold mb-6">لا توجد مشاريع تطابق معايير البحث</p>
+            <Briefcase className="w-20 h-20 mx-auto mb-6 text-gray-300" />
+            <p className="mb-6 text-2xl font-bold text-gray-600">لا توجد مشاريع تطابق معايير البحث</p>
             <Button
               onClick={handleResetFilters}
               className="bg-gradient-to-r from-[#F4C430] to-[#FFD700] text-[#1A2B4C] hover:shadow-xl px-8 py-6 text-lg font-bold"
@@ -332,18 +320,18 @@ const PublicProjectsList = () => {
       ) : (
         <>
           <section className="py-12">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
               {filteredOrders.map((order, index) => {
                 return (
                   <div
                     key={order.order_id}
                     className="mb-16 last:mb-0"
                   >
-                    <div className="flex flex-col lg:flex-row-reverse gap-8 lg:gap-12 items-center">
+                    <div className="flex flex-col items-center gap-8 lg:flex-row-reverse lg:gap-12">
                       {/* Image Section */}
                       <div className="w-full lg:w-1/2">
                         <div 
-                          className="relative overflow-hidden rounded-2xl shadow-2xl group"
+                          className="relative overflow-hidden shadow-2xl rounded-2xl group"
                           style={{
                             aspectRatio: '16/10',
                             background: `linear-gradient(135deg, rgba(26, 43, 76, 0.1) 0%, rgba(244, 196, 48, 0.1) 100%)`
@@ -352,7 +340,7 @@ const PublicProjectsList = () => {
                           <img
                             src={getProjectImage(index)}
                             alt={order.service?.arabic_name || 'مشروع'}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
                             onError={(e) => {
                               e.target.src = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop";
                             }}
@@ -375,7 +363,7 @@ const PublicProjectsList = () => {
                       </div>
 
                       {/* Content Section */}
-                      <div className="w-full lg:w-1/2 space-y-6">
+                      <div className="w-full space-y-6 lg:w-1/2">
                         {/* Title */}
                         <div>
                           <h2 className="text-3xl md:text-4xl font-bold text-[#1A2B4C] mb-4">
@@ -385,7 +373,7 @@ const PublicProjectsList = () => {
                         </div>
 
                         {/* Description */}
-                        <p className="text-lg text-gray-700 leading-relaxed">
+                        <p className="text-lg leading-relaxed text-gray-700">
                           {order.problem_description || 'لا يوجد وصف متاح'}
                         </p>
 
@@ -394,7 +382,7 @@ const PublicProjectsList = () => {
                           <div className="flex items-start gap-4 bg-gray-50 rounded-xl p-4 border-r-4 border-[#F4C430]">
                             <MapPin className="w-6 h-6 text-[#F4C430] flex-shrink-0 mt-1" />
                             <div>
-                              <p className="text-sm font-bold text-gray-500 mb-1">الموقع</p>
+                              <p className="mb-1 text-sm font-bold text-gray-500">الموقع</p>
                               <p className="text-lg font-semibold text-[#1A2B4C]">
                                 {order.requested_location || 'غير محدد'}
                               </p>
@@ -404,7 +392,7 @@ const PublicProjectsList = () => {
                           <div className="flex items-start gap-4 bg-gray-50 rounded-xl p-4 border-r-4 border-[#F4C430]">
                             <Calendar className="w-6 h-6 text-[#F4C430] flex-shrink-0 mt-1" />
                             <div>
-                              <p className="text-sm font-bold text-gray-500 mb-1">التاريخ والوقت</p>
+                              <p className="mb-1 text-sm font-bold text-gray-500">التاريخ والوقت</p>
                               <p className="text-lg font-semibold text-[#1A2B4C]">
                                 {order.scheduled_date} {order.scheduled_time_start && `- ${order.scheduled_time_start}`}
                               </p>
@@ -415,7 +403,7 @@ const PublicProjectsList = () => {
                             <div className="flex items-start gap-4 bg-gradient-to-r from-[#F4C430]/10 to-[#FFD700]/10 rounded-xl p-4 border-r-4 border-[#F4C430]">
                               <DollarSign className="w-6 h-6 text-[#F4C430] flex-shrink-0 mt-1" />
                               <div>
-                                <p className="text-sm font-bold text-gray-500 mb-1">الميزانية المتوقعة</p>
+                                <p className="mb-1 text-sm font-bold text-gray-500">الميزانية المتوقعة</p>
                                 <p className="text-2xl font-bold text-[#1A2B4C]">
                                   {order.expected_price} ج.م
                                 </p>
@@ -425,7 +413,7 @@ const PublicProjectsList = () => {
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                        <div className="flex flex-col gap-4 pt-4 sm:flex-row">
                           <Link
                             to={`/projects/${order.order_id}/offer`}
                             className="flex-1 inline-flex items-center justify-center gap-3 bg-gradient-to-r from-[#F4C430] to-[#FFD700] text-[#1A2B4C] px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 group"
@@ -464,13 +452,13 @@ const PublicProjectsList = () => {
               >
                 {loading ? (
                   <>
-                    <Loader2 className="animate-spin h-6 w-6 ml-3" />
+                    <Loader2 className="w-6 h-6 ml-3 animate-spin" />
                     جاري التحميل...
                   </>
                 ) : (
                   <>
                     <span>تحميل المزيد من المشاريع</span>
-                    <ArrowLeft className="inline-block mr-3 h-6 w-6" />
+                    <ArrowLeft className="inline-block w-6 h-6 mr-3" />
                   </>
                 )}
               </Button>
@@ -481,9 +469,9 @@ const PublicProjectsList = () => {
           {!hasMore && availableOrders.length > 0 && (
             <section className="py-12 text-center">
               <div className="max-w-2xl mx-auto">
-                <Clock className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-xl text-gray-500 font-semibold">لقد وصلت إلى نهاية القائمة</p>
-                <p className="text-gray-400 mt-2">تحقق لاحقًا من المشاريع الجديدة</p>
+                <Clock className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <p className="text-xl font-semibold text-gray-500">لقد وصلت إلى نهاية القائمة</p>
+                <p className="mt-2 text-gray-400">تحقق لاحقًا من المشاريع الجديدة</p>
               </div>
             </section>
           )}
