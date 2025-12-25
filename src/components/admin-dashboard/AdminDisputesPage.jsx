@@ -8,6 +8,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "../ui/dialog";
 import { 
   useGetDisputesQuery,
   useResolveDisputeMutation 
@@ -56,7 +57,6 @@ export function AdminDisputesPage() {
   }, { skip: !token });
 
   // State for quick resolution modal
-  const [showQuickResolve, setShowQuickResolve] = useState(false);
   const [selectedDispute, setSelectedDispute] = useState(null);
   const [resolutionType, setResolutionType] = useState("");
   const [adminNotes, setAdminNotes] = useState("");
@@ -140,7 +140,6 @@ export function AdminDisputesPage() {
         }
       }).unwrap();
 
-      setShowQuickResolve(false);
       setSelectedDispute(null);
       setResolutionType("");
       setAdminNotes("");
@@ -426,17 +425,85 @@ export function AdminDisputesPage() {
                                   </Link>
                                 </Button>
                                 {dispute.status !== 'RESOLVED' && (
-                                  <Button 
-                                    size="sm" 
-                                    className="bg-red-600 hover:bg-red-700 text-white"
-                                    onClick={() => {
-                                      setSelectedDispute(dispute);
-                                      setShowQuickResolve(true);
-                                    }}
-                                  >
-                                    <CheckCircle className="h-4 w-4 ml-1" />
-                                    <span>حل سريع</span>
-                                  </Button>
+                                  <Dialog>
+                                    <DialogTrigger asChild>
+                                      <Button 
+                                        size="sm" 
+                                        className="bg-red-600 hover:bg-red-700 text-white"
+                                        onClick={() => setSelectedDispute(dispute)}
+                                      >
+                                        <CheckCircle className="h-4 w-4 ml-1" />
+                                        <span>حل سريع</span>
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-md" onOpenAutoFocus={(event) => {
+                                      // Focus the first select when dialog opens
+                                      const firstSelect = event.currentTarget.querySelector('[data-radix-select-trigger]');
+                                      if (firstSelect) {
+                                        firstSelect.focus();
+                                      }
+                                    }}>
+                                      <DialogHeader>
+                                        <DialogTitle className="text-lg font-bold">حل النزاع بسرعة</DialogTitle>
+                                      </DialogHeader>
+                                      <div className="space-y-4">
+                                        <div className="space-y-2">
+                                          <Label htmlFor="resolutionType">نوع القرار</Label>
+                                          <Select value={resolutionType} onValueChange={setResolutionType}>
+                                            <SelectTrigger id="resolutionType" className="w-full">
+                                              <SelectValue placeholder="اختر نوع القرار" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="REFUND_CLIENT">رد الأموال للعميل</SelectItem>
+                                              <SelectItem value="PAY_TECHNICIAN">دفع الأموال للفني</SelectItem>
+                                              <SelectItem value="SPLIT_PAYMENT">تقسيم الدفع</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                          <Label htmlFor="adminNotes">ملاحظات المشرف</Label>
+                                          <Input
+                                            id="adminNotes"
+                                            placeholder="اكتب قرارك وملاحظاتك هنا..."
+                                            value={adminNotes}
+                                            onChange={(e) => setAdminNotes(e.target.value)}
+                                            className="resize-none"
+                                          />
+                                        </div>
+                                      </div>
+                                      <DialogFooter className="pt-4 border-t">
+                                        <Button 
+                                          variant="outline" 
+                                          onClick={() => {
+                                            setSelectedDispute(null);
+                                            setResolutionType("");
+                                            setAdminNotes("");
+                                          }}
+                                          className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                                        >
+                                          إلغاء
+                                        </Button>
+                                        <Button 
+                                          onClick={handleQuickResolve} 
+                                          disabled={isResolving || !resolutionType || !adminNotes}
+                                          className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2"
+                                        >
+                                          {isResolving ? (
+                                            <>
+                                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                              <span>جاري الحل...</span>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <CheckCircle className="h-4 w-4" />
+                                              <span>حل النزاع</span>
+                                            </>
+                                          )}
+                                        </Button>
+                                      </DialogFooter>
+                                    </DialogContent>
+                                  </Dialog>
                                 )}
                               </div>
                             </TableCell>
@@ -511,74 +578,6 @@ export function AdminDisputesPage() {
         </CardContent>
       </Card>
 
-      {/* Quick Resolve Modal */}
-      {showQuickResolve && selectedDispute && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="w-full max-w-md">
-            <CardHeader className="bg-red-600 text-white p-4">
-              <CardTitle className="text-lg font-bold">حل النزاع بسرعة</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="resolutionType">نوع القرار</Label>
-                <Select value={resolutionType} onValueChange={setResolutionType}>
-                  <SelectTrigger id="resolutionType" className="w-full">
-                    <SelectValue placeholder="اختر نوع القرار" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="REFUND_CLIENT">رد الأموال للعميل</SelectItem>
-                    <SelectItem value="PAY_TECHNICIAN">دفع الأموال للفني</SelectItem>
-                    <SelectItem value="SPLIT_PAYMENT">تقسيم الدفع</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="adminNotes">ملاحظات المشرف</Label>
-                <Input
-                  id="adminNotes"
-                  placeholder="اكتب قرارك وملاحظاتك هنا..."
-                  value={adminNotes}
-                  onChange={(e) => setAdminNotes(e.target.value)}
-                  className="resize-none"
-                />
-              </div>
-
-              <div className="flex items-center justify-between pt-4 border-t">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setShowQuickResolve(false);
-                    setSelectedDispute(null);
-                    setResolutionType("");
-                    setAdminNotes("");
-                  }}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                >
-                  إلغاء
-                </Button>
-                <Button 
-                  onClick={handleQuickResolve} 
-                  disabled={isResolving || !resolutionType || !adminNotes}
-                  className="bg-red-600 hover:bg-red-700 text-white flex items-center space-x-2"
-                >
-                  {isResolving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>جاري الحل...</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="h-4 w-4" />
-                      <span>حل النزاع</span>
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   );
 }
