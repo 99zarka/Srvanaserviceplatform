@@ -16,10 +16,12 @@ import {
   Calendar,
   MapPin,
   DollarSign,
-  Wrench
+  Wrench,
+  ArrowLeft,
+  ArrowRight
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPendingVerifications, approveVerification, rejectVerification } from "../../redux/adminSlice";
+import { fetchVerificationsPaginated, approveVerification, rejectVerification, updateFilters, resetFilters, getPendingVerifications } from "../../redux/adminSlice";
 
 export function AdminVerifications() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,11 +31,36 @@ export function AdminVerifications() {
   const [showRejectModal, setShowRejectModal] = useState(false);
 
   const dispatch = useDispatch();
-  const { pendingVerifications, isLoading } = useSelector((state) => state.admin);
+  const { pendingVerifications, isLoading, currentPage, totalPages, filters } = useSelector((state) => state.admin);
 
   useEffect(() => {
-    dispatch(getPendingVerifications());
-  }, [dispatch]);
+    // Use the new paginated fetch with filters
+    dispatch(fetchVerificationsPaginated({
+      page: currentPage,
+      pageSize: 10,
+      filters: filters
+    }));
+  }, [dispatch, currentPage, filters]);
+
+  // Sync local state with Redux filters
+  useEffect(() => {
+    setSearchTerm(filters.searchTerm || "");
+    setStatusFilter(filters.status || "all");
+  }, [filters]);
+
+  // Handle search term changes
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    dispatch(updateFilters({ searchTerm: value }));
+  };
+
+  // Handle status filter changes
+  const handleStatusChange = (e) => {
+    const value = e.target.value;
+    setStatusFilter(value);
+    dispatch(updateFilters({ status: value }));
+  };
 
   const handleApprove = async (verificationId) => {
     try {
@@ -173,7 +200,7 @@ export function AdminVerifications() {
                 <Input
                   placeholder="البحث بالاسم أو البريد الإلكتروني أو التخصص..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={handleSearchChange}
                   className="pl-10"
                 />
               </div>
@@ -183,7 +210,7 @@ export function AdminVerifications() {
             <div className="w-full sm:w-48">
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={handleStatusChange}
                 className="w-full p-2 border border-input rounded-md bg-background"
               >
                 <option value="all">جميع الحالات</option>
@@ -367,6 +394,41 @@ export function AdminVerifications() {
           ))
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center space-x-4 mt-8">
+          <Button 
+            onClick={() => dispatch(fetchVerificationsPaginated({
+              page: currentPage - 1,
+              pageSize: 10,
+              filters: filters
+            }))}
+            disabled={currentPage === 1}
+            className="flex items-center space-x-2"
+          >
+            <ArrowRight className="h-4 w-4" />
+            <span>السابق</span>
+          </Button>
+          
+          <span className="text-sm text-muted-foreground">
+            صفحة {currentPage} من {totalPages}
+          </span>
+          
+          <Button 
+            onClick={() => dispatch(fetchVerificationsPaginated({
+              page: currentPage + 1,
+              pageSize: 10,
+              filters: filters
+            }))}
+            disabled={currentPage === totalPages}
+            className="flex items-center space-x-2"
+          >
+            <span>التالي</span>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
 
       {/* Rejection Modal */}
       {showRejectModal && selectedVerification && (

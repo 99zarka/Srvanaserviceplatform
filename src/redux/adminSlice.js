@@ -9,6 +9,14 @@ const initialState = {
   currentPage: 1,
   totalPages: 1,
   totalVerifications: 0,
+  pageSize: 10,
+  filters: {
+    status: 'all',
+    searchTerm: '',
+    dateFrom: '',
+    dateTo: '',
+    documentType: ''
+  }
 };
 
 // Async thunk to fetch pending verification documents
@@ -82,6 +90,112 @@ export const getPendingVerifications = createAsyncThunk(
       }
 
       return processedDocs;
+    } catch (error) {
+      console.error('Verification fetch error:', error);
+      return rejectWithValue('خطأ في الشبكة أثناء جلب طلبات التحقق.');
+    }
+  }
+);
+
+// Async thunk to fetch verification documents with pagination and filtering
+export const fetchVerificationsPaginated = createAsyncThunk(
+  'admin/fetchVerificationsPaginated',
+  async ({ page = 1, pageSize = 10, filters = {} }, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+      if (!token) {
+        return rejectWithValue('لا يوجد رمز مصادقة. يجب تسجيل الدخول أولاً.');
+      }
+
+      // Build query parameters
+      const queryParams = new URLSearchParams({
+        page: page.toString(),
+        page_size: pageSize.toString()
+      });
+
+      // Add filters to query parameters
+      if (filters.status && filters.status !== 'all') {
+        queryParams.append('verification_status', filters.status);
+      }
+      if (filters.searchTerm) {
+        queryParams.append('technician_name', filters.searchTerm);
+      }
+      if (filters.dateFrom) {
+        queryParams.append('upload_date_gte', filters.dateFrom);
+      }
+      if (filters.dateTo) {
+        queryParams.append('upload_date_lte', filters.dateTo);
+      }
+      if (filters.documentType) {
+        queryParams.append('document_type', filters.documentType);
+      }
+
+      const response = await fetch(`${BASE_URL}/technicians/verificationdocuments/?${queryParams.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data.detail || 'فشل في جلب طلبات التحقق.');
+      }
+
+      const rawDocs = data.results || [];
+      
+      // Process documents using the prefetched user data
+      const processedDocs = [];
+      
+      if (Array.isArray(rawDocs)) {
+        for (const doc of rawDocs) {
+          // Use the prefetched technician_user data instead of making individual API calls
+          const userDetail = doc.technician_user || {
+            id: doc.technician_user_id || null,
+            first_name: "",
+            last_name: "",
+            email: "",
+            address: "",
+            bio: "",
+            specialization: "",
+            skills_text: "",
+            experience_years: null,
+            hourly_rate: null
+          };
+          
+          const processedDoc = {
+            id: doc.doc_id, // Use the actual document ID
+            doc_id: doc.doc_id, // Keep the original doc_id
+            document_type: doc.document_type,
+            document_url: doc.document_url,
+            upload_date: doc.upload_date,
+            verification_status: doc.verification_status?.toLowerCase(),
+            rejection_reason: doc.rejection_reason,
+            technician_user_id: userDetail.id, // Use the user ID from prefetched data
+            
+            // User details from the prefetched data (no individual API calls needed!)
+            user: userDetail,
+            address: userDetail.address,
+            description: userDetail.bio,
+            specialization: userDetail.specialization,
+            skills: userDetail.skills_text,
+            experience_years: userDetail.experience_years,
+            hourly_rate: userDetail.hourly_rate
+          };
+          
+          processedDocs.push(processedDoc);
+        }
+      }
+
+      return {
+        results: processedDocs,
+        count: data.count || 0,
+        next: data.next,
+        previous: data.previous
+      };
     } catch (error) {
       console.error('Verification fetch error:', error);
       return rejectWithValue('خطأ في الشبكة أثناء جلب طلبات التحقق.');
@@ -169,6 +283,18 @@ const adminSlice = createSlice({
         verification.verification_status = verification_status;
       }
     },
+    updateFilters: (state, action) => {
+      state.filters = { ...state.filters, ...action.payload };
+    },
+    resetFilters: (state) => {
+      state.filters = {
+        status: 'all',
+        searchTerm: '',
+        dateFrom: '',
+        dateTo: '',
+        documentType: ''
+      };
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -183,6 +309,25 @@ const adminSlice = createSlice({
         state.error = null;
       })
       .addCase(getPendingVerifications.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Fetch verifications paginated cases
+      .addCase(fetchVerificationsPaginated.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchVerificationsPaginated.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.pendingVerifications = action.payload.results || [];
+        state.totalVerifications = action.payload.count || 0;
+        state.currentPage = action.meta.arg.page || 1;
+        const count = action.payload.count || 0;
+        const pageSize = action.meta.arg.pageSize || state.pageSize;
+        state.totalPages = Math.ceil(count / pageSize) || 1;
+        state.error = null;
+      })
+      .addCase(fetchVerificationsPaginated.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })
@@ -227,5 +372,5 @@ const adminSlice = createSlice({
   },
 });
 
-export const { clearError, updateVerificationStatus } = adminSlice.actions;
+export const { clearError, updateVerificationStatus, updateFilters, resetFilters } = adminSlice.actions;
 export default adminSlice.reducer;
