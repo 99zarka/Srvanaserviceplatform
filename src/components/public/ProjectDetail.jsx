@@ -4,7 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { fetchPublicOrderDetail, createProjectOffer, updateProjectOffer, deleteProjectOffer } from '../../redux/orderSlice';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Sparkles, Loader2, MapPin, Calendar, DollarSign, Clock, User, Briefcase, ArrowRight, ArrowLeft, Star } from 'lucide-react';
+import { Sparkles, Loader2, MapPin, Calendar, DollarSign, Clock, User, Briefcase, ArrowRight, ArrowLeft, Star, Edit } from 'lucide-react';
 import BASE_URL from '../../config/api';
 import {
   Dialog,
@@ -311,13 +311,24 @@ const ProjectDetail = () => {
                 </div>
 
                 {/* Action Button for Non-Technicians */}
-                {!isTechnician && (
+                {!isTechnician && !(currentUser && currentUser.user_id === selectedOrder.client_user?.user_id) && (
                   <Link
                     to="/signup"
                     className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-[#F4C430] to-[#FFD700] text-[#1A2B4C] px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 group w-full sm:w-auto"
                   >
                     <span>سجل كفني لتقديم عرض</span>
                     <ArrowLeft className="w-5 h-5 group-hover:translate-x-[-4px] transition-transform" />
+                  </Link>
+                )}
+
+                {/* Edit Button for Project Owner */}
+                {currentUser && currentUser.user_id === selectedOrder.client_user?.user_id && (
+                  <Link
+                    to={`/dashboard/orders-offers/edit/${order_id}`}
+                    className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 group w-full sm:w-auto mt-4"
+                  >
+                    <span>تعديل المشروع</span>
+                    <Edit className="w-5 h-5 group-hover:translate-x-[-4px] transition-transform" />
                   </Link>
                 )}
               </div>
