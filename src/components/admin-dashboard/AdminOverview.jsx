@@ -51,8 +51,8 @@ export function AdminOverview() {
           { 
             label: "إجمالي المستخدمين", 
             value: statsData.total_users || 0, 
-            change: "+12%", 
-            trend: "up",
+            change: statsData.change_data?.total_users_change || "0.0%", 
+            trend: (statsData.change_data?.total_users_change || "0.0%").startsWith('+') ? "up" : "down",
             icon: Users, 
             bgColor: "bg-blue-50",
             iconColor: "text-blue-600",
@@ -61,8 +61,8 @@ export function AdminOverview() {
           { 
             label: "العمال النشطين", 
             value: statsData.active_workers || 0, 
-            change: "+8%", 
-            trend: "up",
+            change: statsData.change_data?.active_workers_change || "0.0%", 
+            trend: (statsData.change_data?.active_workers_change || "0.0%").startsWith('+') ? "up" : "down",
             icon: UserCheck, 
             bgColor: "bg-green-50",
             iconColor: "text-green-600",
@@ -71,8 +71,8 @@ export function AdminOverview() {
           { 
             label: "الخدمات المكتملة", 
             value: statsData.services_completed || 0, 
-            change: "+15%", 
-            trend: "up",
+            change: statsData.change_data?.services_completed_change || "0.0%", 
+            trend: (statsData.change_data?.services_completed_change || "0.0%").startsWith('+') ? "up" : "down",
             icon: Briefcase, 
             bgColor: "bg-purple-50",
             iconColor: "text-purple-600",
@@ -81,8 +81,8 @@ export function AdminOverview() {
           {
             label: "إجمالي الإيرادات",
             value: `${statsData.total_revenue || 0} ج.م`,
-            change: "+22%",
-            trend: "up",
+            change: statsData.change_data?.total_revenue_change || "0.0%",
+            trend: (statsData.change_data?.total_revenue_change || "0.0%").startsWith('+') ? "up" : "down",
             icon: DollarSign,
             bgColor: "bg-accent-50",
             iconColor: "text-accent-600",
