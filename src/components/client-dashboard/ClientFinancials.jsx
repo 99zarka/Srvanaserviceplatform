@@ -29,6 +29,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select"; // Import Select components
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "../ui/dialog"; // Import Dialog components
 import { depositFunds, withdrawFunds } from "../../redux/authSlice";
 import { getUserTransactions } from "../../redux/transactionSlice";
 import { addPaymentMethod } from "../../redux/authSlice"; // Import addPaymentMethod
@@ -98,6 +106,8 @@ export function ClientFinancials() {
   const [depositSuccessMessage, setDepositSuccessMessage] = useState(null); // Local state for deposit success feedback
   const [depositMethod, setDepositMethod] = useState("new"); // "new" or "saved"
   const [pollingTransactionId, setPollingTransactionId] = useState(null); // Keep for backend tracking if needed, or remove if unused. Let's keep it to minimize diffs, but removing usage below.
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false); // State for payment dialog visibility
+  const [paymentIframeUrl, setPaymentIframeUrl] = useState(""); // State for storing iframe URL
 
   // ... form states ...
   // ... form states ...
@@ -291,8 +301,9 @@ export function ClientFinancials() {
 
       // Handle successful response (Should always be iframe_url for New Card)
       if (result.iframe_url) {
-        // Redirect user to Paymob Iframe in NEW TAB
-        window.open(result.iframe_url, "_blank");
+        // Open payment iframe in dialog instead of new window
+        setPaymentIframeUrl(result.iframe_url);
+        setIsPaymentDialogOpen(true);
 
         // Start polling for this transaction ID
         const txId = result.transaction_id || result.order_id;
@@ -737,6 +748,26 @@ export function ClientFinancials() {
           </Button>
         </div>
       </Card>
+
+      {/* Payment Dialog with Iframe */}
+      <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+        <DialogContent className="sm:!max-w-[85vw] max-w-full h-[90vh] p-0">
+          <div className="px-6 pb-4">
+            <p className="text-2xl text-secondary font-black text-right my-4 ms-4">
+              يرجى إكمال عملية الدفع من خلال نموذج الدفع الآمن أدناه.
+            </p>
+            <div className="w-full h-[90%] border border-gray-300 rounded-lg overflow-hidden">
+              <iframe
+                src={paymentIframeUrl}
+                className="w-full h-full"
+                title="Payment Gateway"
+                frameBorder="0"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );
