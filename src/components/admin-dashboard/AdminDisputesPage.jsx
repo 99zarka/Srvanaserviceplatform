@@ -199,24 +199,11 @@ export function AdminDisputesPage() {
               <p className="text-gray-600 text-lg mt-1">مراجعة وإدارة جميع النزاعات على المنصة</p>
             </div>
           </div>
-          <div className="text-left">
+          <div className="text-start">
             <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
               <div className="text-sm text-gray-500 mb-1">إجمالي النزاعات</div>
               <div className="text-2xl font-bold text-red-600">{totalCount}</div>
-              <div className="flex items-center justify-between mt-2 text-sm">
-                <span className="text-green-600 flex items-center">
-                  <CheckCircle className="h-4 w-4 ml-1" />
-                  {disputes.filter(d => d.status === 'RESOLVED').length} محلولة
-                </span>
-                <span className="text-yellow-600 flex items-center">
-                  <AlertCircle className="h-4 w-4 ml-1" />
-                  {disputes.filter(d => d.status === 'IN_REVIEW').length} قيد المراجعة
-                </span>
-                <span className="text-blue-600 flex items-center">
-                  <Clock className="h-4 w-4 ml-1" />
-                  {disputes.filter(d => d.status === 'OPEN').length} مفتوحة
-                </span>
-              </div>
+              
             </div>
           </div>
         </div>
