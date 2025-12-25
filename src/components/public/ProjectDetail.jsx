@@ -259,9 +259,12 @@ const ProjectDetail = () => {
                     <User className="w-6 h-6 text-[#F4C430] flex-shrink-0 mt-1" />
                     <div>
                       <p className="text-sm font-bold text-gray-500 mb-1">العميل</p>
-                      <p className="text-lg font-semibold text-[#1A2B4C]">
+                      <Link 
+                        to={`/profile/${selectedOrder.client_user?.user_id}`}
+                        className="text-lg font-semibold text-[#1A2B4C] hover:text-[#F4C430] transition-colors"
+                      >
                         {selectedOrder.client_user?.first_name} {selectedOrder.client_user?.last_name}
-                      </p>
+                      </Link>
                     </div>
                   </div>
 
@@ -578,15 +581,37 @@ const ProjectDetail = () => {
                           <div className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200 h-full">
                             <p className="text-sm font-bold text-gray-600 mb-4">معلومات الفني</p>
                             <div className="flex items-center gap-4">
-                              <div className="w-16 h-16 bg-gradient-to-br from-[#F4C430] to-[#FFD700] rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
-                                <span className="text-[#1A2B4C] font-bold text-2xl">
-                                  {offer.technician_user.first_name?.charAt(0)}{offer.technician_user.last_name?.charAt(0)}
-                                </span>
-                              </div>
+                              <Link 
+                                to={`/profile/${offer.technician_user.user_id}`}
+                                className="w-16 h-16 bg-gradient-to-br from-[#F4C430] to-[#FFD700] rounded-full flex items-center justify-center shadow-lg flex-shrink-0 overflow-hidden hover:scale-105 transition-transform"
+                              >
+                                {offer.technician_user.profile_photo ? (
+                                  <img
+                                    src={offer.technician_user.profile_photo}
+                                    alt={`${offer.technician_user.first_name} ${offer.technician_user.last_name}`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.target.style.display = 'none';
+                                      const parent = e.target.parentElement;
+                                      const fallback = document.createElement('span');
+                                      fallback.className = 'text-[#1A2B4C] font-bold text-2xl';
+                                      fallback.textContent = `${offer.technician_user.first_name?.charAt(0)}${offer.technician_user.last_name?.charAt(0)}`;
+                                      parent.appendChild(fallback);
+                                    }}
+                                  />
+                                ) : (
+                                  <span className="text-[#1A2B4C] font-bold text-2xl">
+                                    {offer.technician_user.first_name?.charAt(0)}{offer.technician_user.last_name?.charAt(0)}
+                                  </span>
+                                )}
+                              </Link>
                               <div className="flex-1">
-                                <p className="text-xl font-bold text-[#1A2B4C] mb-1">
+                                <Link 
+                                  to={`/profile/${offer.technician_user.user_id}`}
+                                  className="text-xl font-bold text-[#1A2B4C] mb-1 hover:text-[#F4C430] transition-colors"
+                                >
                                   {offer.technician_user.first_name} {offer.technician_user.last_name}
-                                </p>
+                                </Link>
                                 <div className="flex items-center gap-2">
                                   <User className="w-4 h-4 text-gray-500" />
                                   <p className="text-md text-gray-600">فني محترف</p>
