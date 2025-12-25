@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchSingleOrder, clearCurrentViewingOrder } from "../redux/orderSlice";
+import { fetchDisputeOrder, clearCurrentViewingOrder } from "../redux/orderSlice";
 import { useAddDisputeResponseMutation, useResolveDisputeMutation } from "../redux/disputeSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -34,8 +34,8 @@ export function DisputeDetailPage() {
   useEffect(() => {
     console.log('DisputeDetailPage useEffect triggered, orderId:', orderId);
     if (orderId) {
-      console.log('Dispatching fetchSingleOrder with orderId:', orderId);
-      dispatch(fetchSingleOrder(orderId));
+      console.log('Dispatching fetchDisputeOrder with orderId:', orderId);
+      dispatch(fetchDisputeOrder(orderId));
     }
 
     return () => {
@@ -43,6 +43,18 @@ export function DisputeDetailPage() {
       dispatch(clearCurrentViewingOrder());
     };
   }, [dispatch, orderId]);
+
+  // Debug: Log Redux state changes
+  useEffect(() => {
+    console.log('DisputeDetailPage - Redux state updated:');
+    console.log('currentViewingOrder:', currentViewingOrder);
+    console.log('loading:', loading);
+    console.log('error:', error);
+    if (currentViewingOrder) {
+      console.log('currentViewingOrder.dispute:', currentViewingOrder.dispute);
+      console.log('currentViewingOrder.order_id:', currentViewingOrder.order_id);
+    }
+  }, [currentViewingOrder, loading, error]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -76,7 +88,7 @@ export function DisputeDetailPage() {
       setShowResponseInput(false);
       
       // Refetch the order data to update the UI with the new response
-      await dispatch(fetchSingleOrder(orderId));
+      await dispatch(fetchDisputeOrder(orderId));
     } catch (error) {
       console.error("Failed to add response:", error);
     }
@@ -117,7 +129,7 @@ export function DisputeDetailPage() {
       setShowResolutionForm(false);
       
       // Refetch the order data to update the UI with the resolution
-      await dispatch(fetchSingleOrder(orderId));
+      await dispatch(fetchDisputeOrder(orderId));
     } catch (error) {
       console.error("Failed to resolve dispute:", error);
       alert("فشل في حل النزاع: " + (error.data?.detail || error.message));
@@ -195,11 +207,15 @@ export function DisputeDetailPage() {
                 {/* Order Details */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
                   <div className="space-y-2">
-                    <div className="flex items-center text-gray-60">
+                    <div className="flex items-center text-gray-600">
                       <User className="h-4 w-4 ml-2" />
                       <span className="font-medium">نوع الطلب:</span>
                     </div>
-                    <p className="text-gray-800">{order.order_type}</p>
+                    <p className="text-gray-800">
+                      {order.order_type === 'service_request' ? 'طلب خدمة' : 
+                       order.order_type === 'direct_hire' ? 'توظيف مباشر' : 
+                       order.order_type}
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center text-gray-600">
@@ -231,8 +247,8 @@ export function DisputeDetailPage() {
                     معلومات الخدمة
                   </h3>
                   <div className="space-y-2 text-gray-70">
-                    <p><strong>الخدمة:</strong> {order.service?.service_name}</p>
-                    <p><strong>التصنيف:</strong> {order.service?.category?.category_name}</p>
+                    <p><strong>الخدمة:</strong> {order.service?.arabic_name}</p>
+                    <p><strong>التصنيف:</strong> {order.service?.category?.arabic_name}</p>
                     <p><strong>الوصف:</strong> {order.service?.description}</p>
                   </div>
                 </div>

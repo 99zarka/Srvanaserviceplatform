@@ -182,7 +182,7 @@ export function WorkerTaskDetails() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-full">
             <div>
               <p className="text-sm font-medium text-muted-foreground">الخدمة</p>
-              <p className="text-lg font-semibold">{task.service?.service_name || "غير متاح"}</p>
+              <p className="text-lg font-semibold">{task.service?.arabic_name || "غير متاح"}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">نوع الطلب</p>

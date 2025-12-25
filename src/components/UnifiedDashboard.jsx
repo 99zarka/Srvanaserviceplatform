@@ -37,6 +37,7 @@ import { AdminUsers } from "./admin-dashboard/AdminUsers";
 import { AdminServices } from "./admin-dashboard/AdminServices";
 import { AdminVerifications } from "./admin-dashboard/AdminVerifications";
 import { AdminReports } from "./admin-dashboard/AdminReports";
+import { AdminDisputesPage } from "./admin-dashboard/AdminDisputesPage";
 import { DisputeDetailPage } from "./DisputeDetailPage";
 
 export function UnifiedDashboard() {
@@ -88,6 +89,7 @@ export function UnifiedDashboard() {
     { icon: Shield, label: "طلبات التحقق", path: "/dashboard/verifications" },
     { icon: Briefcase, label: "الخدمات", path: "/dashboard/services" },
     { icon: FileText, label: "التقارير", path: "/dashboard/reports" },
+    { icon: Flag, label: "النزاعات", path: "/dashboard/admin-disputes" },
   ];
 
   let sidebarItems = [];
@@ -190,6 +192,7 @@ export function UnifiedDashboard() {
           <Route path="verifications" element={<AdminVerifications />} />
           <Route path="services" element={<AdminServices />} />
           <Route path="reports" element={<AdminReports />} />
+          <Route path="admin-disputes" element={<AdminDisputesPage />} />
         </Routes>
       </motion.div>
     </AnimatePresence>

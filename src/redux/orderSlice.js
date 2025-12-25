@@ -60,6 +60,19 @@ export const fetchTechnicianSingleOrder = createAsyncThunk(
   }
 );
 
+// Fetch a single order by ID for dispute purposes (unified endpoint)
+export const fetchDisputeOrder = createAsyncThunk(
+  'orders/fetchDisputeOrder',
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`/orders/${orderId}/dispute-order/`);
+      return response; // Return the entire response, as api.get already returns parsed data
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message || 'Failed to fetch dispute order');
+    }
+  }
+);
+
 // Fetch a single public order by ID
 export const fetchPublicOrderDetail = createAsyncThunk(
   'orders/fetchPublicOrderDetail',
@@ -531,6 +544,28 @@ const orderSlice = createSlice({
         const errorMessage = typeof action.payload === 'object' && action.payload?.message
                              ? String(action.payload.message)
                              : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch single order.');
+        state.error = { message: errorMessage };
+        state.currentViewingOrder = null; // Ensure it's cleared on error
+      })
+
+      // Fetch Dispute Order
+      .addCase(fetchDisputeOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.currentViewingOrder = null; // Clear previous order when fetching new one
+      })
+      .addCase(fetchDisputeOrder.fulfilled, (state, action) => {
+        console.log('fetchDisputeOrder.fulfilled:', action.payload); // Added debug log
+        console.log('fetchDisputeOrder.fulfilled - dispute exists:', !!action.payload.dispute); // Check if dispute exists
+        state.loading = false;
+        state.currentViewingOrder = action.payload;
+      })
+      .addCase(fetchDisputeOrder.rejected, (state, action) => {
+        console.error('fetchDisputeOrder.rejected:', action.payload); // Added debug log
+        state.loading = false;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch dispute order.');
         state.error = { message: errorMessage };
         state.currentViewingOrder = null; // Ensure it's cleared on error
       })

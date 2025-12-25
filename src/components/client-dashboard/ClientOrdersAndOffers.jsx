@@ -9,8 +9,8 @@ import {
   submitReview, 
   clearError, 
   clearSuccessMessage,
+  initiateDispute,
 } from '../../redux/orderSlice';
-import { useCreateDisputeMutation } from '../../redux/disputeSlice';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog';
 import { Label } from '../ui/label';
@@ -131,18 +131,16 @@ const ClientOrdersAndOffers = () => {
     setIsDisputeModalOpen(true);
  };
 
-  const [createDispute] = useCreateDisputeMutation();
-
   const handleConfirmDispute = async () => {
     if (!disputeDescription) {
       toast.error('الرجاء إدخال وصف النزاع.');
       return;
     }
     try {
-      await createDispute({
-        order: selectedOrder.order_id,
-        client_argument: disputeDescription
-      }).unwrap();
+      await dispatch(initiateDispute({
+        orderId: selectedOrder.order_id,
+        argument: disputeDescription,
+      })).unwrap();
       setIsDisputeModalOpen(false);
       setDisputeReason('');
       setDisputeDescription('');

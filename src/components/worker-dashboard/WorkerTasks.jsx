@@ -84,6 +84,14 @@ export function WorkerTasks() {
         translatedStatus = "تم استرداد المبلغ";
         className = "bg-red-200 text-red-900";
         break;
+      case "AWAITING_TECHNICIAN_RESPONSE":
+        translatedStatus = "في انتظار رد الفني";
+        className = "bg-purple-100 text-purple-800";
+        break;
+      case "AWAITING_CLIENT_ESCROW_CONFIRMATION":
+        translatedStatus = "بانتظار تأكيد العميل للدفع";
+        className = "bg-purple-100 text-purple-800";
+        break;
       default:
         translatedStatus = status;
         break;

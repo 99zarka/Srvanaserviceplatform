@@ -40,6 +40,8 @@ const OrderCard = ({
         return 'bg-red-100 text-red-800';
       case 'REFUNDED':
         return 'bg-pink-100 text-pink-800';
+      case 'AWAITING_TECHNICIAN_RESPONSE':
+        return 'bg-yellow-200 text-yellow-800';
       case 'AWAITING_CLIENT_ESCROW_CONFIRMATION':
         return 'bg-yellow-200 text-yellow-800';
       default:
@@ -67,6 +69,8 @@ const OrderCard = ({
         return 'ملغاة';
       case 'REFUNDED':
         return 'مستردة';
+      case 'AWAITING_TECHNICIAN_RESPONSE':
+        return 'في انتظار رد الفني';
       case 'AWAITING_CLIENT_ESCROW_CONFIRMATION':
         return 'بانتظار تأكيد العميل للدفع';
       default:
@@ -80,6 +84,7 @@ const OrderCard = ({
       case 'PENDING':
       case 'AWAITING_RELEASE':
       case 'DISPUTED':
+      case 'AWAITING_TECHNICIAN_RESPONSE':
       case 'AWAITING_CLIENT_ESCROW_CONFIRMATION':
         return <Clock className="h-4 w-4" />;
       case 'ACCEPTED':

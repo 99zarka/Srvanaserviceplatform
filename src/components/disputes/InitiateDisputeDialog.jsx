@@ -10,20 +10,20 @@ import {
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
-import { useCreateDisputeMutation } from "../../redux/disputeSlice";
+import { initiateDispute } from "../../redux/orderSlice";
 import { toast } from "sonner";
 
 export function InitiateDisputeDialog({ isOpen, onOpenChange, orderId, onDisputeSuccess }) {
-  const [createDispute] = useCreateDisputeMutation();
+  const dispatch = useDispatch();
   const [disputeDescription, setDisputeDescription] = useState("");
 
   const handleConfirmDispute = async () => {
     if (orderId && disputeDescription.trim()) {
       try {
-        await createDispute({
-          order: orderId,
-          client_argument: disputeDescription,
-        }).unwrap();
+        await dispatch(initiateDispute({
+          orderId: orderId,
+          argument: disputeDescription,
+        })).unwrap();
         toast.success("تم فتح نزاع بنجاح.");
         onDisputeSuccess(); // Callback to refresh data in parent
         onOpenChange(false); // Close dialog
