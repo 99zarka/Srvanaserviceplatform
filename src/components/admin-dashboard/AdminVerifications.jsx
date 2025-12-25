@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
@@ -33,14 +33,35 @@ export function AdminVerifications() {
   const dispatch = useDispatch();
   const { pendingVerifications, isLoading, currentPage, totalPages, filters } = useSelector((state) => state.admin);
 
+  // Debounced search functionality
+  const searchTimeoutRef = useRef(null);
+
+  const debouncedSearch = useCallback((value) => {
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Set new timeout for 1000ms (1 second)
+    searchTimeoutRef.current = setTimeout(() => {
+      dispatch(updateFilters({ searchTerm: value }));
+      // Reset to page 1 when filter changes
+      dispatch(fetchVerificationsPaginated({
+        page: 1,
+        pageSize: 10,
+        filters: { ...filters, searchTerm: value }
+      }));
+    }, 1000);
+  }, [dispatch, filters]);
+
   useEffect(() => {
-    // Use the new paginated fetch with filters
+    // Initial load when component mounts
     dispatch(fetchVerificationsPaginated({
       page: currentPage,
       pageSize: 10,
       filters: filters
     }));
-  }, [dispatch, currentPage, filters]);
+  }, [dispatch]);
 
   // Sync local state with Redux filters
   useEffect(() => {
@@ -48,11 +69,22 @@ export function AdminVerifications() {
     setStatusFilter(filters.status || "all");
   }, [filters]);
 
+  // Cleanup timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Handle search term changes
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
-    dispatch(updateFilters({ searchTerm: value }));
+    // Use debounced search instead of immediate API call
+    // This will reset the timer on each keystroke
+    debouncedSearch(value);
   };
 
   // Handle status filter changes
@@ -60,6 +92,12 @@ export function AdminVerifications() {
     const value = e.target.value;
     setStatusFilter(value);
     dispatch(updateFilters({ status: value }));
+    // Reset to page 1 when filter changes
+    dispatch(fetchVerificationsPaginated({
+      page: 1,
+      pageSize: 10,
+      filters: { ...filters, status: value }
+    }));
   };
 
   const handleApprove = async (verificationId) => {
@@ -162,16 +200,6 @@ export function AdminVerifications() {
     return matchesSearch && matchesStatus;
   });
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-neutral-50" dir="rtl">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-accent mb-4"></div>
-          <p className="text-neutral-600 text-lg">جاري تحميل طلبات التحقق...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -225,7 +253,16 @@ export function AdminVerifications() {
 
       {/* Verifications List */}
       <div className="grid gap-4">
-        {filteredVerifications.length === 0 ? (
+        {isLoading ? (
+          <Card className="col-span-full">
+            <CardContent className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-3 border-primary border-t-accent mb-3"></div>
+                <p className="text-sm text-muted-foreground">جاري التحميل...</p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : filteredVerifications.length === 0 ? (
           <Card>
             <CardContent className="text-center py-8">
               <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
