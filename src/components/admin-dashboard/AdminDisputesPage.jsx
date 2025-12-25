@@ -38,7 +38,7 @@ export function AdminDisputesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(5);
   const [totalCount, setTotalCount] = useState(0);
 
   // RTK Query for fetching disputes
@@ -308,135 +308,144 @@ export function AdminDisputesPage() {
           {disputes.length > 0 ? (
             <>
               <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-b-2 border-gray-200 bg-gray-50">
-                      <TableHead className="text-right font-bold text-gray-700">رقم النزاع</TableHead>
-                      <TableHead className="text-right font-bold text-gray-700">رقم الطلب</TableHead>
-                      <TableHead className="text-right font-bold text-gray-700">العميل</TableHead>
-                      <TableHead className="text-right font-bold text-gray-700">الفني</TableHead>
-                      <TableHead className="text-right font-bold text-gray-700">الخدمة</TableHead>
-                      <TableHead className="text-right font-bold text-gray-700">الحالة</TableHead>
-                      <TableHead className="text-right font-bold text-gray-700">القرار</TableHead>
-                      <TableHead className="text-right font-bold text-gray-700">تاريخ الإنشاء</TableHead>
-                      <TableHead className="text-right font-bold text-gray-700">الإجراءات</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {disputes.map((dispute) => {
-                      const order = dispute.order;
-                      const client = dispute.client_user || dispute.initiator;
-                      const technician = dispute.technician_user;
-                      const service = order?.service;
-                      
-                      return (
-                        <TableRow 
-                          key={dispute.dispute_id} 
-                          className="hover:bg-gray-50 transition-colors border-b border-gray-100"
-                        >
-                          <TableCell className="font-medium text-red-600">
-                            <Link 
-                              to={`/dashboard/disputes/${order}`}
-                              className="hover:text-red-700 hover:underline"
-                            >
-                              #{dispute.dispute_id}
-                            </Link>
-                          </TableCell>
-                          <TableCell>
-                            <Link 
-                              to={`/dashboard/orders-offers/view/${order}`}
-                              className="text-blue-600 hover:text-blue-700 hover:underline"
-                            >
-                              #{order}
-                            </Link>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col">
+                {isFetching ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-2 border-red-600 border-t-transparent"></div>
+                      <span className="text-gray-600 text-sm">جارٍ التحميل...</span>
+                    </div>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-b-2 border-gray-200 bg-gray-50">
+                        <TableHead className="text-right font-bold text-gray-700">رقم النزاع</TableHead>
+                        <TableHead className="text-right font-bold text-gray-700">رقم الطلب</TableHead>
+                        <TableHead className="text-right font-bold text-gray-700">العميل</TableHead>
+                        <TableHead className="text-right font-bold text-gray-700">الفني</TableHead>
+                        <TableHead className="text-right font-bold text-gray-700">الخدمة</TableHead>
+                        <TableHead className="text-right font-bold text-gray-700">الحالة</TableHead>
+                        <TableHead className="text-right font-bold text-gray-700">القرار</TableHead>
+                        <TableHead className="text-right font-bold text-gray-700">تاريخ الإنشاء</TableHead>
+                        <TableHead className="text-right font-bold text-gray-700">الإجراءات</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {disputes.map((dispute) => {
+                        const order = dispute.order;
+                        const client = dispute.client_user || dispute.initiator;
+                        const technician = dispute.technician_user;
+                        const service = order?.service;
+                        
+                        return (
+                          <TableRow 
+                            key={dispute.dispute_id} 
+                            className="hover:bg-gray-50 transition-colors border-b border-gray-100"
+                          >
+                            <TableCell className="font-medium text-red-600">
                               <Link 
-                                to={`/dashboard/profile/${client?.user_id || client?.id}`}
-                                className="font-medium hover:text-blue-600 hover:underline"
+                                to={`/dashboard/disputes/${order}`}
+                                className="hover:text-red-700 hover:underline"
                               >
-                                {client?.first_name} {client?.last_name}
+                                #{dispute.dispute_id}
                               </Link>
-                              <span className="text-xs text-gray-500">
-                                {client?.user_type === 'client' ? 'عميل' : 
-                                 client?.user_type === 'technician' ? 'فني' : 
-                                 client?.user_type === 'admin' ? 'مشرف' : 
-                                 client?.user_type || 'غير محدد'}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {technician ? (
+                            </TableCell>
+                            <TableCell>
+                              <Link 
+                                to={`/dashboard/orders-offers/view/${order}`}
+                                className="text-blue-600 hover:text-blue-700 hover:underline"
+                              >
+                                #{order}
+                              </Link>
+                            </TableCell>
+                            <TableCell>
                               <div className="flex flex-col">
                                 <Link 
-                                  to={`/dashboard/profile/${technician.user_id || technician.id}`}
+                                  to={`/dashboard/profile/${client?.user_id || client?.id}`}
                                   className="font-medium hover:text-blue-600 hover:underline"
                                 >
-                                  {technician.first_name} {technician.last_name}
+                                  {client?.first_name} {client?.last_name}
                                 </Link>
                                 <span className="text-xs text-gray-500">
-                                  {technician.user_type === 'client' ? 'عميل' : 
-                                   technician.user_type === 'technician' ? 'فني' : 
-                                   technician.user_type === 'admin' ? 'مشرف' : 
-                                   technician.user_type || 'غير محدد'}
+                                  {client?.user_type === 'client' ? 'عميل' : 
+                                   client?.user_type === 'technician' ? 'فني' : 
+                                   client?.user_type === 'admin' ? 'مشرف' : 
+                                   client?.user_type || 'غير محدد'}
                                 </span>
                               </div>
-                            ) : (
-                              <span className="text-gray-400 italic">غير متوفر</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-col">
-                              <span className="font-medium">{service?.arabic_name || service?.service_name}</span>
-                              <span className="text-xs text-gray-500">{service?.category?.category_name}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {getStatusBadge(dispute.status)}
-                          </TableCell>
-                          <TableCell>
-                            {getResolutionBadge(dispute.resolution)}
-                          </TableCell>
-                          <TableCell className="text-gray-600">
-                            <div className="flex flex-col">
-                              <span>{new Date(dispute.created_at).toLocaleDateString("ar-EG")}</span>
-                              <span className="text-xs text-gray-400">{new Date(dispute.created_at).toLocaleTimeString("ar-EG")}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                asChild 
-                                className="border-red-300 text-red-600 hover:bg-red-50"
-                              >
-                                <Link to={`/dashboard/disputes/${order}`} className="flex items-center space-x-1">
-                                  <Eye className="h-4 w-4" />
-                                  <span>عرض</span>
-                                </Link>
-                              </Button>
-                              {dispute.status !== 'RESOLVED' && (
+                            </TableCell>
+                            <TableCell>
+                              {technician ? (
+                                <div className="flex flex-col">
+                                  <Link 
+                                    to={`/dashboard/profile/${technician.user_id || technician.id}`}
+                                    className="font-medium hover:text-blue-600 hover:underline"
+                                  >
+                                    {technician.first_name} {technician.last_name}
+                                  </Link>
+                                  <span className="text-xs text-gray-500">
+                                    {technician.user_type === 'client' ? 'عميل' : 
+                                     technician.user_type === 'technician' ? 'فني' : 
+                                     technician.user_type === 'admin' ? 'مشرف' : 
+                                     technician.user_type || 'غير محدد'}
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className="text-gray-400 italic">غير متوفر</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-col">
+                                <span className="font-medium">{service?.arabic_name || service?.service_name}</span>
+                                <span className="text-xs text-gray-500">{service?.category?.category_name}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {getStatusBadge(dispute.status)}
+                            </TableCell>
+                            <TableCell>
+                              {getResolutionBadge(dispute.resolution)}
+                            </TableCell>
+                            <TableCell className="text-gray-600">
+                              <div className="flex flex-col">
+                                <span>{new Date(dispute.created_at).toLocaleDateString("ar-EG")}</span>
+                                <span className="text-xs text-gray-400">{new Date(dispute.created_at).toLocaleTimeString("ar-EG")}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-2">
                                 <Button 
                                   size="sm" 
-                                  className="bg-red-600 hover:bg-red-700 text-white"
-                                  onClick={() => {
-                                    setSelectedDispute(dispute);
-                                    setShowQuickResolve(true);
-                                  }}
+                                  variant="outline" 
+                                  asChild 
+                                  className="border-red-300 text-red-600 hover:bg-red-50"
                                 >
-                                  <CheckCircle className="h-4 w-4 ml-1" />
-                                  <span>حل سريع</span>
+                                  <Link to={`/dashboard/disputes/${order}`} className="flex items-center space-x-1">
+                                    <Eye className="h-4 w-4" />
+                                    <span>عرض</span>
+                                  </Link>
                                 </Button>
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                                {dispute.status !== 'RESOLVED' && (
+                                  <Button 
+                                    size="sm" 
+                                    className="bg-red-600 hover:bg-red-700 text-white"
+                                    onClick={() => {
+                                      setSelectedDispute(dispute);
+                                      setShowQuickResolve(true);
+                                    }}
+                                  >
+                                    <CheckCircle className="h-4 w-4 ml-1" />
+                                    <span>حل سريع</span>
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                )}
               </div>
 
               {/* Pagination Controls */}

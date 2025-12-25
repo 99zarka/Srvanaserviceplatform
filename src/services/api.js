@@ -174,7 +174,18 @@ export const api = createApi({
 
     // Dispute endpoints
     getDisputes: builder.query({
-      query: () => '/disputes/disputes/',
+      query: (params = {}) => {
+        let url = '/disputes/disputes/';
+        if (params.page || params.page_size || params.search || params.status) {
+          const queryParams = [];
+          if (params.page) queryParams.push(`page=${params.page}`);
+          if (params.page_size) queryParams.push(`page_size=${params.page_size}`);
+          if (params.search) queryParams.push(`search=${encodeURIComponent(params.search)}`);
+          if (params.status) queryParams.push(`status=${params.status}`);
+          url += `?${queryParams.join('&')}`;
+        }
+        return url;
+      },
       providesTags: ['Dispute'],
     }),
 
