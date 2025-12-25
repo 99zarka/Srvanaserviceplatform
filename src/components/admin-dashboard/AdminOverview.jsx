@@ -5,7 +5,6 @@ import {
   Users, 
   Briefcase, 
   FileText, 
-  Settings, 
   TrendingUp, 
   UserCheck, 
   AlertCircle, 

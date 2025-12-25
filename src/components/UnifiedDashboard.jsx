@@ -11,7 +11,6 @@ import {
   Mail,
   LayoutDashboard,
   Users,
-  Settings,
   Shield,
   LogIn,
 } from "lucide-react";
@@ -38,7 +37,6 @@ import { AdminUsers } from "./admin-dashboard/AdminUsers";
 import { AdminServices } from "./admin-dashboard/AdminServices";
 import { AdminVerifications } from "./admin-dashboard/AdminVerifications";
 import { AdminReports } from "./admin-dashboard/AdminReports";
-import { AdminSettings } from "./admin-dashboard/AdminSettings";
 import { DisputeDetailPage } from "./DisputeDetailPage";
 
 export function UnifiedDashboard() {
@@ -90,7 +88,6 @@ export function UnifiedDashboard() {
     { icon: Shield, label: "طلبات التحقق", path: "/dashboard/verifications" },
     { icon: Briefcase, label: "الخدمات", path: "/dashboard/services" },
     { icon: FileText, label: "التقارير", path: "/dashboard/reports" },
-    { icon: Settings, label: "الإعدادات", path: "/dashboard/settings" },
   ];
 
   let sidebarItems = [];
@@ -193,7 +190,6 @@ export function UnifiedDashboard() {
           <Route path="verifications" element={<AdminVerifications />} />
           <Route path="services" element={<AdminServices />} />
           <Route path="reports" element={<AdminReports />} />
-          <Route path="settings" element={<AdminSettings />} />
         </Routes>
       </motion.div>
     </AnimatePresence>
