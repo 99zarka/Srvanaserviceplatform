@@ -365,15 +365,35 @@ export function AdminDisputesPage() {
                           </TableCell>
                           <TableCell>
                             <div className="flex flex-col">
-                              <span className="font-medium">{client?.first_name} {client?.last_name}</span>
-                              <span className="text-xs text-gray-500">{client?.user_type}</span>
+                              <Link 
+                                to={`/dashboard/profile/${client?.user_id || client?.id}`}
+                                className="font-medium hover:text-blue-600 hover:underline"
+                              >
+                                {client?.first_name} {client?.last_name}
+                              </Link>
+                              <span className="text-xs text-gray-500">
+                                {client?.user_type === 'client' ? 'عميل' : 
+                                 client?.user_type === 'technician' ? 'فني' : 
+                                 client?.user_type === 'admin' ? 'مشرف' : 
+                                 client?.user_type || 'غير محدد'}
+                              </span>
                             </div>
                           </TableCell>
                           <TableCell>
                             {technician ? (
                               <div className="flex flex-col">
-                                <span className="font-medium">{technician.first_name} {technician.last_name}</span>
-                                <span className="text-xs text-gray-500">{technician.user_type}</span>
+                                <Link 
+                                  to={`/dashboard/profile/${technician.user_id || technician.id}`}
+                                  className="font-medium hover:text-blue-600 hover:underline"
+                                >
+                                  {technician.first_name} {technician.last_name}
+                                </Link>
+                                <span className="text-xs text-gray-500">
+                                  {technician.user_type === 'client' ? 'عميل' : 
+                                   technician.user_type === 'technician' ? 'فني' : 
+                                   technician.user_type === 'admin' ? 'مشرف' : 
+                                   technician.user_type || 'غير محدد'}
+                                </span>
                               </div>
                             ) : (
                               <span className="text-gray-400 italic">غير متوفر</span>
@@ -398,14 +418,14 @@ export function AdminDisputesPage() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center justify-center space-x-2">
+                            <div className="flex items-center space-x-2">
                               <Button 
                                 size="sm" 
                                 variant="outline" 
                                 asChild 
                                 className="border-red-300 text-red-600 hover:bg-red-50"
                               >
-                                <Link to={`/dashboard/disputes/${order?.order_id}`} className="flex items-center space-x-1">
+                                <Link to={`/dashboard/disputes/${order}`} className="flex items-center space-x-1">
                                   <Eye className="h-4 w-4" />
                                   <span>عرض</span>
                                 </Link>
