@@ -155,7 +155,7 @@ const AIMessageBubble = ({ message, onEditProjectData, onPostProject, onDirectHi
           {enhancedResponse && (
             <div className="space-y-4">
               {/* Project Data Display */}
-              {enhancedResponse.project_data && (
+              {enhancedResponse.project_data && enhancedResponse.show_post_project &&(
                 <div className="border-t border-gray-200 pt-4">
                   <ProjectDataDisplay
                     projectData={enhancedResponse.project_data}
