@@ -2,16 +2,33 @@ import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserProfile, updateUserProfile, fetchPublicUserProfile, fetchUserById, clearError } from "../redux/authSlice";
-import { Card, CardContent } from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { toast } from "react-hot-toast";
 import { Link, useParams } from "react-router-dom";
-import { CircleUser, Edit, Save, X, Mail, Phone, MapPin, Info, User } from "lucide-react";
-
+import {
+  CircleUser,
+  Edit,
+  Save,
+  X,
+  Mail,
+  Phone,
+  MapPin,
+  Info,
+  User,
+  Star,
+  CheckCircle,
+  Wrench,
+  Clock,
+  Award,
+  Shield,
+  Loader2
+} from "lucide-react";
 
 import GovernorateSelect from './common/GovernorateSelect';
+import "../styles/animations.css";
 
 export function UserProfilePage() {
   const { userId } = useParams();
@@ -169,9 +186,37 @@ export function UserProfilePage() {
     return String(userType);
   };
 
+  // Loading state
+  if (!currentUserData && (isLoading || !isAuthenticated)) {
+    return (
+      <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl" dir="rtl">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+          <div>
+            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-2">
+              {isCurrentUser ? "ملفي الشخصي" : "ملف المستخدم"}
+            </h1>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              جاري تحميل البيانات...
+            </p>
+          </div>
+        </div>
+
+        <Card className="shadow-lg rounded-xl">
+          <CardContent className="p-6 sm:p-8">
+            <div className="flex flex-col items-center justify-center py-16">
+              <Loader2 className="h-16 w-16 animate-spin text-primary mb-4" />
+              <p className="text-xl text-gray-600 dark:text-gray-400">جاري تحميل بيانات الملف الشخصي...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl" dir="rtl">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+    <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl fade-in" dir="rtl">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
         <div>
           <h1 className="text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-2">
             {isCurrentUser ? "ملفي الشخصي" : "ملف المستخدم"}
@@ -183,7 +228,7 @@ export function UserProfilePage() {
         {(isCurrentUser || isAdmin) && !isEditing && (
           <Button
             onClick={() => setIsEditing(true)}
-            className="w-full sm:w-auto px-6 py-2 text-lg flex items-center space-x-2"
+            className="w-full sm:w-auto px-6 py-3 text-lg flex items-center space-x-2 hover-lift"
           >
             <Edit className="h-5 w-5" />
             <span>تعديل الملف الشخصي</span>
@@ -191,12 +236,99 @@ export function UserProfilePage() {
         )}
       </div>
 
-      <Card className="shadow-lg rounded-xl">
-        <CardContent className="p-6 sm:p-8">
-          {(isCurrentUser || isAdmin) && isEditing ? (
+      {/* Hero Section */}
+      <Card className="shadow-xl rounded-2xl mb-8 overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-0">
+        <CardContent className="p-8">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            {/* Profile Photo */}
+            <div className="relative group">
+              <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-primary shadow-2xl flex items-center justify-center bg-white dark:bg-gray-800">
+                {currentUserData?.profile_photo ? (
+                  <img
+                    src={currentUserData.profile_photo}
+                    alt="صورة الملف الشخصي"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <CircleUser className="w-full h-full text-gray-400 p-4" />
+                )}
+              </div>
+              {/* Verification Badge */}
+              {currentUserData?.verification_status === 'Verified' && (
+                <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-2 shadow-lg">
+                  <Shield className="h-5 w-5 text-white" />
+                </div>
+              )}
+            </div>
+
+            {/* User Info */}
+            <div className="flex-1 text-center md:text-right">
+              <div className="fade-in-up">
+                {currentUserData?.first_name && currentUserData?.last_name && (
+                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    {currentUserData.first_name} {currentUserData.last_name}
+                  </h2>
+                )}
+
+                <div className="flex items-center justify-center md:justify-end gap-2 mb-4">
+                  <p className="text-xl text-primary dark:text-primary-400 font-semibold">
+                    {currentUserData?.user_type ? (
+                      getUserTypeDisplay(currentUserData.user_type) === 'client' ? 'عميل' :
+                      getUserTypeDisplay(currentUserData.user_type) === 'technician' ? 'فني' :
+                      getUserTypeDisplay(currentUserData.user_type) === 'admin' ? 'مشرف' :
+                      getUserTypeDisplay(currentUserData.user_type)
+                    ) : 'مستخدم'}
+                  </p>
+                  {currentUserData?.verification_status === 'Verified' && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                      <CheckCircle className="h-4 w-4 mr-1" />
+                      موثق
+                    </span>
+                  )}
+                </div>
+
+                {/* Technician Stats */}
+                {currentUserData?.user_type && getUserTypeDisplay(currentUserData.user_type) === 'technician' && (
+                  <div className="grid grid-cols-3 gap-4 mt-6">
+                    <div className="text-center">
+                      <div className="flex items-center justify-center mb-1">
+                        <Star className="h-5 w-5 text-yellow-500 mr-1" />
+                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                          {currentUserData.overall_rating || '0.0'}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">التقييم</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                        {currentUserData.num_jobs_completed || 0}
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">أعمال مكتملة</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                        {currentUserData.experience_years || 0}
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">سنوات الخبرة</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Edit Form */}
+      {(isCurrentUser || isAdmin) && isEditing ? (
+        <Card className="shadow-lg rounded-xl">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">تعديل الملف الشخصي</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6 sm:p-8">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="flex flex-col items-center space-y-5 mb-6">
-                <div className="relative w-36 h-36 rounded-full overflow-hidden border-4 border-primary-500 shadow-md flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                <div className="relative w-36 h-36 rounded-full overflow-hidden border-4 border-primary shadow-md flex items-center justify-center bg-gray-100 dark:bg-gray-800">
                   {previewUrl || currentUserData?.profile_photo ? (
                     <img
                       src={previewUrl || currentUserData?.profile_photo}
@@ -204,7 +336,7 @@ export function UserProfilePage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <CircleUser className="w-full h-full text-gray-40 p-2" />
+                    <CircleUser className="w-full h-full text-gray-400 p-2" />
                   )}
                 </div>
                 <div className="text-center">
@@ -228,11 +360,11 @@ export function UserProfilePage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="first_name" className="text-base">الاسم الأول</Label>
+                  <Label htmlFor="first_name" className="text-base font-medium">الاسم الأول</Label>
                   <Input
                     id="first_name"
                     {...register("first_name", { required: "الاسم الأول مطلوب" })}
-                    className="mt-1 p-3 border rounded-md w-full focus:ring focus:ring-primary-200"
+                    className="mt-1 p-3 border rounded-lg w-full focus:ring-2 focus:ring-primary/50 transition-all"
                   />
                   {errors.first_name && (
                     <p className="text-red-500 text-sm mt-1">
@@ -241,11 +373,11 @@ export function UserProfilePage() {
                   )}
                 </div>
                 <div>
-                  <Label htmlFor="last_name" className="text-base">الاسم الأخير</Label>
+                  <Label htmlFor="last_name" className="text-base font-medium">الاسم الأخير</Label>
                   <Input
                     id="last_name"
                     {...register("last_name", { required: "الاسم الأخير مطلوب" })}
-                    className="mt-1 p-3 border rounded-md w-full focus:ring focus:ring-primary-200"
+                    className="mt-1 p-3 border rounded-lg w-full focus:ring-2 focus:ring-primary/50 transition-all"
                   />
                   {errors.last_name && (
                     <p className="text-red-500 text-sm mt-1">
@@ -256,7 +388,7 @@ export function UserProfilePage() {
               </div>
 
               <div>
-                <Label htmlFor="email" className="text-base">البريد الإلكتروني</Label>
+                <Label htmlFor="email" className="text-base font-medium">البريد الإلكتروني</Label>
                 <Input
                   id="email"
                   type="email"
@@ -267,7 +399,7 @@ export function UserProfilePage() {
                       message: "صيغة البريد الإلكتروني غير صحيحة",
                     },
                   })}
-                  className="mt-1 p-3 border rounded-md w-full focus:ring focus:ring-primary-200"
+                  className="mt-1 p-3 border rounded-lg w-full focus:ring-2 focus:ring-primary/50 transition-all"
                 />
                 {errors.email && (
                   <p className="text-red-500 text-sm mt-1">
@@ -277,7 +409,7 @@ export function UserProfilePage() {
               </div>
 
               <div>
-                <Label htmlFor="phone_number" className="text-base">رقم الهاتف</Label>
+                <Label htmlFor="phone_number" className="text-base font-medium">رقم الهاتف</Label>
                 <Input
                   id="phone_number"
                   {...register("phone_number", {
@@ -286,7 +418,7 @@ export function UserProfilePage() {
                       message: "رقم الهاتف يجب أن يحتوي على أرقام فقط",
                     },
                   })}
-                  className="mt-1 p-3 border rounded-md w-full focus:ring focus:ring-primary-200"
+                  className="mt-1 p-3 border rounded-lg w-full focus:ring-2 focus:ring-primary/50 transition-all"
                 />
                 {errors.phone_number && (
                   <p className="text-red-500 text-sm mt-1">
@@ -297,7 +429,7 @@ export function UserProfilePage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="governorate" className="text-base">المحافظة</Label>
+                  <Label htmlFor="governorate" className="text-base font-medium">المحافظة</Label>
                   <Controller
                     name="governorate"
                     control={control}
@@ -306,31 +438,39 @@ export function UserProfilePage() {
                         id="governorate"
                         value={field.value}
                         onChange={(e) => field.onChange(e.target.value)}
-                        className="mt-1 p-3 border rounded-md w-full focus:ring focus:ring-primary-200"
+                        className="mt-1 p-3 border rounded-lg w-full focus:ring-2 focus:ring-primary/50 transition-all"
                       />
                     )}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="detailed_address" className="text-base">العنوان التفصيلي</Label>
+                  <Label htmlFor="detailed_address" className="text-base font-medium">العنوان التفصيلي</Label>
                   <Input
                     id="detailed_address"
                     {...register("detailed_address")}
-                    className="mt-1 p-3 border rounded-md w-full focus:ring focus:ring-primary-200"
+                    className="mt-1 p-3 border rounded-lg w-full focus:ring-2 focus:ring-primary/50 transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="bio" className="text-base">نبذة عني</Label>
-                <Input id="bio" {...register("bio")} className="mt-1 p-3 border rounded-md w-full focus:ring focus:ring-primary-200" />
+                <Label htmlFor="bio" className="text-base font-medium">نبذة عني</Label>
+                <Input
+                  id="bio"
+                  {...register("bio")}
+                  className="mt-1 p-3 border rounded-lg w-full focus:ring-2 focus:ring-primary/50 transition-all"
+                />
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                <Button type="submit" disabled={isLoading} className="w-full sm:w-auto px-6 py-2 text-lg flex items-center space-x-2">
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full sm:w-auto px-8 py-3 text-lg flex items-center space-x-2 hover-lift"
+                >
                   {isLoading ? (
                     <>
-                      <Save className="h-5 w-5 animate-pulse" />
+                      <Loader2 className="h-5 w-5 animate-spin" />
                       <span>جاري الحفظ...</span>
                     </>
                   ) : (
@@ -344,115 +484,189 @@ export function UserProfilePage() {
                   type="button"
                   variant="outline"
                   onClick={() => setIsEditing(false)}
-                  className="w-full sm:w-auto px-6 py-2 text-lg flex items-center space-x-2"
+                  className="w-full sm:w-auto px-8 py-3 text-lg flex items-center space-x-2 hover-lift"
                 >
                   <X className="h-5 w-5" />
                   <span>إلغاء</span>
                 </Button>
               </div>
             </form>
-          ) : (
-            // View Mode
-            <div className="space-y-6">
-              <div className="flex flex-col items-center space-y-5 mb-8">
-                <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-primary shadow-lg flex items-center justify-center bg-gray-10 dark:bg-gray-800">
-                  {currentUserData?.profile_photo ? (
-                    <img
-                      src={currentUserData?.profile_photo}
-                      alt="صورة الملف الشخصي"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <CircleUser className="w-full h-full text-gray-400 p-2" />
-                  )}
-                </div>
-                {currentUserData?.first_name && currentUserData?.last_name && (
-                  <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mt-4">
-                    {currentUserData.first_name} {currentUserData.last_name}
-                  </h2>
-                )}
-                {currentUserData?.user_type && (
-                  <p className="text-xl text-primary dark:text-primary-400 font-semibold">
-                    {getUserTypeDisplay(currentUserData.user_type) === 'client' ? 'عميل' : getUserTypeDisplay(currentUserData.user_type) === 'technician' ? 'فني' : getUserTypeDisplay(currentUserData.user_type) === 'admin' ? 'مشرف' : getUserTypeDisplay(currentUserData.user_type)}
-                  </p>
-                )}
-              </div>
+          </CardContent>
+        </Card>
+      ) : (
+        /* View Mode */
+        <div className="space-y-6">
+          {/* Stats Cards for Technicians */}
+          {currentUserData?.user_type && getUserTypeDisplay(currentUserData.user_type) === 'technician' && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <Card className="shadow-lg hover-lift card-enter delay-100">
+                <CardContent className="p-6 text-center">
+                  <div className="flex items-center justify-center mb-3">
+                    <Star className="h-8 w-8 text-yellow-500" />
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    {currentUserData.overall_rating || '0.0'}
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400">متوسط التقييم</p>
+                </CardContent>
+              </Card>
 
-              {(isCurrentUser || isAdmin) && currentUserData?.email && (
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
-                    <Mail className="h-4 w-4" />
-                    <span>البريد الإلكتروني</span>
-                  </p>
-                  <p className="text-lg text-foreground font-medium">{currentUserData.email}</p>
-                </div>
-              )}
+              <Card className="shadow-lg hover-lift card-enter delay-200">
+                <CardContent className="p-6 text-center">
+                  <div className="flex items-center justify-center mb-3">
+                    <CheckCircle className="h-8 w-8 text-green-500" />
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    {currentUserData.num_jobs_completed || 0}
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400">أعمال مكتملة</p>
+                </CardContent>
+              </Card>
 
-              {(isCurrentUser || isAdmin) && currentUserData?.phone_number && (
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
-                    <Phone className="h-4 w-4" />
-                    <span>رقم الهاتف</span>
-                  </p>
-                  <p className="text-lg text-foreground font-medium">{currentUserData.phone_number}</p>
-                </div>
-              )}
-
-              {currentUserData?.address && (
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
-                    <MapPin className="h-4 w-4" />
-                    <span>العنوان</span>
-                  </p>
-                  <p className="text-lg text-foreground font-medium">{currentUserData.address}</p>
-                </div>
-              )}
-
-              {currentUserData?.bio && (
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
-                    <Info className="h-4 w-4" />
-                    <span>نبذة عني</span>
-                  </p>
-                  <p className="text-lg text-foreground font-medium">{currentUserData.bio}</p>
-                </div>
-              )}
-
-              {currentUserData?.user_type && (
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
-                    <User className="h-4 w-4" />
-                    <span>نوع المستخدم</span>
-                  </p>
-                  <p className="text-lg text-foreground font-medium">
-                    {getUserTypeDisplay(currentUserData.user_type) === 'client' ? 'عميل' : getUserTypeDisplay(currentUserData.user_type) === 'technician' ? 'فني' : getUserTypeDisplay(currentUserData.user_type) === 'admin' ? 'مشرف' : getUserTypeDisplay(currentUserData.user_type)}
-                  </p>
-                </div>
-              )}
-
-              {user && !isCurrentUser && (
-                <div className="mt-4">
-                  <Link to={`/dashboard/messages/${userId}`}>
-                    <Button className="w-full px-6 py-3 text-lg bg-blue-500 hover:bg-blue-600 text-white">
-                      إرسال رسالة
-                    </Button>
-                  </Link>
-                </div>
-              )}
-
-              {user && currentUserData?.user_type === 'technician' && !isCurrentUser && (
-                <div className="mt-4">
-                  <Link to={`/offer/${userId}`}>
-                    <Button className="w-full px-6 py-3 text-lg">
-                      تقديم عرض مباشر
-                    </Button>
-                  </Link>
-                </div>
-              )}
+              <Card className="shadow-lg hover-lift card-enter delay-300">
+                <CardContent className="p-6 text-center">
+                  <div className="flex items-center justify-center mb-3">
+                    <Award className="h-8 w-8 text-blue-500" />
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                    {currentUserData.experience_years || 0}
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400">سنوات الخبرة</p>
+                </CardContent>
+              </Card>
             </div>
           )}
-        </CardContent>
-      </Card>
+
+          {/* Information Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Personal Information */}
+            <Card className="shadow-lg hover-lift card-enter delay-400">
+              <CardHeader>
+                <CardTitle className="flex items-center text-xl">
+                  <User className="h-5 w-5 mr-2" />
+                  المعلومات الشخصية
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {(isCurrentUser || isAdmin) && currentUserData?.email && (
+                  <div className="flex items-center space-x-3 space-x-reverse">
+                    <Mail className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-gray-500">البريد الإلكتروني</p>
+                      <p className="font-medium">{currentUserData.email}</p>
+                    </div>
+                  </div>
+                )}
+
+                {(isCurrentUser || isAdmin) && currentUserData?.phone_number && (
+                  <div className="flex items-center space-x-3 space-x-reverse">
+                    <Phone className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-gray-500">رقم الهاتف</p>
+                      <p className="font-medium">{currentUserData.phone_number}</p>
+                    </div>
+                  </div>
+                )}
+
+                {currentUserData?.address && (
+                  <div className="flex items-center space-x-3 space-x-reverse">
+                    <MapPin className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-gray-500">العنوان</p>
+                      <p className="font-medium">{currentUserData.address}</p>
+                    </div>
+                  </div>
+                )}
+
+                {currentUserData?.bio && (
+                  <div className="flex items-center space-x-3 space-x-reverse">
+                    <Info className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-gray-500">نبذة عني</p>
+                      <p className="font-medium">{currentUserData.bio}</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Professional Information */}
+            {currentUserData?.user_type && getUserTypeDisplay(currentUserData.user_type) === 'technician' && (
+              <Card className="shadow-lg hover-lift card-enter delay-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-xl">
+                    <Wrench className="h-5 w-5 mr-2" />
+                    المعلومات المهنية
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {currentUserData?.specialization && (
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      <Wrench className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm text-gray-500">التخصص</p>
+                        <p className="font-medium">{currentUserData.specialization}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentUserData?.skills_text && (
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      <Award className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm text-gray-500">المهارات</p>
+                        <p className="font-medium">{currentUserData.skills_text}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentUserData?.hourly_rate && (
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      <Clock className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm text-gray-500">السعر بالساعة</p>
+                        <p className="font-medium">{currentUserData.hourly_rate} جنيه</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentUserData?.verification_status === 'Verified' && (
+                    <div className="flex items-center space-x-3 space-x-reverse">
+                      <Shield className="h-5 w-5 text-green-500 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm text-gray-500">حالة التوثيق</p>
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                          موثق
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 mt-8">
+            {user && !isCurrentUser && (
+              <Link to={`/dashboard/messages/${userId}`} className="flex-1">
+                <Button className="w-full px-6 py-3 text-lg bg-blue-500 hover:bg-blue-600 text-white hover-lift">
+                  إرسال رسالة
+                </Button>
+              </Link>
+            )}
+
+            {user && currentUserData?.user_type === 'technician' && !isCurrentUser && (
+              <Link to={`/offer/${userId}`} className="flex-1">
+                <Button className="w-full px-6 py-3 text-lg hover-lift">
+                  تقديم عرض مباشر
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
