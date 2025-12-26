@@ -87,10 +87,10 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b-2 shadow-md bg-white/95 border-primary/10 backdrop-blur-sm">
-      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8" dir="rtl">
-        <div className="flex items-center h-20 gap-4">
+      <div className="px-4 mx-auto max-w-7xl sm:px-6 md:px-3 lg:px-8" dir="rtl">
+        <div className="flex items-center flex-wrap h-20 gap-2">
           {/* Right Side: Logo + Home Link */}
-          <div className="flex items-center gap-6 shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
             <Link
               to="/"
               className="flex items-center cursor-pointer group"
@@ -107,13 +107,13 @@ export function Header() {
                 location.pathname === "/" ? "text-primary" : "text-neutral-700"
               }`}
             >
-              <span>الرئيسية</span>
+              <span></span>
               <Home className="w-5 h-5" />
             </Link>
           </div>
 
           {/* Center: Navigation Links */}
-          <nav className="items-center flex-1 hidden md:flex justify-evenly" dir="rtl">
+          <nav className="items-center flex-1 hidden md:flex justify-start gap-2" dir="rtl">
             {navItems.filter(item => item.path !== "/").map((item) => (
               item.isDropdown ? (
                 <DropdownMenu key={item.path}>
@@ -149,7 +149,7 @@ export function Header() {
                     location.pathname === item.path ? "text-primary" : "text-neutral-700"
                   }`}
                 >
-                  <span>{item.name}</span>
+                  <span className="md:text-xs lg:text-sm">{item.name}</span>
                   {item.icon && <item.icon className="w-5 h-5" />}
                 </Link>
               )
@@ -290,12 +290,13 @@ function AuthSection({ isMobile = false, closeMenu }) {
     return (
       <div className={`${isMobile ? "flex flex-col space-y-3" : "flex"} items-center gap-3`}>
         {/* Messages Link - First */}
-        <Link 
+        <Link
           to="/dashboard/messages"
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-300"
+          className="flex items-center gap-2 px-2 lg:px-3 py-2 text-sm font-medium text-neutral-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-300"
+          title="الرسائل"
         >
           <MessageSquare className="w-5 h-5" />
-          <span className="hidden sm:inline">الرسائل</span>
+          <span className="inline md:hidden lg:inline">الرسائل</span>
         </Link>
 
         {/* Notification Dropdown - Second */}
@@ -304,13 +305,14 @@ function AuthSection({ isMobile = false, closeMenu }) {
         {/* User Dropdown Menu - Third */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="flex items-center h-10 gap-2 px-3 font-medium transition-all duration-300 hover:bg-primary/5 hover:text-primary"
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center h-10 gap-2 px-2 lg:px-3 font-medium transition-all duration-300 hover:bg-primary/5 hover:text-primary"
+              title={user.first_name ? user.first_name.split(' ')[0] : user.username || "مستخدم"}
             >
               <CircleUser className="w-5 h-5" />
-              <span className="text-sm max-w-[100px] truncate">
+              <span className="text-sm max-w-[80px] lg:max-w-[100px] truncate">
                 {user.first_name ? user.first_name.split(' ')[0] : user.username || "مستخدم"}
               </span>
             </Button>
@@ -339,9 +341,10 @@ function AuthSection({ isMobile = false, closeMenu }) {
         {user.user_type?.user_type_name !== 'technician' && user.user_type?.user_type_name !== 'admin' && (
           <Button
             onClick={handleBecomeTechnician}
-            className="flex items-center gap-1 px-3 text-white h-9"
+            className="flex items-center gap-1 px-2 lg:px-3 text-white h-9"
             style={{ backgroundColor: '#243a5e' }}
             size="sm"
+            title="كن فنياً"
           >
             <Wrench className="w-4 h-4" />
             <span className="text-sm">كن فنياً</span>
