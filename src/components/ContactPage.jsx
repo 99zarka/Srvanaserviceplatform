@@ -7,6 +7,7 @@ import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
 import api from "../utils/api";
 import { toast } from "sonner";
+import { FaqSection } from "./FaqSection";
 
 export function ContactPage() {
   const [formData, setFormData] = useState({
@@ -336,29 +337,8 @@ export function ContactPage() {
         </div>
       </section>
 
-      {/* FAQ Teaser */}
-      <section className="py-24 bg-gradient-to-br from-neutral-100 to-white">
-        <div className="max-w-4xl px-4 mx-auto text-center sm:px-6 lg:px-8">
-          <div className="inline-flex items-center justify-center p-4 mb-6 bg-primary/10 rounded-2xl">
-            <HelpCircle className="w-12 h-12 text-primary" />
-          </div>
-          <h2 className="mb-4 text-4xl font-extrabold text-primary">
-            الأسئلة الشائعة
-          </h2>
-          <p className="max-w-2xl mx-auto mb-8 text-lg leading-relaxed text-neutral-600">
-            هل تبحث عن إجابات سريعة؟ تحقق من قسم الأسئلة الشائعة لدينا للأسئلة الشائعة
-            حول استخدام سرفانا، التسعير، وكيف تعمل منصتنا.
-          </p>
-          <Button 
-            variant="outline" 
-            size="lg" 
-            className="flex items-center gap-3 px-8 py-6 mx-auto text-lg font-semibold transition-all duration-300 border-2 shadow-md border-primary/30 hover:bg-primary/5 hover:border-primary text-primary hover:shadow-lg group"
-          >
-            <HelpCircle className="w-6 h-6 transition-transform group-hover:rotate-12" />
-            <span>عرض الأسئلة الشائعة</span>
-          </Button>
-        </div>
-      </section>
+      {/* FAQ Section */}
+      <FaqSection />
     </div>
   );
 }
