@@ -256,16 +256,19 @@ const ProjectDetail = () => {
                 <div className="space-y-4">
                   {/* Client Info */}
                   <div className="flex items-start gap-4 bg-gray-50 rounded-xl p-4 border-r-4 border-[#F4C430]">
-                    <User className="w-6 h-6 text-[#F4C430] flex-shrink-0 mt-1" />
-                    <div>
-                      <p className="text-sm font-bold text-gray-500 mb-1">العميل</p>
-                      <Link 
-                        to={`/profile/${selectedOrder.client_user?.user_id}`}
-                        className="text-lg font-semibold text-[#1A2B4C] hover:text-[#F4C430] transition-colors"
-                      >
-                        {selectedOrder.client_user?.first_name} {selectedOrder.client_user?.last_name}
-                      </Link>
-                    </div>
+                    <Link to={`/profile/${selectedOrder.client_user?.user_id}`} className="flex items-center space-x-4 rtl:space-x-reverse hover:underline">
+                      <img
+                        src={`${BASE_URL}/users/${selectedOrder.client_user?.user_id}/profile_photo/`}
+                        alt="Client Profile"
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                      <div className="ms-1">
+                        <p className="text-sm font-bold text-gray-500 mb-1">العميل</p>
+                        <p className="text-lg font-semibold text-[#1A2B4C]">
+                          {selectedOrder.client_user?.first_name} {selectedOrder.client_user?.last_name}
+                        </p>
+                      </div>
+                    </Link>
                   </div>
 
                   {/* Location */}
