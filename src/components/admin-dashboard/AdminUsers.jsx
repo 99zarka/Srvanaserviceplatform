@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
-import { Users, UserPlus, Edit, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, UserPlus, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { fetchUsersPaginated } from "../../redux/authSlice";
 
 export function AdminUsers() {
@@ -80,10 +81,6 @@ export function AdminUsers() {
           </h1>
           <p className="text-muted-foreground">إدارة جميع مستخدمي المنصة</p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center space-x-2">
-          <UserPlus className="h-5 w-5" />
-          <span>إضافة مستخدم جديد</span>
-        </Button>
       </div>
       <Card>
         <CardContent className="pt-6">
@@ -97,7 +94,7 @@ export function AdminUsers() {
                     <TableHead>الاسم</TableHead>
                     <TableHead>البريد الإلكتروني</TableHead>
                     <TableHead>النوع</TableHead>
-                    <TableHead>الحالة</TableHead>
+                    <TableHead>رقم الهاتف</TableHead>
                     <TableHead>تاريخ الانضمام</TableHead>
                     <TableHead>الإجراءات</TableHead>
                   </TableRow>
@@ -106,16 +103,25 @@ export function AdminUsers() {
                   {users.length > 0 ? (
                     users.map((user) => (
                       <TableRow key={user.user_id}>
-                        <TableCell>{`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.username || "غير متاح"}</TableCell>
+                        <TableCell>
+                          <Link
+                            to={`/profile/${user.user_id}`}
+                            className="text-secondary hover:underline"
+                          >
+                            {`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.username || "غير متاح"}
+                          </Link>
+                        </TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{getTypeBadge(user.user_type)}</TableCell>
-                        <TableCell>{getStatusBadge(user.account_status || (user.is_active ? "active" : "inactive"))}</TableCell>
+                        <TableCell>{user.phone_number || "غير متاح"}</TableCell>
                         <TableCell>{formatDate(user.registration_date)}</TableCell>
                         <TableCell>
-                          <Button variant="ghost" size="sm" className="flex items-center space-x-2">
-                            <Edit className="h-4 w-4" />
-                            <span>تعديل</span>
-                          </Button>
+                          <Link to={`/profile/${user.user_id}`}>
+                            <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                              <Eye className="h-4 w-4" />
+                              <span>عرض</span>
+                            </Button>
+                          </Link>
                         </TableCell>
                       </TableRow>
                     ))
@@ -130,7 +136,7 @@ export function AdminUsers() {
               </Table>
               <div className="flex justify-end items-center space-x-2 pt-4">
                 <Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={page === 1}>
-                  <ChevronRight className="h-4 w-4 mr-2 rtl:rotate-180" />
+                  <ChevronRight className="h-4 w-4 mr-2" />
                   <span>السابق</span>
                 </Button>
                 <span className="text-sm text-muted-foreground">
@@ -138,7 +144,7 @@ export function AdminUsers() {
                 </span>
                 <Button variant="outline" size="sm" onClick={handleNextPage} disabled={page === totalPages}>
                   <span>التالي</span>
-                  <ChevronLeft className="h-4 w-4 ml-2 rtl:rotate-180" />
+                  <ChevronLeft className="h-4 w-4 ml-2" />
                 </Button>
               </div>
             </>
