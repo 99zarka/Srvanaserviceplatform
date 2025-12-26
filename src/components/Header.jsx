@@ -1,4 +1,4 @@
-import { Menu, X, Home, Users, Briefcase, Mail, CircleUser, LogOut, LogIn, UserPlus, Bot, Shield, Wrench, CheckCircle, Clock, XCircle, Bell, Plus, MessageSquare } from "lucide-react";
+import { Menu, X, Home, Users, Briefcase, Mail, CircleUser, LogOut, LogIn, UserPlus, Bot, Shield, Wrench, CheckCircle, Clock, XCircle, Bell, Plus, MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom"; // Import useNavigate here
@@ -20,6 +20,7 @@ import SrvanaLogo from "/assets/srvana-logo.svg";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [expandedDropdowns, setExpandedDropdowns] = useState({});
   const location = useLocation();
 
   const authState = useSelector((state) => state.auth); // Access authState here
@@ -76,6 +77,13 @@ export function Header() {
       icon: Wrench
     });
   }
+
+  const toggleDropdown = (itemPath) => {
+    setExpandedDropdowns(prev => ({
+      ...prev,
+      [itemPath]: !prev[itemPath]
+    }));
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b-2 shadow-md bg-white/95 border-primary/10 backdrop-blur-sm">
@@ -170,19 +178,62 @@ export function Header() {
         {mobileMenuOpen && (
           <div className="py-6 border-t-2 md:hidden border-primary/10 bg-neutral-50 rounded-b-xl">
             <nav className="flex flex-col space-y-3">
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`text-start hover:text-primary hover:bg-white transition-all duration-300 flex items-center gap-3 px-4 py-3 rounded-lg font-medium ${
-                    location.pathname === item.path ? "text-primary bg-white shadow-sm" : "text-neutral-700"
-                  }`}
-                >
-                  {item.icon && <item.icon className="w-5 h-5" />}
-                  <span>{item.name}</span>
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                if (item.isDropdown) {
+                  const isExpanded = expandedDropdowns[item.path];
+                  return (
+                    <div key={item.path} className="flex flex-col">
+                      {/* Dropdown toggle button */}
+                      <button
+                        onClick={() => toggleDropdown(item.path)}
+                        className="flex items-center justify-between w-full px-4 py-3 text-start hover:text-primary hover:bg-white transition-all duration-300 rounded-lg font-medium text-neutral-700"
+                      >
+                        <div className="flex items-center gap-3">
+                          {item.icon && <item.icon className="w-5 h-5" />}
+                          <span>{item.name}</span>
+                        </div>
+                        {isExpanded ? (
+                          <ChevronUp className="w-4 h-4 text-neutral-500" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4 text-neutral-500" />
+                        )}
+                      </button>
+                      {/* Dropdown items */}
+                      {isExpanded && (
+                        <div className="flex flex-col space-y-1 mt-1 mr-4">
+                          {item.dropdownItems.map((dropdownItem) => (
+                            <Link
+                              key={dropdownItem.id || dropdownItem.path}
+                              to={dropdownItem.path}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className={`text-start hover:text-primary hover:bg-white transition-all duration-300 flex items-center gap-3 px-6 py-2 rounded-lg font-medium text-sm ${
+                                location.pathname === dropdownItem.path ? "text-primary bg-white shadow-sm" : "text-neutral-600"
+                              }`}
+                            >
+                              {dropdownItem.icon && <dropdownItem.icon className="w-4 h-4" />}
+                              <span>{dropdownItem.name}</span>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                } else {
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`text-start hover:text-primary hover:bg-white transition-all duration-300 flex items-center gap-3 px-4 py-3 rounded-lg font-medium ${
+                        location.pathname === item.path ? "text-primary bg-white shadow-sm" : "text-neutral-700"
+                      }`}
+                    >
+                      {item.icon && <item.icon className="w-5 h-5" />}
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                }
+              })}
               <div className="flex flex-col pt-4 mt-4 space-y-2 border-t-2 border-primary/10">
                 <AuthSection isMobile={true} closeMenu={() => setMobileMenuOpen(false)} />
               </div>
