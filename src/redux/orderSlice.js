@@ -228,9 +228,16 @@ export const respondToClientOffer = createAsyncThunk(
 // Get orders assigned to a technician
 export const getTechnicianOrders = createAsyncThunk(
   'orders/getTechnicianOrders',
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await api.get('/orders/worker-tasks/');
+      const page = params.page || 1;
+      const pageSize = params.pageSize || 10;
+      const orderStatus = params.orderStatus || '';
+      let url = `/orders/worker-tasks/?page=${page}&page_size=${pageSize}`;
+      if (orderStatus) {
+        url += `&order_status=${orderStatus}`;
+      }
+      const response = await api.get(url);
       return response; // Return the entire response (paginated object)
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -441,6 +448,14 @@ const orderSlice = createSlice({
       pageSize: 10
     },
     technicianOrders: [],
+    technicianOrdersPagination: {
+      count: 0,
+      next: null,
+      previous: null,
+      currentPage: 1,
+      totalPages: 1,
+      pageSize: 10
+    },
     technicianClientOffers: [], // New state to hold client-initiated offers for technicians
     technicianClientOffersPagination: {
       count: 0,
@@ -784,6 +799,17 @@ const orderSlice = createSlice({
       .addCase(getTechnicianOrders.fulfilled, (state, action) => {
         state.loading = false;
         state.technicianOrders = action.payload?.results || [];
+        // Update pagination state based on the action parameters and response
+        const page = action.meta.arg?.page || 1;
+        const pageSize = action.meta.arg?.pageSize || 10;
+        state.technicianOrdersPagination = {
+          count: action.payload?.count || 0,
+          next: action.payload?.next || null,
+          previous: action.payload?.previous || null,
+          currentPage: page,
+          totalPages: Math.ceil((action.payload?.count || 0) / pageSize),
+          pageSize: pageSize
+        };
       })
       .addCase(getTechnicianOrders.rejected, (state, action) => {
         state.loading = false;
