@@ -18,7 +18,8 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
-  Flag
+  Flag,
+  Shield
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
 import { Badge } from "../ui/badge";
@@ -92,29 +93,26 @@ export function AdminOverview() {
         ]);
 
         // Fetch recent users (e.g., last 4 registered)
-        const usersData = await api.get("/users/?limit=4&ordering=-date_joined", {
+        const usersData = await api.get("/users/users/?page_size=4&ordering=-date_joined", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const usersArray = usersData.results || [];
-        setRecentUsers(usersArray.map(user => ({
-          id: user.id,
-          name: `${user.first_name} ${user.last_name}`,
-          email: user.email,
-          type: user.role, // Assuming 'role' field exists
-          status: user.is_active ? "نشط" : "غير نشط",
-          joinDate: new Date(user.registration_date || user.date_joined).toLocaleDateString("ar-EG"),
-        })));
+        setRecentUsers(usersArray);
 
-        // Fetch pending worker approvals - using orders as a proxy for now
-        const pendingWorkersData = await api.get("/orders/?limit=3&ordering=-created_at", {
+        // Fetch recent orders
+        const ordersData = await api.get("/orders/?page_size=3&ordering=-creation_timestamp", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const ordersArray = pendingWorkersData.results || [];
+        const ordersArray = ordersData.results || [];
         setPendingApprovals(ordersArray.map(order => ({
-          id: order.id,
+          id: order.order_id,
+          clientId: order.client_user?.user_id,
           worker: `${order.client_user?.first_name || "غير معروف"} ${order.client_user?.last_name || "مستخدم"}`,
-          service: order.service?.name || "خدمة", 
-          submitted: new Date(order.creation_timestamp || order.created_at).toLocaleDateString("ar-EG"),
+          service: order.service?.arabic_name || order.service?.service_name || "خدمة غير محددة",
+          submitted: new Date(order.creation_timestamp).toLocaleDateString("ar-EG"),
+          status: order.order_status,
+          location: order.requested_location,
+          problem: order.problem_description
         })));
 
       } catch (err) {
@@ -141,17 +139,59 @@ export function AdminOverview() {
   };
 
   const getTypeBadge = (type) => {
-    const variants = {
-      "عميل": { className: "bg-blue-50 border-blue-300 text-blue-700 font-semibold", icon: Users },
-      "عامل": { className: "bg-primary/10 border-primary/30 text-primary font-semibold", icon: Briefcase },
-      "مسؤول": { className: "bg-danger/10 border-danger/30 text-danger font-semibold", icon: Shield },
-      "client": { className: "bg-blue-50 border-blue-300 text-blue-700 font-semibold", icon: Users },
-      "worker": { className: "bg-primary/10 border-primary/30 text-primary font-semibold", icon: Briefcase },
-      "admin": { className: "bg-danger/10 border-danger/30 text-danger font-semibold", icon: Shield },
+    // Backend returns 'technician', 'client', 'admin'
+    const typeMap = {
+      "technician": "فني",
+      "client": "عميل",
+      "admin": "مدير"
     };
-    const displayType = type === "worker" ? "عامل" : type === "client" ? "عميل" : type === "admin" ? "مسؤول" : type || "غير محدد";
-    const config = variants[displayType] || variants[type?.toLowerCase()] || { className: "bg-neutral-100 border-neutral-300 text-neutral-600 font-semibold" };
-    return <Badge variant="outline" className={config.className}>{displayType}</Badge>;
+    const displayType = typeMap[type] || "عميل";
+    return (
+      <Badge variant="outline" className={type === "technician" ? "border-primary text-primary" : type === "admin" ? "border-destructive text-destructive" : "border-secondary text-secondary"}>
+        {displayType}
+      </Badge>
+    );
+  };
+
+  const getOrderStatusBadge = (status) => {
+    const statusMap = {
+      "OPEN": "مفتوحة",
+      "PENDING": "معلقة",
+      "ACCEPTED": "مقبولة",
+      "IN_PROGRESS": "قيد التنفيذ",
+      "AWAITING_RELEASE": "بانتظار الإفراج",
+      "COMPLETED": "مكتملة",
+      "DISPUTED": "متنازع عليها",
+      "CANCELLED": "ملغاة",
+      "REFUNDED": "مستردة",
+      "AWAITING_TECHNICIAN_RESPONSE": "في انتظار رد الفني",
+      "AWAITING_CLIENT_ESCROW_CONFIRMATION": "بانتظار تأكيد العميل للدفع"
+    };
+    const displayStatus = statusMap[status] || status;
+    const colorClasses = {
+      "OPEN": "border-blue-300 text-blue-700 bg-blue-50",
+      "PENDING": "border-yellow-300 text-yellow-700 bg-yellow-50",
+      "ACCEPTED": "border-green-300 text-green-700 bg-green-50",
+      "IN_PROGRESS": "border-orange-300 text-orange-700 bg-orange-50",
+      "AWAITING_RELEASE": "border-cyan-300 text-cyan-700 bg-cyan-50",
+      "COMPLETED": "border-green-300 text-green-700 bg-green-50",
+      "DISPUTED": "border-purple-300 text-purple-700 bg-purple-50",
+      "CANCELLED": "border-red-300 text-red-700 bg-red-50",
+      "REFUNDED": "border-gray-300 text-gray-700 bg-gray-50",
+      "AWAITING_TECHNICIAN_RESPONSE": "border-amber-300 text-amber-700 bg-amber-50",
+      "AWAITING_CLIENT_ESCROW_CONFIRMATION": "border-cyan-300 text-cyan-700 bg-cyan-50"
+    };
+    return (
+      <Badge variant="outline" className={colorClasses[status] || "border-gray-300 text-gray-700 bg-gray-50"}>
+        {displayStatus}
+      </Badge>
+    );
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString("ar-EG", options);
   };
 
   if (loading) return (
@@ -235,12 +275,12 @@ export function AdminOverview() {
       {/* Pending Approvals Section */}
       <Card className="mb-8 border-0 shadow-lg">
         {/* Card Header with Accent */}
-        <div className="bg-gradient-to-r from-primary to-primary-600 p-6 rounded-t-xl">
+        <div className="bg-secondary p-6 rounded-t-xl">
           <CardHeader className="p-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                  <AlertCircle className="h-6 w-6 text-white" />
+                  <AlertCircle className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <CardTitle className="text-white text-2xl font-bold">الطلبات الحديثة</CardTitle>
@@ -248,21 +288,7 @@ export function AdminOverview() {
                     مراجعة وإدارة الطلبات الجديدة
                   </CardDescription>
                 </div>
-                <Badge className="bg-accent text-neutral-900 font-bold px-3 py-1 mr-3">
-                  {pendingApprovals.length}
-                </Badge>
               </div>
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                asChild 
-                className="bg-white hover:bg-neutral-100 text-primary font-semibold shadow-md"
-              >
-                <Link to="/dashboard/pending-approvals" className="flex items-center gap-2">
-                  <Eye className="h-4 w-4" />
-                  <span>عرض الكل</span>
-                </Link>
-              </Button>
             </div>
           </CardHeader>
         </div>
@@ -274,6 +300,7 @@ export function AdminOverview() {
                 <TableRow className="border-b-2 border-neutral-200">
                   <TableHead className="text-neutral-700 font-bold">اسم العميل</TableHead>
                   <TableHead className="text-neutral-700 font-bold">الخدمة</TableHead>
+                  <TableHead className="text-neutral-700 font-bold">الحالة</TableHead>
                   <TableHead className="text-neutral-700 font-bold">تم التقديم</TableHead>
                   <TableHead className="text-neutral-700 font-bold text-center">الإجراءات</TableHead>
                 </TableRow>
@@ -281,16 +308,28 @@ export function AdminOverview() {
               <TableBody>
                 {pendingApprovals.length > 0 ? (
                   pendingApprovals.map((approval) => (
-                    <TableRow 
-                      key={approval.id} 
+                    <TableRow
+                      key={approval.id}
                       className="hover:bg-neutral-50 transition-colors border-b border-neutral-100"
                     >
-                      <TableCell className="font-medium text-neutral-800">{approval.worker}</TableCell>
+                      <TableCell className="font-medium text-neutral-800">
+                        {approval.clientId ? (
+                          <Link
+                            to={`/profile/${approval.clientId}`}
+                            className="text-secondary hover:underline"
+                          >
+                            {approval.worker}
+                          </Link>
+                        ) : (
+                          approval.worker
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge variant="outline" className="border-primary/30 text-primary">
                           {approval.service}
                         </Badge>
                       </TableCell>
+                      <TableCell>{getOrderStatusBadge(approval.status)}</TableCell>
                       <TableCell className="text-neutral-600">
                         <div className="flex items-center gap-2">
                           <Clock className="h-4 w-4 text-neutral-400" />
@@ -299,22 +338,26 @@ export function AdminOverview() {
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-center gap-2">
-                          <Button 
-                            size="sm" 
-                            className="bg-success hover:bg-success/90 text-white shadow-sm"
-                          >
-                            <Check className="h-4 w-4 ml-1" />
-                            <span>مراجعة</span>
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            asChild 
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            asChild
                             className="border-primary/30 hover:bg-primary/5"
                           >
-                            <Link to={`/dashboard/orders/${approval.id}`} className="flex items-center gap-1">
+                            <Link to={`/dashboard/orders-offers/view/${approval.id}`} className="flex items-center gap-1">
+                              <Eye className="h-4 w-4" />
+                              <span>عرض</span>
+                            </Link>
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            asChild
+                            className="border-secondary/30 hover:bg-secondary/5"
+                          >
+                            <Link to={`/dashboard/orders-offers/edit/${approval.id}`} className="flex items-center gap-1">
                               <Search className="h-4 w-4" />
-                              <span>التفاصيل</span>
+                              <span>تعديل</span>
                             </Link>
                           </Button>
                         </div>
@@ -323,7 +366,7 @@ export function AdminOverview() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center py-12">
+                    <TableCell colSpan={5} className="text-center py-12">
                       <div className="flex flex-col items-center gap-3">
                         <div className="p-4 bg-neutral-100 rounded-full">
                           <FileText className="h-8 w-8 text-neutral-400" />
@@ -342,12 +385,12 @@ export function AdminOverview() {
       {/* Recent Users Section */}
       <Card className="border-0 shadow-lg">
         {/* Card Header with Accent */}
-        <div className="bg-gradient-to-r from-primary to-primary-600 p-6 rounded-t-xl">
+        <div className="bg-secondary p-6 rounded-t-xl">
           <CardHeader className="p-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                  <Users className="h-6 w-6 text-white" />
+                  <Users className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <CardTitle className="text-white text-2xl font-bold">تسجيلات المستخدمين الحديثة</CardTitle>
@@ -375,44 +418,45 @@ export function AdminOverview() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-b-2 border-neutral-200">
-                  <TableHead className="text-neutral-700 font-bold">الاسم</TableHead>
-                  <TableHead className="text-neutral-700 font-bold">البريد الإلكتروني</TableHead>
-                  <TableHead className="text-neutral-700 font-bold">النوع</TableHead>
-                  <TableHead className="text-neutral-700 font-bold">الحالة</TableHead>
-                  <TableHead className="text-neutral-700 font-bold">تاريخ الانضمام</TableHead>
+                <TableRow>
+                  <TableHead>الاسم</TableHead>
+                  <TableHead>البريد الإلكتروني</TableHead>
+                  <TableHead>النوع</TableHead>
+                  <TableHead>رقم الهاتف</TableHead>
+                  <TableHead>تاريخ الانضمام</TableHead>
+                  <TableHead>الإجراءات</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {recentUsers.length > 0 ? (
                   recentUsers.map((user) => (
-                    <TableRow 
-                      key={user.id}
-                      className="hover:bg-neutral-50 transition-colors border-b border-neutral-100"
-                    >
-                      <TableCell className="font-medium text-neutral-800">
-                        {user.name || `${user.first_name || ""} ${user.last_name || ""}`}
+                    <TableRow key={user.user_id}>
+                      <TableCell>
+                        <Link
+                          to={`/profile/${user.user_id}`}
+                          className="text-secondary hover:underline"
+                        >
+                          {`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.username || "غير متاح"}
+                        </Link>
                       </TableCell>
-                      <TableCell className="text-neutral-600">{user.email}</TableCell>
-                      <TableCell>{getTypeBadge(user.type)}</TableCell>
-                      <TableCell>{getStatusBadge(user.status)}</TableCell>
-                      <TableCell className="text-neutral-600">
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-neutral-400" />
-                          {user.joinDate}
-                        </div>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{getTypeBadge(user.user_type)}</TableCell>
+                      <TableCell>{user.phone_number || "غير متاح"}</TableCell>
+                      <TableCell>{formatDate(user.registration_date)}</TableCell>
+                      <TableCell>
+                        <Link to={`/profile/${user.user_id}`}>
+                          <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                            <Eye className="h-4 w-4" />
+                            <span>عرض</span>
+                          </Button>
+                        </Link>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-12">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="p-4 bg-neutral-100 rounded-full">
-                          <Users className="h-8 w-8 text-neutral-400" />
-                        </div>
-                        <p className="text-neutral-500 font-medium">لا توجد تسجيلات مستخدمين حديثة</p>
-                      </div>
+                    <TableCell colSpan={6} className="text-center">
+                      لا يوجد مستخدمون لعرضهم.
                     </TableCell>
                   </TableRow>
                 )}
