@@ -241,10 +241,18 @@ export const getTechnicianOrders = createAsyncThunk(
 // Get client-initiated offers for a specific technician
 export const getTechnicianClientOffers = createAsyncThunk(
   'orders/getTechnicianClientOffers',
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
       console.log("getTechnicianClientOffers thunk: Making API call...");
-      const data = await api.get('/orders/projectoffers/client-offers-for-technician/');
+      const page = params.page || 1;
+      let url = '/orders/projectoffers/client-offers-for-technician/';
+      
+      // Add pagination parameters if provided
+      if (page > 1) {
+        url += `?page=${page}`;
+      }
+      
+      const data = await api.get(url);
       console.log("getTechnicianClientOffers thunk: API response data:", data);
       return data;
     } catch (error) {
@@ -434,6 +442,13 @@ const orderSlice = createSlice({
     },
     technicianOrders: [],
     technicianClientOffers: [], // New state to hold client-initiated offers for technicians
+    technicianClientOffersPagination: {
+      count: 0,
+      next: null,
+      previous: null,
+      currentPage: 1,
+      totalPages: 1
+    },
     currentOrderOffers: [],
     technicians: [],
     selectedTechnician: null,
@@ -785,7 +800,27 @@ const orderSlice = createSlice({
       })
       .addCase(getTechnicianClientOffers.fulfilled, (state, action) => {
         state.loading = false;
-        state.technicianClientOffers = action.payload?.results || [];
+        const page = action.meta.arg?.page || 1;
+        
+        if (page === 1) {
+          // Initial load or refresh
+          state.technicianClientOffers = action.payload?.results || [];
+        } else {
+          // Load more - append to existing offers
+          const newOffers = action.payload?.results || [];
+          const existingOfferIds = new Set(state.technicianClientOffers.map(offer => offer.offer_id));
+          const uniqueNewOffers = newOffers.filter(offer => !existingOfferIds.has(offer.offer_id));
+          state.technicianClientOffers = [...state.technicianClientOffers, ...uniqueNewOffers];
+        }
+        
+        // Update pagination state
+        state.technicianClientOffersPagination = {
+          count: action.payload?.count || 0,
+          next: action.payload?.next || null,
+          previous: action.payload?.previous || null,
+          currentPage: page,
+          totalPages: Math.ceil((action.payload?.count || 0) / 10) // Using default page size of 10
+        };
       })
       .addCase(getTechnicianClientOffers.rejected, (state, action) => {
         state.loading = false;
@@ -833,6 +868,7 @@ const orderSlice = createSlice({
         console.log("respondToClientOffer.fulfilled: Full action.payload:", action.payload); // Add detailed logging here
 
         let updatedOfferData = action.payload?.offer; // Try to extract the nested offer object first
+        const orderStatus = action.payload?.order_status; // Extract order_status from response
 
         if (!updatedOfferData) {
           // If action.payload.offer is not found, assume offer_id and status are directly on action.payload
@@ -840,22 +876,32 @@ const orderSlice = createSlice({
         }
 
         // Defensive check for the offer data and its properties
-        if (!updatedOfferData || typeof updatedOfferData.offer_id === 'undefined' || typeof updatedOfferData.status === 'undefined') {
-          console.error("respondToClientOffer.fulfilled: Offer data is missing expected properties (offer_id, status)", action.payload);
+        if (!updatedOfferData || typeof updatedOfferData.offer_id === 'undefined') {
+          console.error("respondToClientOffer.fulfilled: Offer data is missing expected properties (offer_id)", action.payload);
           // If essential data is missing, we still want to proceed to avoid blocking,
           // but logging this error is crucial for debugging.
         } else {
-            state.technicianClientOffers = state.technicianClientOffers.map(offer =>
-              offer.offer_id === updatedOfferData.offer_id ? { ...offer, status: updatedOfferData.status } : offer
-            );
+          // Determine the new status based on order_status
+          let newStatus = updatedOfferData.status;
+          
+          // If order_status indicates acceptance, override the status to 'accepted'
+          if (orderStatus === 'AWAITING_CLIENT_ESCROW_CONFIRMATION') {
+            newStatus = 'accepted';
+          }
+          
+          // Update the offer status in technicianClientOffers
+          state.technicianClientOffers = state.technicianClientOffers.map(offer =>
+            offer.offer_id === updatedOfferData.offer_id ? { ...offer, status: newStatus } : offer
+          );
         }
+        
         // Also update the current viewing order if it's relevant and contains this offer
-        if (state.currentViewingOrder && action.payload?.order_status) { // Assuming order_status is returned
+        if (state.currentViewingOrder && action.payload?.order_status) {
           state.currentViewingOrder = {
             ...state.currentViewingOrder,
             order_status: action.payload.order_status, // Update order status
             project_offers: state.currentViewingOrder.project_offers?.map(pOffer =>
-              pOffer.offer_id === updatedOfferData.offer_id ? { ...pOffer, status: updatedOfferData.status } : pOffer
+              pOffer.offer_id === updatedOfferData.offer_id ? { ...pOffer, status: newStatus } : pOffer
             ) || []
           };
         }
