@@ -260,10 +260,43 @@ export const fetchPublicUserProfile = createAsyncThunk(
   }
 );
 
+// Async thunk to fetch a user by ID (for admin access)
+export const fetchUserById = createAsyncThunk(
+  "auth/fetchUserById",
+  async (userId, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+
+      if (!token) {
+        return rejectWithValue("No authentication token found.");
+      }
+
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data.detail || "Failed to fetch user.");
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue("Network error fetching user.");
+    }
+  }
+);
+
 // Async thunk to update user profile
 export const updateUserProfile = createAsyncThunk(
   "auth/updateUserProfile",
-  async ({ userData }, { getState, rejectWithValue }) => {
+  async ({ userData, userId }, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState();
       const token = auth.token;
@@ -298,7 +331,9 @@ export const updateUserProfile = createAsyncThunk(
         headers["Content-Type"] = contentType;
       }
 
-      const response = await fetch(`${API_BASE_URL}/users/me/`, {
+      const url = userId ? `${API_BASE_URL}/users/${userId}/` : `${API_BASE_URL}/users/me/`;
+
+      const response = await fetch(url, {
         method: "PATCH",
         headers: headers,
         body: bodyContent,
@@ -685,6 +720,19 @@ const authSlice = createSlice({
         // The ClientFinancials component will re-fetch payment methods upon success
       })
       .addCase(addPaymentMethod.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Fetch user by ID cases
+      .addCase(fetchUserById.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchUserById.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.error = null;
+      })
+      .addCase(fetchUserById.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })

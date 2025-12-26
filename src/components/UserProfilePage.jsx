@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserProfile, updateUserProfile, fetchPublicUserProfile, clearError } from "../redux/authSlice";
+import { fetchUserProfile, updateUserProfile, fetchPublicUserProfile, fetchUserById, clearError } from "../redux/authSlice";
 import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
@@ -19,6 +19,7 @@ export function UserProfilePage() {
   const { user, token, isLoading, error, isAuthenticated } = useSelector((state) => state.auth);
   const [publicUserData, setPublicUserData] = useState(null);
   const isCurrentUser = user?.user_id === parseInt(userId) || userId === 'me';
+  const isAdmin = user?.user_type === 'admin' || (user?.user_type?.user_type_id === 1);
   const [isEditing, setIsEditing] = useState(false);
 
   const currentUserData = isCurrentUser ? user : publicUserData;
@@ -53,14 +54,22 @@ export function UserProfilePage() {
           dispatch(fetchUserProfile());
         }
       } else {
-        dispatch(fetchPublicUserProfile(userId)).then((action) => {
-          if (fetchPublicUserProfile.fulfilled.match(action)) {
-            setPublicUserData(action.payload);
-          }
-        });
+        if (isAdmin) {
+          dispatch(fetchUserById(userId)).then((action) => {
+            if (fetchUserById.fulfilled.match(action)) {
+              setPublicUserData(action.payload);
+            }
+          });
+        } else {
+          dispatch(fetchPublicUserProfile(userId)).then((action) => {
+            if (fetchPublicUserProfile.fulfilled.match(action)) {
+              setPublicUserData(action.payload);
+            }
+          });
+        }
       }
     }
-  }, [dispatch, isAuthenticated, token, userId, isCurrentUser]);
+  }, [dispatch, isAuthenticated, token, userId, isCurrentUser, isAdmin]);
 
   useEffect(() => {
     const dataToSet = isCurrentUser ? user : publicUserData;
@@ -111,11 +120,11 @@ export function UserProfilePage() {
   }, [error, dispatch]);
 
   const onSubmit = async (data) => {
-    if (!isCurrentUser || !isEditing) return;
+    if (!(isCurrentUser || isAdmin) || !isEditing) return;
 
     const address = `${data.governorate}, ${data.detailed_address}`;
     const submitData = { ...data, address };
-    
+
     // remove governorate and detailed_address
     delete submitData.governorate;
     delete submitData.detailed_address;
@@ -139,8 +148,8 @@ export function UserProfilePage() {
       }
     }
 
-    const resultAction = await dispatch(updateUserProfile({ userData: submitData }));
-    
+    const resultAction = await dispatch(updateUserProfile({ userData: submitData, userId: isCurrentUser ? undefined : userId }));
+
     if (updateUserProfile.fulfilled.match(resultAction)) {
       toast.success("تم تحديث الملف الشخصي بنجاح!");
       setIsEditing(false);
@@ -171,7 +180,7 @@ export function UserProfilePage() {
             {isCurrentUser ? "عرض أو تحديث معلوماتك الشخصية" : "عرض معلومات المستخدم"}
           </p>
         </div>
-        {isCurrentUser && !isEditing && (
+        {(isCurrentUser || isAdmin) && !isEditing && (
           <Button
             onClick={() => setIsEditing(true)}
             className="w-full sm:w-auto px-6 py-2 text-lg flex items-center space-x-2"
@@ -184,7 +193,7 @@ export function UserProfilePage() {
 
       <Card className="shadow-lg rounded-xl">
         <CardContent className="p-6 sm:p-8">
-          {isCurrentUser && isEditing ? (
+          {(isCurrentUser || isAdmin) && isEditing ? (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="flex flex-col items-center space-y-5 mb-6">
                 <div className="relative w-36 h-36 rounded-full overflow-hidden border-4 border-primary-500 shadow-md flex items-center justify-center bg-gray-100 dark:bg-gray-800">
@@ -369,7 +378,7 @@ export function UserProfilePage() {
                 )}
               </div>
 
-              {isCurrentUser && currentUserData?.email && (
+              {(isCurrentUser || isAdmin) && currentUserData?.email && (
                 <div className="space-y-1">
                   <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
                     <Mail className="h-4 w-4" />
@@ -379,7 +388,7 @@ export function UserProfilePage() {
                 </div>
               )}
 
-              {isCurrentUser && currentUserData?.phone_number && (
+              {(isCurrentUser || isAdmin) && currentUserData?.phone_number && (
                 <div className="space-y-1">
                   <p className="text-sm font-semibold text-muted-foreground flex items-center space-x-2">
                     <Phone className="h-4 w-4" />
