@@ -186,7 +186,7 @@ export function AdminOverview() {
             <LayoutDashboard className="h-8 w-8 text-white" />
           </div>
           <div>
-            <h1 className="text-4xl font-extrabold text-primary">لوحة تحكم المسؤول</h1>
+            <h1 className="text-4xl font-extrabold text-secondary">لوحة تحكم المسؤول</h1>
             <p className="text-neutral-600 text-lg mt-1">مراقبة نشاط المنصة وإدارة العمليات</p>
           </div>
         </div>

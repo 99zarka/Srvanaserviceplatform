@@ -5,7 +5,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Users, UserPlus, Edit, ChevronLeft, ChevronRight } from "lucide-react";
-import { fetchPublicUsersPaginated } from "../../redux/authSlice";
+import { fetchUsersPaginated } from "../../redux/authSlice";
 
 export function AdminUsers() {
   const dispatch = useDispatch();
@@ -13,7 +13,7 @@ export function AdminUsers() {
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    dispatch(fetchPublicUsersPaginated({ page, pageSize: 10 })); // Assuming page size of 10 for admin view
+    dispatch(fetchUsersPaginated({ page, pageSize: 10 })); // Assuming page size of 10 for admin view
   }, [dispatch, page]);
 
   const handlePreviousPage = () => {

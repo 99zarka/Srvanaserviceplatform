@@ -317,7 +317,43 @@ export const updateUserProfile = createAsyncThunk(
   }
 );
 
-// Async thunk to fetch all users with pagination
+// Async thunk to fetch all users with pagination (authenticated)
+export const fetchUsersPaginated = createAsyncThunk(
+  "auth/fetchUsersPaginated",
+  async ({ page = 1, pageSize = 10 }, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const token = auth.token;
+
+      if (!token) {
+        return rejectWithValue("No authentication token found.");
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/users/users/?page=${page}&page_size=${pageSize}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data.detail || "Failed to fetch users.");
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue("Network error fetching users.");
+    }
+  }
+);
+
+// Async thunk to fetch all users with pagination (public - existing function)
 export const fetchPublicUsersPaginated = createAsyncThunk(
   "auth/fetchPublicUsersPaginated",
   async ({ page = 1, pageSize = 10 }, { rejectWithValue }) => {
