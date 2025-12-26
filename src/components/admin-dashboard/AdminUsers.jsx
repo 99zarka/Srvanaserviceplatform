@@ -50,10 +50,15 @@ export function AdminUsers() {
   };
 
   const getTypeBadge = (type) => {
-    // Assuming backend returns 'client' or 'worker'
-    const displayType = type === "worker" ? "عامل" : "عميل";
+    // Backend returns 'technician', 'client', 'admin'
+    const typeMap = {
+      "technician": "فني",
+      "client": "عميل",
+      "admin": "مدير"
+    };
+    const displayType = typeMap[type] || "عميل";
     return (
-      <Badge variant="outline" className={type === "worker" ? "border-primary text-primary" : "border-secondary text-secondary"}>
+      <Badge variant="outline" className={type === "technician" ? "border-primary text-primary" : type === "admin" ? "border-destructive text-destructive" : "border-secondary text-secondary"}>
         {displayType}
       </Badge>
     );
@@ -100,12 +105,12 @@ export function AdminUsers() {
                 <TableBody>
                   {users.length > 0 ? (
                     users.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>{user.full_name || user.username || "غير متاح"}</TableCell>
+                      <TableRow key={user.user_id}>
+                        <TableCell>{`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.username || "غير متاح"}</TableCell>
                         <TableCell>{user.email}</TableCell>
-                        <TableCell>{getTypeBadge(user.role)}</TableCell>
-                        <TableCell>{getStatusBadge(user.is_active ? "active" : "inactive")}</TableCell>
-                        <TableCell>{formatDate(user.date_joined)}</TableCell>
+                        <TableCell>{getTypeBadge(user.user_type)}</TableCell>
+                        <TableCell>{getStatusBadge(user.account_status || (user.is_active ? "active" : "inactive"))}</TableCell>
+                        <TableCell>{formatDate(user.registration_date)}</TableCell>
                         <TableCell>
                           <Button variant="ghost" size="sm" className="flex items-center space-x-2">
                             <Edit className="h-4 w-4" />

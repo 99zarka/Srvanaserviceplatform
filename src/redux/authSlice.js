@@ -687,6 +687,25 @@ const authSlice = createSlice({
       .addCase(addPaymentMethod.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+      })
+      // Fetch users paginated cases
+      .addCase(fetchUsersPaginated.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchUsersPaginated.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.users = action.payload.results || [];
+        state.currentPage = action.meta.arg.page || 1;
+        const count = action.payload.count || 0;
+        const pageSize = action.meta.arg.pageSize || initialState.page_size;
+        state.totalPages = Math.ceil(count / pageSize) || 1;
+        state.totalUsers = count;
+        state.error = null;
+      })
+      .addCase(fetchUsersPaginated.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
       });
   },
 });
