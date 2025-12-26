@@ -1,4 +1,4 @@
-import { Menu, X, Home, Users, Briefcase, Mail, CircleUser, LogOut, LogIn, UserPlus, Bot, Shield, Wrench, CheckCircle, Clock, XCircle, Bell, Plus } from "lucide-react";
+import { Menu, X, Home, Users, Briefcase, Mail, CircleUser, LogOut, LogIn, UserPlus, Bot, Shield, Wrench, CheckCircle, Clock, XCircle, Bell, Plus, MessageSquare } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom"; // Import useNavigate here
@@ -238,10 +238,19 @@ function AuthSection({ isMobile = false, closeMenu }) {
   if (isAuthenticated && user) {
     return (
       <div className={`${isMobile ? "flex flex-col space-y-3" : "flex"} items-center gap-3`}>
-        {/* Notification Dropdown - First */}
+        {/* Messages Link - First */}
+        <Link 
+          to="/dashboard/messages"
+          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-neutral-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-300"
+        >
+          <MessageSquare className="w-5 h-5" />
+          <span className="hidden sm:inline">الرسائل</span>
+        </Link>
+
+        {/* Notification Dropdown - Second */}
         <NotificationDropdown isMobile={isMobile} closeMenu={closeMenu} />
 
-        {/* User Dropdown Menu - Second */}
+        {/* User Dropdown Menu - Third */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
