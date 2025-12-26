@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserProfile, updateUserProfile, fetchPublicUserProfile, fetchUserById, clearError } from "../redux/authSlice";
@@ -24,10 +24,15 @@ import {
   Clock,
   Award,
   Shield,
-  Loader2
+  Loader2,
+  Plus,
+  X as XIcon
 } from "lucide-react";
 
 import GovernorateSelect from './common/GovernorateSelect';
+import { useGetServicesQuery } from "../services/api";
+import { Skeleton } from "./ui/skeleton";
+import { useOnClickOutside } from "../hooks/useOnClickOutside";
 import "../styles/animations.css";
 
 export function UserProfilePage() {
@@ -38,6 +43,13 @@ export function UserProfilePage() {
   const isCurrentUser = user?.user_id === parseInt(userId) || userId === 'me';
   const isAdmin = user?.user_type === 'admin' || (user?.user_type?.user_type_id === 1);
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedSpecializations, setSelectedSpecializations] = useState([]);
+  const [showServiceDropdown, setShowServiceDropdown] = useState(false);
+  const specializationRef = useRef(null);
+
+  useOnClickOutside(specializationRef, () => setShowServiceDropdown(false));
+
+  const { data: servicesData, isLoading: loadingServices } = useGetServicesQuery({ page_size: 100 });
 
   const currentUserData = isCurrentUser ? user : publicUserData;
 
@@ -57,6 +69,10 @@ export function UserProfilePage() {
       governorate: "",
       detailed_address: "",
       bio: "",
+      specialization: "",
+      skills_text: "",
+      hourly_rate: "",
+      experience_years: "",
       profile_photo: null
     }
   });
@@ -93,7 +109,7 @@ export function UserProfilePage() {
 
     if (dataToSet) {
       const [governorate, detailed_address] = dataToSet.address ? dataToSet.address.split(',').map(s => s.trim()) : ["", ""];
-      
+
       setValue("first_name", dataToSet.first_name || "");
       setValue("last_name", dataToSet.last_name || "");
       setValue("email", dataToSet.email || "");
@@ -101,7 +117,20 @@ export function UserProfilePage() {
       setValue("governorate", governorate || "");
       setValue("detailed_address", detailed_address || "");
       setValue("bio", dataToSet.bio || "");
+      setValue("specialization", dataToSet.specialization || "");
+      setValue("skills_text", dataToSet.skills_text || "");
+      setValue("hourly_rate", dataToSet.hourly_rate || "");
+      setValue("experience_years", dataToSet.experience_years || "");
       setPreviewUrl(dataToSet.profile_photo || null);
+
+      // Initialize selected specializations from existing data
+      if (dataToSet.specialization && getUserTypeDisplay(dataToSet.user_type) === 'technician') {
+        const specs = dataToSet.specialization.split(',').map(s => s.trim()).filter(s => s);
+        // Note: We can't map back to service IDs without the full service data
+        // For now, we'll just store the names and handle this in the UI
+        setSelectedSpecializations(specs.map(name => ({ id: name, name })));
+      }
+
       setIsEditing(false);
     } else {
       setValue("first_name", "");
@@ -111,7 +140,12 @@ export function UserProfilePage() {
       setValue("governorate", "");
       setValue("detailed_address", "");
       setValue("bio", "");
+      setValue("specialization", "");
+      setValue("skills_text", "");
+      setValue("hourly_rate", "");
+      setValue("experience_years", "");
       setPreviewUrl(null);
+      setSelectedSpecializations([]);
       setIsEditing(false);
     }
   }, [currentUserData, setValue, publicUserData, user, isCurrentUser]);
@@ -141,6 +175,11 @@ export function UserProfilePage() {
 
     const address = `${data.governorate}, ${data.detailed_address}`;
     const submitData = { ...data, address };
+
+    // Set specializations from selectedSpecializations
+    if (currentUserData?.user_type && getUserTypeDisplay(currentUserData.user_type) === 'technician' && selectedSpecializations.length > 0) {
+      submitData.specialization = selectedSpecializations.map(spec => spec.name).join(', ');
+    }
 
     // remove governorate and detailed_address
     delete submitData.governorate;
@@ -173,6 +212,19 @@ export function UserProfilePage() {
     } else {
       toast.error("فشل تحديث الملف الشخصي.");
     }
+  };
+
+  const handleServiceSelect = (service) => {
+    const arabicName = service.arabic_name || service.service_name;
+    if (!selectedSpecializations.some((spec) => spec.id === service.service_id)) {
+      setSelectedSpecializations((prev) => [...prev, { id: service.service_id, name: arabicName }]);
+    } else {
+      removeSpecialization(service.service_id);
+    }
+  };
+
+  const removeSpecialization = (id) => {
+    setSelectedSpecializations((prev) => prev.filter((spec) => spec.id !== id));
   };
 
   const getUserTypeDisplay = (userType) => {
@@ -461,6 +513,117 @@ export function UserProfilePage() {
                   className="mt-1 p-3 border rounded-lg w-full focus:ring-2 focus:ring-primary/50 transition-all"
                 />
               </div>
+
+              {/* Technician-specific fields */}
+              {currentUserData?.user_type && getUserTypeDisplay(currentUserData.user_type) === 'technician' && (
+                <>
+                  <div className="border-t pt-6 mt-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">المعلومات المهنية</h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div ref={specializationRef}>
+                        <Label htmlFor="specialization">التخصص *</Label>
+                        <div className="relative">
+                          <div className="min-h-10 p-2 border rounded-md bg-background mb-2 flex flex-wrap gap-2">
+                            {selectedSpecializations.length === 0 ? (
+                              <span className="text-muted-foreground text-sm">اختر تخصصًا أو أكثر</span>
+                            ) : (
+                              selectedSpecializations.map((spec) => (
+                                <div key={spec.id} className="flex items-center gap-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-full text-sm">
+                                  <span>{spec.name}</span>
+                                  <button type="button" onClick={() => removeSpecialization(spec.id)} className="hover:bg-muted rounded-full p-0.5">
+                                    <XIcon className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                          <Button type="button" onClick={() => setShowServiceDropdown(!showServiceDropdown)} className="w-full justify-between" variant="outline">
+                            <span>{showServiceDropdown ? "إغلاق" : "عرض التخصصات"}</span>
+                            <Plus className={`w-4 h-4 transition-transform ${showServiceDropdown ? 'rotate-45' : ''}`} />
+                          </Button>
+                          {showServiceDropdown && (
+                            <div className="absolute z-10 w-full mt-1 bg-popover border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                              {loadingServices ? (
+                                <div className="p-4 space-y-2">
+                                  <Skeleton className="h-4 w-3/4" />
+                                  <Skeleton className="h-4 w-1/2" />
+                                  <Skeleton className="h-4 w-2/3" />
+                                </div>
+                              ) : (
+                                (servicesData?.results || []).map((service) => (
+                                  <label key={service.service_id} className="flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-accent">
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedSpecializations.some(spec => spec.id === service.service_id)}
+                                      onChange={() => handleServiceSelect(service)}
+                                      className="w-4 h-4"
+                                    />
+                                    <span>{service.arabic_name || service.service_name}</span>
+                                  </label>
+                                ))
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="hourly_rate" className="text-base font-medium">السعر بالساعة (جنيه)</Label>
+                        <Input
+                          id="hourly_rate"
+                          type="number"
+                          {...register("hourly_rate", {
+                            min: {
+                              value: 0,
+                              message: "السعر يجب أن يكون رقماً موجباً",
+                            },
+                          })}
+                          placeholder="مثال: 50"
+                          className="mt-1 p-3 border rounded-lg w-full focus:ring-2 focus:ring-primary/50 transition-all"
+                        />
+                        {errors.hourly_rate && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.hourly_rate.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                      <div>
+                        <Label htmlFor="experience_years" className="text-base font-medium">سنوات الخبرة</Label>
+                        <Input
+                          id="experience_years"
+                          type="number"
+                          {...register("experience_years", {
+                            min: {
+                              value: 0,
+                              message: "سنوات الخبرة يجب أن تكون رقماً موجباً",
+                            },
+                          })}
+                          placeholder="مثال: 3"
+                          className="mt-1 p-3 border rounded-lg w-full focus:ring-2 focus:ring-primary/50 transition-all"
+                        />
+                        {errors.experience_years && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.experience_years.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-6">
+                      <Label htmlFor="skills_text" className="text-base font-medium">المهارات</Label>
+                      <Input
+                        id="skills_text"
+                        {...register("skills_text")}
+                        placeholder="مثال: إصلاح الأجهزة الإلكترونية، الصيانة المنزلية، التركيب الكهربائي"
+                        className="mt-1 p-3 border rounded-lg w-full focus:ring-2 focus:ring-primary/50 transition-all"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div className="flex flex-col sm:flex-row gap-4 mt-8">
                 <Button
