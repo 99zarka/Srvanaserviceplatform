@@ -351,7 +351,13 @@ function NotificationDropdown({ isMobile, closeMenu }) {
     setOpen(false); // Close dropdown after clicking a notification
     if (isMobile && closeMenu) closeMenu();
 
-    // Handle navigation based on notification type and related entities
+    // Use the frontend_url from the API response if available
+    if (notification.frontend_url) {
+      navigate(notification.frontend_url);
+      return;
+    }
+
+    // Fallback navigation logic based on notification type and related entities
     if (notification.related_order) {
       // Example: Navigate to a client's order detail page
       if (notification.notification_type === 'order_created' || notification.notification_type === 'offer_accepted' || notification.notification_type === 'client_offer_accepted') {
