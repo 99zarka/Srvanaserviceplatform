@@ -106,10 +106,21 @@ const OrderCard = ({
     order.order_status === 'ACCEPTED' ||
     loading;
 
-  const acceptOfferButtonText = 
+  const acceptOfferButtonText =
     (order.order_status === 'ACCEPTED' || (order.associated_offer && order.associated_offer.status === 'accepted'))
-      ? 'تم التأكيد' 
+      ? 'تم التأكيد'
       : 'تأكيد وتمويل الضمان';
+
+  const getTechnicianFromOffers = () => {
+    if (order.associated_offer?.technician_user) {
+      return order.associated_offer.technician_user;
+    }
+    if (order.project_offers && order.technician_user) {
+      const offer = order.project_offers.find(offer => offer.technician_user?.user_id === order.technician_user);
+      return offer?.technician_user;
+    }
+    return null;
+  };
 
   return (
     <Card className={`transition-all duration-300 ${
@@ -143,15 +154,15 @@ const OrderCard = ({
                 <Clock className="h-4 w-4" />
                 {order.scheduled_time_start} - {order.scheduled_time_end}
               </div>
-              {(order.technician_user || order.associated_offer?.technician_user) && (
+              {getTechnicianFromOffers() && (
                 <div className="flex items-center gap-1">
                   <User className="h-4 w-4" />
-                  تم التعيين لـ 
-                  <Link 
-                    to={`/profile/${order.associated_offer?.technician_user?.user_id || order.technician_user}`}
+                  تم التعيين لـ
+                  <Link
+                    to={`/profile/${getTechnicianFromOffers().user_id}`}
                     className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
                   >
-                    {order.associated_offer?.technician_user?.first_name || order.technician_user?.first_name || 'فني'} {order.associated_offer?.technician_user?.last_name || order.technician_user?.last_name || ''}
+                    {getTechnicianFromOffers().first_name || 'فني'} {getTechnicianFromOffers().last_name || ''}
                   </Link>
                 </div>
               )}
@@ -274,11 +285,11 @@ const OrderCard = ({
                 </Button>
               </>
             )}
-            {order.order_status === 'COMPLETED' && (order.technician_user || order.associated_offer?.technician_user) && !order.review_rating && !order.review_comment && (
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                onClick={() => onSubmitReview(order.order_id, order.associated_offer?.technician_user?.user_id || order.technician_user)}
+            {order.order_status === 'COMPLETED' && getTechnicianFromOffers() && !order.review_rating && !order.review_comment && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => onSubmitReview(order.order_id, getTechnicianFromOffers().user_id)}
                 disabled={loading}
               >
                 كتابة مراجعة
