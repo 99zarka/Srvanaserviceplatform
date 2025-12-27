@@ -22,7 +22,7 @@ export const getClientOrders = createAsyncThunk(
       const page = params.page || 1;
       const pageSize = params.pageSize || 10;
       const orderStatus = params.orderStatus || '';
-      let url = `/orders/?page=${page}&page_size=${pageSize}`;
+      let url = `/orders/?page=${page}&page_size=${pageSize}&me=true`;
       if (orderStatus) {
         url += `&order_status=${orderStatus}`;
       }
