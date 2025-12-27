@@ -85,6 +85,20 @@ export function Header() {
     }));
   };
 
+  // Disable body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <header className="sticky top-0 z-50 border-b-2 shadow-md bg-white/95 border-primary/10 backdrop-blur-sm">
       <div className="px-4 mx-auto max-w-7xl sm:px-6 md:px-3 lg:px-8" dir="rtl">
@@ -177,7 +191,7 @@ export function Header() {
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <div className="py-6 border-t-2 md:hidden border-primary/10 bg-neutral-50 rounded-b-xl">
-            <nav className="flex flex-col space-y-3">
+            <nav className="flex flex-col space-y-3 max-h-[80vh] overflow-y-auto">
               {navItems.map((item) => {
                 if (item.isDropdown) {
                   const isExpanded = expandedDropdowns[item.path];
