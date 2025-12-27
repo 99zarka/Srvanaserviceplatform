@@ -125,7 +125,7 @@ export function ContactPage() {
     <div className="min-h-screen bg-neutral-50" dir="rtl">
       {/* Hero Section */}
       <section className="relative py-24 overflow-hidden text-white" style={{ background: 'linear-gradient(to right, #243a5e, #1A2B4C, #2d4a6e)' }}>
-        <div className="absolute inset-0 bg-[url('/assets/pattern.svg')] opacity-5"></div>
+        <div className="absolute inset-0 opacity-5"></div>
         <div className="relative z-10 px-4 mx-auto text-center max-w-7xl sm:px-6 lg:px-8">
           <div className="inline-flex items-center justify-center p-4 mb-6 bg-white/10 backdrop-blur-sm rounded-2xl">
             <PhoneCall className="w-12 h-12 text-accent" />
