@@ -378,7 +378,7 @@ const ViewOrderPage = () => {
           )}
 
           {/* Expandable Offers Section */}
-          {projectOffers.length > 0 && currentViewingOrder.order_type === 'service_request' && (
+          {projectOffers.length > 0 && (
             <div className="space-y-4">
               <div
                 className="flex items-center justify-between cursor-pointer p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 hover:shadow-md transition-all duration-300"
