@@ -34,6 +34,7 @@ import { WorkerTaskDetails } from "./worker-dashboard/WorkerTaskDetails";
 import { WorkerDisputes } from "./worker-dashboard/WorkerDisputes";
 import { AdminOverview } from "./admin-dashboard/AdminOverview";
 import { AdminUsers } from "./admin-dashboard/AdminUsers";
+import { AdminOrders } from "./admin-dashboard/AdminOrders";
 import { AdminServices } from "./admin-dashboard/AdminServices";
 import { AdminVerifications } from "./admin-dashboard/AdminVerifications";
 import { AdminReports } from "./admin-dashboard/AdminReports";
@@ -86,6 +87,7 @@ export function UnifiedDashboard() {
   const adminTools = [
     { icon: LayoutDashboard, label: "نظرة عامة", path: "/dashboard/admin-overview" },
     { icon: Users, label: "المستخدمون", path: "/dashboard/users" },
+    { icon: FileText, label: "المشاريع", path: "/dashboard/orders" },
     { icon: Shield, label: "طلبات التحقق", path: "/dashboard/verifications" },
     { icon: Briefcase, label: "الخدمات", path: "/dashboard/services" },
     { icon: FileText, label: "التقارير", path: "/dashboard/reports" },
@@ -189,6 +191,7 @@ export function UnifiedDashboard() {
           {/* Admin Routes */}
           <Route path="admin-overview" element={<AdminOverview />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="orders" element={<AdminOrders />} />
           <Route path="verifications" element={<AdminVerifications />} />
           <Route path="services" element={<AdminServices />} />
           <Route path="reports" element={<AdminReports />} />

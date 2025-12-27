@@ -245,6 +245,26 @@ export const getTechnicianOrders = createAsyncThunk(
   }
 );
 
+// Get all orders for admin
+export const getAdminOrders = createAsyncThunk(
+  'orders/getAdminOrders',
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const page = params.page || 1;
+      const pageSize = params.pageSize || 10;
+      const orderStatus = params.orderStatus || '';
+      let url = `/orders/?page=${page}&page_size=${pageSize}`;
+      if (orderStatus) {
+        url += `&order_status=${orderStatus}`;
+      }
+      const response = await api.get(url);
+      return response; // Return the entire response object as `action.payload`
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 // Get client-initiated offers for a specific technician
 export const getTechnicianClientOffers = createAsyncThunk(
   'orders/getTechnicianClientOffers',
@@ -253,12 +273,12 @@ export const getTechnicianClientOffers = createAsyncThunk(
       console.log("getTechnicianClientOffers thunk: Making API call...");
       const page = params.page || 1;
       let url = '/orders/projectoffers/client-offers-for-technician/';
-      
+
       // Add pagination parameters if provided
       if (page > 1) {
         url += `?page=${page}`;
       }
-      
+
       const data = await api.get(url);
       console.log("getTechnicianClientOffers thunk: API response data:", data);
       return data;
@@ -449,6 +469,15 @@ const orderSlice = createSlice({
     },
     technicianOrders: [],
     technicianOrdersPagination: {
+      count: 0,
+      next: null,
+      previous: null,
+      currentPage: 1,
+      totalPages: 1,
+      pageSize: 10
+    },
+    adminOrders: [],
+    adminOrdersPagination: {
       count: 0,
       next: null,
       previous: null,
@@ -816,6 +845,34 @@ const orderSlice = createSlice({
         const errorMessage = typeof action.payload === 'object' && action.payload?.message
                              ? String(action.payload.message)
                              : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch technician orders.');
+        state.error = { message: errorMessage };
+      })
+
+      // Get admin orders
+      .addCase(getAdminOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAdminOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.adminOrders = action.payload?.results || [];
+        // Update pagination state based on the action parameters and response
+        const page = action.meta.arg?.page || 1;
+        const pageSize = action.meta.arg?.pageSize || 10;
+        state.adminOrdersPagination = {
+          count: action.payload?.count || 0,
+          next: action.payload?.next || null,
+          previous: action.payload?.previous || null,
+          currentPage: page,
+          totalPages: Math.ceil((action.payload?.count || 0) / pageSize),
+          pageSize: pageSize
+        };
+      })
+      .addCase(getAdminOrders.rejected, (state, action) => {
+        state.loading = false;
+        const errorMessage = typeof action.payload === 'object' && action.payload?.message
+                             ? String(action.payload.message)
+                             : (typeof action.payload === 'string' ? action.payload : 'Failed to fetch admin orders.');
         state.error = { message: errorMessage };
       })
 

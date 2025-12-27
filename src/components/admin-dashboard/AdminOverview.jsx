@@ -289,6 +289,17 @@ export function AdminOverview() {
                   </CardDescription>
                 </div>
               </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                asChild
+                className="bg-white hover:bg-neutral-100 text-primary font-semibold shadow-md"
+              >
+                <Link to="/dashboard/orders" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  <span>عرض جميع المشاريع</span>
+                </Link>
+              </Button>
             </div>
           </CardHeader>
         </div>

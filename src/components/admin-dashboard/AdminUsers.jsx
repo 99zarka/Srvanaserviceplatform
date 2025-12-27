@@ -85,7 +85,10 @@ export function AdminUsers() {
       <Card>
         <CardContent className="pt-6">
           {isLoading ? (
-            <div className="text-center p-4">جاري تحميل المستخدمين...</div>
+            <div className="text-center p-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-accent mb-4"></div>
+              <p className="text-neutral-600 text-lg">جاري تحميل المستخدمين...</p>
+            </div>
           ) : (
             <>
               <Table>
@@ -134,18 +137,40 @@ export function AdminUsers() {
                   )}
                 </TableBody>
               </Table>
-              <div className="flex justify-end items-center space-x-2 pt-4">
-                <Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={page === 1}>
-                  <ChevronRight className="h-4 w-4 mr-2" />
-                  <span>السابق</span>
-                </Button>
-                <span className="text-sm text-muted-foreground">
-                  صفحة {currentPage} من {totalPages}
-                </span>
-                <Button variant="outline" size="sm" onClick={handleNextPage} disabled={page === totalPages}>
-                  <span>التالي</span>
-                  <ChevronLeft className="h-4 w-4 ml-2" />
-                </Button>
+              <div className="flex justify-between items-center pt-4">
+                <div className="text-sm text-muted-foreground">
+                  عرض {users.length} من {totalUsers} مستخدم
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={page === 1}>
+                    <ChevronRight className="h-4 w-4 mr-2" />
+                    <span>السابق</span>
+                  </Button>
+
+                  {/* Page Numbers */}
+                  <div className="flex items-center space-x-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
+                      if (pageNum > totalPages) return null;
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={pageNum === currentPage ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setPage(pageNum)}
+                          className="w-10 h-10"
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+
+                  <Button variant="outline" size="sm" onClick={handleNextPage} disabled={page === totalPages}>
+                    <span>التالي</span>
+                    <ChevronLeft className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
               </div>
             </>
           )}
