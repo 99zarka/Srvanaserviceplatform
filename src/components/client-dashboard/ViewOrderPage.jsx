@@ -187,7 +187,7 @@ const ViewOrderPage = () => {
 
     try {
       await dispatch(submitReview({
-        order: currentViewingOrder.order_id,
+        order_id: currentViewingOrder.order_id,
         technician: reviewTechnicianId,
         rating: parseFloat(reviewRating),
         comment: reviewComment,
