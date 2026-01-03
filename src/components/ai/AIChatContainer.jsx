@@ -339,6 +339,7 @@ const AIChatContainer = () => {
         onToggleLiveChat={() => dispatch(toggleLiveChat())}
         isListening={listening}
         isSending={isSendingMessage}
+        isWaitingForAI={isWaitingForAI} // Pass isWaitingForAI prop
       />
     </div>
   );

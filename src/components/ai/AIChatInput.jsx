@@ -22,10 +22,21 @@ const AIChatInput = ({
   isLiveChatActive,
   onToggleLiveChat,
   isListening,
-  isSending
+  isSending,
+  isWaitingForAI // Accept new prop
 }) => {
   const [showQuickActions, setShowQuickActions] = useState(true);
   const [isDraggingOverInput, setIsDraggingOverInput] = useState(false);
+
+  // Determine mic icon wrapper classes and styles
+  const micWrapperClasses = [
+    "mic-icon-wrapper",
+    isListening ? "mic-pulse-pop" : "",
+  ].filter(Boolean).join(" ");
+
+  const micWrapperStyle = {
+    backgroundColor: (isLiveChatActive && !isListening) || isWaitingForAI ? '#9CA3AF' : '#EF4444', // Tailwind gray-400 or red-500
+  };
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -117,8 +128,9 @@ const AIChatInput = ({
             size="sm"
             className={`p-2 ${isLiveChatActive ? 'text-blue-500' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}
             onClick={onToggleLiveChat}
+            disabled={isWaitingForAI} // Disable normal mic button if waiting for AI
           >
-            <Mic className={`h-5 w-5`} /> {/* Removed animate-pulse from here */}
+            <Mic className={`h-5 w-5 ${isLiveChatActive && !isListening && (isRecognizing || isWaitingForAI) ? 'text-gray-400' : ''}`} />
           </Button>
 
           {/* Text Input */}
@@ -132,7 +144,7 @@ const AIChatInput = ({
               className={`resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200 ${
                 isDraggingOverInput ? 'border-blue-500 bg-blue-50' : ''
               }`}
-              disabled={isTyping || isRecognizing}
+              disabled={isTyping || isRecognizing || isWaitingForAI} // Disable text input if waiting for AI
               onDragOver={(e) => {
                 e.preventDefault();
                 setIsDraggingOverInput(true);
@@ -155,7 +167,7 @@ const AIChatInput = ({
           {/* Send Button */}
           <Button
             onClick={handleSendMessage}
-            disabled={(!inputText.trim() && uploadedFiles.length === 0) || isSending || isRecognizing}
+            disabled={(!inputText.trim() && uploadedFiles.length === 0) || isSending || isRecognizing || isWaitingForAI} // Disable send if waiting for AI
             className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSending ? (
@@ -173,10 +185,9 @@ const AIChatInput = ({
         </div>
       </div>
       
-      {isLiveChatActive && isListening && (
-        // Large, pulsing microphone for active live chat (overlay)
+      {isLiveChatActive && ( // Show big mic overlay if live chat is active
         <div className="mic-center-container" onClick={onToggleLiveChat}>
-          <div className="mic-icon-wrapper mic-pulse-pop">
+          <div className={micWrapperClasses} style={micWrapperStyle}>
             <Mic className="h-full w-full" />
           </div>
         </div>
