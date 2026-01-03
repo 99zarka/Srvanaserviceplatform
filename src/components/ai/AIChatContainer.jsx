@@ -1,64 +1,135 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { Card } from '../ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 import AIChatHeader from './AIChatHeader';
 import AIChatMessages from './AIChatMessages';
 import AIChatInput from './AIChatInput';
 import AIOrderForm from './AIOrderForm';
 import { useGetAiChatHistoryQuery, useSendAiChatMessageMutation } from '../../services/api';
+import { ttsService } from '../../services/tts';
 import { toast } from 'sonner';
-import BASE_URL from '../../config/api'; // Import BASE_URL
-import { useSelector } from 'react-redux'; // Import useSelector to get token
+import BASE_URL from '../../config/api';
+import {
+  toggleLiveChat,
+  setRecognizing,
+  setWaitingForAI,
+  playTTS,
+  stopTTS,
+} from '../../redux/liveChatSlice';
 
 const AIChatContainer = () => {
+  const dispatch = useDispatch();
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [showOfferForm, setShowOfferForm] = useState(false);
   const [selectedTechnicianId, setSelectedTechnicianId] = useState(null);
-  const [formMode, setFormMode] = useState('order'); // 'order' or 'offer'
-  const [formData, setFormData] = useState(null); // Store form data for the currently open form
+  const [formMode, setFormMode] = useState('order');
+  const [formData, setFormData] = useState(null);
   const messagesEndRef = useRef(null);
+  const lastPlayedMessageId = useRef(null);
+
+  const token = useSelector((state) => state.auth.token);
+  const { isLiveChatActive, isRecognizing, isWaitingForAI, isPlayingTTS, selectedVoice } = useSelector(state => state.liveChat);
 
   const { data: historyData, isLoading: isLoadingHistory, error: historyError, refetch: refetchHistory } = useGetAiChatHistoryQuery();
   const [sendChatMessage, { isLoading: isSendingMessage }] = useSendAiChatMessageMutation();
-  const token = useSelector((state) => state.auth.token); // Get token from Redux store
 
-  // --- File Upload to Backend ---
+  const {
+    transcript,
+    finalTranscript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition
+  } = useSpeechRecognition();
+
+  // --- Live Chat Effects ---
+
+  useEffect(() => {
+    if (isLiveChatActive && !browserSupportsSpeechRecognition) {
+      toast.error("متصفحك لا يدعم التعرف على الكلام.");
+      dispatch(toggleLiveChat());
+    }
+  }, [isLiveChatActive, browserSupportsSpeechRecognition, dispatch]);
+
+  useEffect(() => {
+    if (isLiveChatActive) {
+      if (!isWaitingForAI && !listening) {
+        SpeechRecognition.startListening({ continuous: true, language: 'ar-EG' });
+        dispatch(setRecognizing(true));
+      }
+    } else {
+      if (listening) {
+        SpeechRecognition.stopListening();
+        dispatch(setRecognizing(false));
+      }
+    }
+  }, [isLiveChatActive, isWaitingForAI, listening, dispatch]);
+  
+  useEffect(() => {
+    if (finalTranscript) {
+      setInputText(finalTranscript);
+      handleSendMessage();
+      resetTranscript();
+    }
+  }, [finalTranscript, resetTranscript]);
+
+  useEffect(() => {
+    if (listening && isWaitingForAI) {
+      SpeechRecognition.stopListening();
+      dispatch(setRecognizing(false));
+    }
+  }, [isWaitingForAI, listening, dispatch]);
+
+  useEffect(() => {
+    if (isLiveChatActive && messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant' && lastMessage.content && lastMessage.id !== lastPlayedMessageId.current) {
+        lastPlayedMessageId.current = lastMessage.id;
+        handlePlayTTS(lastMessage.content.reply);
+      }
+    }
+  }, [messages, isLiveChatActive]);
+  
+  const handlePlayTTS = async (text) => {
+    dispatch(stopTTS()); // Stop any currently playing TTS
+    const audioUrl = await ttsService.textToSpeech(text, selectedVoice);
+    if (audioUrl) {
+      dispatch(playTTS({ audioUrl, onEnded: () => {
+        if (isLiveChatActive && !isWaitingForAI) {
+            SpeechRecognition.startListening({ continuous: true, language: 'ar-EG' });
+            dispatch(setRecognizing(true));
+        }
+      }}));
+    }
+  };
+  
+  // --- Original Functions ---
+
   const uploadFileToBackend = async (file) => {
     if (!file) return null;
-
     const formData = new FormData();
-    formData.append('file', file); // 'file' is the field name the backend expects
-
+    formData.append('file', file);
     try {
       const response = await fetch(`${BASE_URL}/files/upload/file/`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`, // Include authorization token
-        },
+        headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
       });
-
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Backend file upload error:', errorData);
         toast.error('فشل في رفع الملف إلى الخادم.');
         return null;
       }
-
-      const data = await response.json();
-      return data.url; // Expecting { "url": "..." }
+      return (await response.json()).url;
     } catch (error) {
-      console.error('Error uploading file to backend:', error);
       toast.error('خطأ في رفع الملف.');
       return null;
     }
   };
 
-  // Load history on initial mount
   useEffect(() => {
     if (historyData) {
       setMessages(historyData.map(msg => ({
@@ -72,32 +143,31 @@ const AIChatContainer = () => {
     }
   }, [historyData]);
 
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   const handleSendMessage = async (startNew = false) => {
-    if (!startNew && !inputText.trim() && uploadedFiles.length === 0) return;
+    const messageToSend = finalTranscript || inputText;
+    if (!startNew && !messageToSend.trim() && uploadedFiles.length === 0) return;
+    
+    if (listening) {
+        SpeechRecognition.stopListening();
+        dispatch(setRecognizing(false));
+    }
+
+    dispatch(setWaitingForAI(true));
 
     let imageUrl = null;
     let fileUrl = null;
-
     if (uploadedFiles.length > 0) {
-      // Upload files to backend
       const uploadPromises = uploadedFiles.map(file => uploadFileToBackend(file));
       const uploadedUrls = await Promise.all(uploadPromises);
-
-      // Assign first image and first other file URL
       imageUrl = uploadedUrls.find((url, index) => url && uploadedFiles[index].type.startsWith('image'));
       fileUrl = uploadedUrls.find((url, index) => url && !uploadedFiles[index].type.startsWith('image'));
-      
       if (!imageUrl && !fileUrl) {
         toast.error('فشل في رفع الملفات.');
+        dispatch(setWaitingForAI(false));
         return;
       }
     }
@@ -105,154 +175,92 @@ const AIChatContainer = () => {
     const userMessage = {
       id: Date.now(),
       role: 'user',
-      content: inputText.trim(),
+      content: messageToSend.trim(),
       timestamp: new Date(),
       image_url: imageUrl,
       file_url: fileUrl,
     };
 
-    // Optimistically add user message if not starting new or if there's actual content
-    if (!startNew || inputText.trim() || imageUrl || fileUrl) {
+    if (!startNew || messageToSend.trim() || imageUrl || fileUrl) {
       setMessages(prev => [...prev, userMessage]);
     }
     
     setInputText('');
     setUploadedFiles([]);
+    resetTranscript();
 
     try {
-      setIsLoading(true);
-      // Send message to backend
-      const response = await sendChatMessage({ 
-        prompt: inputText.trim(), 
+      await sendChatMessage({ 
+        prompt: messageToSend.trim(), 
         image_url: imageUrl, 
         file_url: fileUrl, 
         start_new: startNew 
       }).unwrap();
-
-      // Enhanced response will be handled by the history refetch
-
-      // History will be refetched automatically due to `invalidatesTags: ['AIChat']`
     } catch (error) {
-      console.error('Failed to send message:', error);
       toast.error('فشل في إرسال الرسالة. يرجى المحاولة مرة أخرى.');
-      // Revert optimistic update if necessary, or just rely on refetch to correct state
-      setMessages(prev => prev.filter(msg => msg.id !== userMessage.id)); // Simple revert
+      setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
     } finally {
-      setIsLoading(false);
+      dispatch(setWaitingForAI(false));
     }
-  };
-
-  const handleFileUpload = (files) => {
-    setUploadedFiles(prev => [...prev, ...files]);
-  };
-
-  const removeFile = (fileIndex) => {
-    setUploadedFiles(prev => prev.filter((_, index) => index !== fileIndex));
   };
 
   const handleQuickAction = async (action) => {
     setInputText(action);
-    // Send quick action as a message
-    const userMessage = {
-      id: Date.now(),
-      role: 'user',
-      content: action,
-      timestamp: new Date(),
-    };
+    const userMessage = { id: Date.now(), role: 'user', content: action, timestamp: new Date() };
     setMessages(prev => [...prev, userMessage]);
-
+    dispatch(setWaitingForAI(true));
     try {
-      setIsLoading(true);
-      const response = await sendChatMessage({ prompt: action, start_new: false }).unwrap();
-
-      // Enhanced response will be handled by the history refetch
+      await sendChatMessage({ prompt: action, start_new: false }).unwrap();
     } catch (error) {
-      console.error('Failed to send quick action:', error);
-      toast.error('فشل في إرسال الإجراء السريع. يرجى المحاولة مرة أخرى.');
-      setMessages(prev => prev.filter(msg => msg.id !== userMessage.id)); // Simple revert
+      toast.error('فشل في إرسال الإجراء السريع.');
+      setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
     } finally {
-      setIsLoading(false);
+      dispatch(setWaitingForAI(false));
     }
   };
 
   const handleStartNewConversation = async () => {
-    // Clear current UI messages immediately
+    dispatch(stopTTS());
     setMessages([]);
     setFormData(null);
     setShowOrderForm(false);
     setShowOfferForm(false);
-    setSelectedTechnicianId(null);
-    setFormMode('order');
     setInputText('');
     setUploadedFiles([]);
+    resetTranscript();
     toast.info('جاري بدء محادثة جديدة...');
+    dispatch(setWaitingForAI(true));
     
     try {
-      setIsLoading(true);
-      // Send a message with start_new flag to backend to reset context
-      // Only send if there's content, otherwise just reset locally
-      if (inputText.trim() || uploadedFiles.length > 0) {
-        await sendChatMessage({ prompt: inputText.trim(), start_new: true }).unwrap();
-      } else {
-        // For empty new conversation, just send the flag without content
-        await sendChatMessage({ prompt: '', start_new: true }).unwrap();
-      }
+      await sendChatMessage({ prompt: '', start_new: true }).unwrap();
       toast.success('تم بدء محادثة جديدة!');
-      // Refetch history which should now be empty or a new initial message if backend provides one
       refetchHistory(); 
     } catch (error) {
-      console.error('Failed to start new conversation:', error);
-      toast.error('فشل في بدء محادثة جديدة. يرجى المحاولة مرة أخرى.');
-      // If new conversation failed, try to refetch old history or show error state
+      toast.error('فشل في بدء محادثة جديدة.');
       refetchHistory();
     } finally {
-      setIsLoading(false);
+      dispatch(setWaitingForAI(false));
     }
   };
-
 
   const handleShowOrderForm = (projectData = null) => {
-    setFormData(projectData);
-    setFormMode('order');
-    setShowOrderForm(true);
-    setShowOfferForm(false);
-    setSelectedTechnicianId(null);
+    setFormData(projectData); setFormMode('order'); setShowOrderForm(true);
   };
-
   const handleShowOfferForm = (technicianId, projectData = null) => {
-    setFormData(projectData);
-    setFormMode('offer');
-    setShowOfferForm(true);
-    setShowOrderForm(false);
-    setSelectedTechnicianId(technicianId);
+    setFormData(projectData); setFormMode('offer'); setShowOfferForm(true); setSelectedTechnicianId(technicianId);
+  };
+  const handleFormSuccess = (mode) => {
+    toast.success(mode === 'order' ? 'تم إنشاء المشروع بنجاح!' : 'تم إرسال عرض السعر بنجاح!');
+    setShowOrderForm(false); setShowOfferForm(false);
   };
 
-  const handleFormSuccess = (mode, response) => {
-    if (mode === 'order') {
-      toast.success('تم إنشاء المشروع بنجاح!');
-      setShowOrderForm(false);
-    } else if (mode === 'offer') {
-      toast.success('تم إرسال عرض السعر بنجاح!');
-      setShowOfferForm(false);
-      setSelectedTechnicianId(null);
-    }
-  };
-
-  const handleFormClose = () => {
-    setShowOrderForm(false);
-    setShowOfferForm(false);
-    setSelectedTechnicianId(null);
-    setFormMode('order');
-    setFormData(null);
-  };
-
-  const currentTypingStatus = isLoadingHistory || isSendingMessage || isLoading;
+  const currentTypingStatus = isSendingMessage || (listening && !isWaitingForAI);
 
   return (
     <div className="max-w-4xl mx-auto shadow-xl border-0 overflow-hidden h-full flex flex-col">
       <AIChatHeader onStartNewConversation={handleStartNewConversation} />
-      {isLoadingHistory && <div className="text-center p-4">Loading conversation history...</div>}
-      {historyError && <div className="text-center p-4 text-red-500">Error loading history: {historyError.message}</div>}
+      {isLoadingHistory && <div className="text-center p-4">Loading...</div>}
+      {historyError && <div className="text-center p-4 text-red-500">Error: {historyError.message}</div>}
       
       {!isLoadingHistory && !historyError && messages.length === 0 && (
         <div className="border-b border-gray-100 bg-gray-50 p-6" dir="rtl">
@@ -260,27 +268,12 @@ const AIChatContainer = () => {
             <div className="text-2xl font-bold text-gray-900 mb-2">مرحبًا بك في مساعدنا الذكي</div>
             <div className="text-gray-600 mb-4">كيف يمكنني مساعدتك اليوم؟</div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
-              <button 
-                onClick={() => handleQuickAction("أحتاج إلى فني صيانة")}
-                className="bg-white border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors text-right"
-              >
-                <div className="font-medium text-gray-900">صيانة منزلية</div>
-                <div className="text-sm text-gray-600">فني صيانة، كهربائي، سباك</div>
-              </button>
-              <button 
-                onClick={() => handleQuickAction("أحتاج إلى خدمات تجميل")}
-                className="bg-white border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors text-right"
-              >
-                <div className="font-medium text-gray-900">خدمات تجميل</div>
-                <div className="text-sm text-gray-600">مصفف شعر، مكياج، تجميل</div>
-              </button>
-              <button 
-                onClick={() => handleQuickAction("أحتاج إلى خدمات تنظيف")}
-                className="bg-white border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors text-right"
-              >
-                <div className="font-medium text-gray-900">خدمات تنظيف</div>
-                <div className="text-sm text-gray-600">تنظيف منازل، مكاتب، سيارات</div>
-              </button>
+              {["أحتاج إلى فني صيانة", "أحتاج إلى خدمات تجميل", "أحتاج إلى خدمات تنظيف"].map((action, i) => (
+                <button key={i} onClick={() => handleQuickAction(action)} className="bg-white border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors text-right">
+                  <div className="font-medium text-gray-900">{["صيانة منزلية", "خدمات تجميل", "خدمات تنظيف"][i]}</div>
+                  <div className="text-sm text-gray-600">{["فني صيانة، كهربائي، سباك", "مصفف شعر، مكياج، تجميل", "تنظيف منازل، مكاتب، سيارات"][i]}</div>
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -289,60 +282,42 @@ const AIChatContainer = () => {
       {!isLoadingHistory && !historyError && messages.length > 0 && (
         <AIChatMessages 
           messages={messages}
-          isTyping={currentTypingStatus}
+          isTyping={isWaitingForAI || isSendingMessage}
           messagesEndRef={messagesEndRef}
-          onPostProject={() => handleShowOrderForm(enhancedResponse?.project_data)}
-          onDirectHire={(technicianId) => handleShowOfferForm(enhancedResponse?.project_data, technicianId)}
           onShowOrderForm={handleShowOrderForm}
           onShowOfferForm={handleShowOfferForm}
-          selectedTechnicianId={selectedTechnicianId}
-          onTechnicianSelect={setSelectedTechnicianId}
         />
       )}
 
-      {/* Order Form Dialog */}
-      <Dialog open={showOrderForm} onOpenChange={setShowOrderForm}>
+      <Dialog open={showOrderForm || showOfferForm} onOpenChange={() => {setShowOrderForm(false); setShowOfferForm(false);}}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-right" dir="rtl">نموذج إنشاء مشروع</DialogTitle>
-            <DialogDescription className="text-right" dir="rtl">Project Creation Form</DialogDescription>
-          </DialogHeader>
-          <AIOrderForm
-            enhancedResponse={formData}
-            selectedTechnicianId={null}
-            onClose={() => setShowOrderForm(false)}
-            onSuccess={handleFormSuccess}
-            mode="order"
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Offer Form Dialog */}
-      <Dialog open={showOfferForm} onOpenChange={setShowOfferForm}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-right" dir="rtl">نموذج عرض سعر</DialogTitle>
-            <DialogDescription className="text-right" dir="rtl">Offer Form</DialogDescription>
+            <DialogTitle className="text-right" dir="rtl">{formMode === 'order' ? 'نموذج إنشاء مشروع' : 'نموذج عرض سعر'}</DialogTitle>
+            <DialogDescription className="text-right" dir="rtl">{formMode === 'order' ? 'Project Creation Form' : 'Offer Form'}</DialogDescription>
           </DialogHeader>
           <AIOrderForm
             enhancedResponse={formData}
             selectedTechnicianId={selectedTechnicianId}
-            onClose={() => setShowOfferForm(false)}
+            onClose={() => {setShowOrderForm(false); setShowOfferForm(false);}}
             onSuccess={handleFormSuccess}
-            mode="offer"
+            mode={formMode}
           />
         </DialogContent>
       </Dialog>
 
       <AIChatInput
-        inputText={inputText}
+        inputText={transcript || inputText}
         setInputText={setInputText}
         isTyping={currentTypingStatus}
         onSendMessage={handleSendMessage}
-        onFileUpload={handleFileUpload}
+        onFileUpload={setUploadedFiles}
         uploadedFiles={uploadedFiles}
-        onRemoveFile={removeFile}
+        onRemoveFile={(i) => setUploadedFiles(files => files.filter((_, idx) => idx !== i))}
         onQuickAction={handleQuickAction}
+        isRecognizing={isRecognizing}
+        isLiveChatActive={isLiveChatActive}
+        onToggleLiveChat={() => dispatch(toggleLiveChat())}
+        isListening={listening}
       />
     </div>
   );

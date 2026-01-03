@@ -16,7 +16,11 @@ const AIChatInput = ({
   onFileUpload,
   uploadedFiles,
   onRemoveFile,
-  onQuickAction
+  onQuickAction,
+  isRecognizing,
+  isLiveChatActive,
+  onToggleLiveChat,
+  isListening
 }) => {
   const [showQuickActions, setShowQuickActions] = useState(true);
   const [isDraggingOverInput, setIsDraggingOverInput] = useState(false);
@@ -105,18 +109,28 @@ const AIChatInput = ({
             </Button>
           </ChatFileUpload>
 
+          {/* Microphone Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`p-2 ${isLiveChatActive ? 'text-blue-500' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}
+            onClick={onToggleLiveChat}
+          >
+            <Mic className={`h-5 w-5 ${isListening ? 'animate-pulse' : ''}`} />
+          </Button>
+
           {/* Text Input */}
           <div className="flex-1 space-y-2">
             <Textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="اكتب رسالتك هنا..."
+              placeholder={isRecognizing ? "جاري الاستماع..." : "اكتب رسالتك هنا..."}
               rows={3}
               className={`resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200 ${
                 isDraggingOverInput ? 'border-blue-500 bg-blue-50' : ''
               }`}
-              disabled={isTyping}
+              disabled={isTyping || isRecognizing}
               onDragOver={(e) => {
                 e.preventDefault();
                 setIsDraggingOverInput(true);
@@ -139,7 +153,7 @@ const AIChatInput = ({
           {/* Send Button */}
           <Button
             onClick={handleSendMessage}
-            disabled={(!inputText.trim() && uploadedFiles.length === 0) || isTyping}
+            disabled={(!inputText.trim() && uploadedFiles.length === 0) || isTyping || isRecognizing}
             className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isTyping ? (

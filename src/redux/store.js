@@ -8,6 +8,7 @@ import disputeReducer from './disputeSlice'; // Import new dispute reducer
 import transactionReducer from './transactionSlice'; // Import new transaction reducer
 import paymentReducer from './paymentSlice'; // Import new payment reducer
 import servicesReducer from './servicesSlice'; // Import services reducer
+import liveChatReducer from './liveChatSlice'; // Import live chat reducer
 import { api, aiChatApi } from '../services/api'; // Import aiChatApi
 
 export const store = configureStore({
@@ -21,6 +22,7 @@ export const store = configureStore({
     transactions: transactionReducer,
     payments: paymentReducer, // Add the payment reducer
     services: servicesReducer, // Add the services reducer
+    liveChat: liveChatReducer, // Add the live chat reducer
     [api.reducerPath]: api.reducer,
     [aiChatApi.reducerPath]: aiChatApi.reducer, // Add aiChatApi reducer
   },
