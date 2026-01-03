@@ -7,6 +7,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { quickActions } from './mockData';
 import ChatFileUpload from './ChatFileUpload';
 import QuickActionsBar from './QuickActionsBar';
+import { useCustomSpeechRecognition } from '../../hooks/useCustomSpeechRecognition';
 import '../../styles/mic-animation.css'; // Import the new CSS
 
 const AIChatInput = React.forwardRef(({
@@ -27,6 +28,9 @@ const AIChatInput = React.forwardRef(({
 }, ref) => {
   const [showQuickActions, setShowQuickActions] = useState(true);
   const [isDraggingOverInput, setIsDraggingOverInput] = useState(false);
+
+  // Use custom speech recognition hook for better error handling
+  const { isSupported: browserSupportsSpeechRecognition, error: speechRecognitionError } = useCustomSpeechRecognition();
 
   // Determine mic icon wrapper classes and styles
   const micWrapperClasses = [
@@ -161,9 +165,10 @@ const AIChatInput = React.forwardRef(({
               size="sm"
               className={`p-2 bg-gray-50 hover:bg-gray-100 ${isLiveChatActive ? 'text-blue-500' : 'text-gray-600 hover:text-gray-800'}`}
               onClick={onToggleLiveChat}
-              disabled={isWaitingForAI} // Disable normal mic button if waiting for AI
+              disabled={isWaitingForAI || !browserSupportsSpeechRecognition} // Disable if waiting for AI or speech recognition not supported
+              title={browserSupportsSpeechRecognition ? "التحدث" : "المتصفح لا يدعم التعرف على الكلام"}
             >
-              <Mic className={`h-5 w-5 ${isLiveChatActive && !isListening && (isRecognizing || isWaitingForAI) ? 'text-gray-400' : ''}`} />
+              <Mic className={`h-5 w-5 ${isLiveChatActive && !isListening && (isRecognizing || isWaitingForAI) ? 'text-gray-400' : ''} ${!browserSupportsSpeechRecognition ? 'text-gray-400' : ''}`} />
             </Button>
 
             {/* Send Button */}

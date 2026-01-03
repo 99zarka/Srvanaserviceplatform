@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import { useCustomSpeechRecognition } from '../../hooks/useCustomSpeechRecognition';
 import { Card } from '../ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 import AIChatHeader from './AIChatHeader';
@@ -45,10 +45,12 @@ const AIChatContainer = () => {
   const {
     transcript,
     finalTranscript,
-    listening,
+    isListening: listening,
     resetTranscript,
-    browserSupportsSpeechRecognition
-  } = useSpeechRecognition();
+    isSupported: browserSupportsSpeechRecognition,
+    startListening,
+    stopListening
+  } = useCustomSpeechRecognition();
 
   // Function to check and request microphone permission
   const requestMicrophonePermission = async () => {
@@ -103,16 +105,16 @@ const AIChatContainer = () => {
   useEffect(() => {
     if (isLiveChatActive) {
       if (!isWaitingForAI && !listening) {
-        SpeechRecognition.startListening({ continuous: true, language: 'ar-EG' });
+        startListening();
         dispatch(setRecognizing(true));
       }
     } else {
       if (listening) {
-        SpeechRecognition.stopListening();
+        stopListening();
         dispatch(setRecognizing(false));
       }
     }
-  }, [isLiveChatActive, isWaitingForAI, listening, dispatch]);
+  }, [isLiveChatActive, isWaitingForAI, listening, dispatch, startListening, stopListening]);
   
   useEffect(() => {
     if (finalTranscript) {
@@ -124,10 +126,10 @@ const AIChatContainer = () => {
 
   useEffect(() => {
     if (listening && isWaitingForAI) {
-      SpeechRecognition.stopListening();
+      stopListening();
       dispatch(setRecognizing(false));
     }
-  }, [isWaitingForAI, listening, dispatch]);
+  }, [isWaitingForAI, listening, dispatch, stopListening]);
 
   useEffect(() => {
     if (isLiveChatActive && messages.length > 0) {
@@ -137,17 +139,17 @@ const AIChatContainer = () => {
         handlePlayTTS(lastMessage.content.reply);
       }
     }
-  }, [messages, isLiveChatActive]);
+  }, [messages, isLiveChatActive, lastPlayedMessageId, liveChatStartTime]);
 
   useEffect(() => {
     if (justEnded) {
       if (isLiveChatActive && !isWaitingForAI && micPermissionGranted) {
-        SpeechRecognition.startListening({ continuous: true, language: 'ar-EG' });
+        startListening();
         dispatch(setRecognizing(true));
       }
       dispatch(resetJustEnded());
     }
-  }, [justEnded, isLiveChatActive, isWaitingForAI, dispatch, micPermissionGranted]);
+  }, [justEnded, isLiveChatActive, isWaitingForAI, dispatch, micPermissionGranted, startListening]);
   
   const handlePlayTTS = async (text) => {
     dispatch(stopTTS()); // Stop any currently playing TTS
@@ -202,7 +204,7 @@ const AIChatContainer = () => {
     if (!startNew && !messageToSend.trim() && uploadedFiles.length === 0) return;
     
     if (listening) {
-        SpeechRecognition.stopListening();
+        stopListening();
         dispatch(setRecognizing(false));
     }
 
