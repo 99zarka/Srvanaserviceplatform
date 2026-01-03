@@ -57,12 +57,12 @@ export const mockMessages = [
 
 // Quick action buttons for the input area
 export const quickActions = [
-  { label: 'تسريب ماء', icon: '💧' },
-  { label: 'مشاكل كهربائية', icon: '⚡' },
-  { label: 'صيانة أجهزة', icon: '🔧' },
-  { label: 'دهانات وطلاء', icon: '🎨' },
-  { label: 'تركيبات جديدة', icon: '🏠' },
-  { label: 'استشارة مجانية', icon: '❓' }
+  { label: 'رشح فنيين', icon: '👷' },
+  { label: 'أسعارنا التنافسية', icon: '💰' },
+  { label: 'طلب خدمة', icon: '📋' },
+  { label: 'طلب استشارة', icon: '💬' },
+  { label: 'عرض الخدمات', icon: '🛠️' },
+  { label: 'فني قريب', icon: '📍' }
 ];
 
 // AI assistant information

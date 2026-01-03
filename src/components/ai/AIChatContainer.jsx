@@ -283,10 +283,10 @@ const AIChatContainer = () => {
             <div className="text-2xl font-bold text-gray-900 mb-2">مرحبًا بك في مساعدنا الذكي</div>
             <div className="text-gray-600 mb-4">كيف يمكنني مساعدتك اليوم؟</div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
-              {["أحتاج إلى فني صيانة", "أحتاج إلى خدمات تجميل", "أحتاج إلى خدمات تنظيف"].map((action, i) => (
+              {["أحتاج إلى فني صيانة", "أحتاج إلى خدمات كهربائية", "أحتاج إلى خدمات تنظيف"].map((action, i) => (
                 <button key={i} onClick={() => handleQuickAction(action)} className="bg-white border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors text-right">
-                  <div className="font-medium text-gray-900">{["صيانة منزلية", "خدمات تجميل", "خدمات تنظيف"][i]}</div>
-                  <div className="text-sm text-gray-600">{["فني صيانة، كهربائي، سباك", "مصفف شعر، مكياج، تجميل", "تنظيف منازل، مكاتب، سيارات"][i]}</div>
+                  <div className="font-medium text-gray-900">{["صيانة منزلية", "خدمات كهربائية", "خدمات تنظيف"][i]}</div>
+                  <div className="text-sm text-gray-600">{["فني صيانة، كهربائي، سباك", "تركيب وصيانة كهربائية", "تنظيف منازل، مكاتب، سيارات"][i]}</div>
                 </button>
               ))}
             </div>
