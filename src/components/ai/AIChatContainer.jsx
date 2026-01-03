@@ -278,6 +278,7 @@ const AIChatContainer = () => {
       {isLoadingHistory && (
         <div className="flex items-center justify-center h-64 bg-gradient-to-br from-muted to-background">
           <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary mx-auto mb-4"></div>
             <p className="text-secondary font-medium text-lg" dir="rtl">جاري تحميل المحادثة...</p>
           </div>
         </div>
