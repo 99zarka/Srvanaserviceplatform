@@ -32,7 +32,7 @@ const AIChatContainer = () => {
   const [formData, setFormData] = useState(null);
   const messagesEndRef = useRef(null);
   const lastPlayedMessageId = useRef(null);
-  const mountTime = useRef(Date.now());
+  const liveChatStartTime = useRef(null);
 
   const token = useSelector((state) => state.auth.token);
   const { isLiveChatActive, isRecognizing, isWaitingForAI, isPlayingTTS, selectedVoice, justEnded } = useSelector(state => state.liveChat);
@@ -56,6 +56,12 @@ const AIChatContainer = () => {
       dispatch(toggleLiveChat());
     }
   }, [isLiveChatActive, browserSupportsSpeechRecognition, dispatch]);
+
+  useEffect(() => {
+    if (isLiveChatActive) {
+      liveChatStartTime.current = Date.now();
+    }
+  }, [isLiveChatActive]);
 
   useEffect(() => {
     if (isLiveChatActive) {
@@ -89,7 +95,7 @@ const AIChatContainer = () => {
   useEffect(() => {
     if (isLiveChatActive && messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-      if (lastMessage.role === 'assistant' && lastMessage.content && lastMessage.id !== lastPlayedMessageId.current && lastMessage.timestamp > mountTime.current) {
+      if (lastMessage.role === 'assistant' && lastMessage.content && lastMessage.id !== lastPlayedMessageId.current && lastMessage.timestamp > (liveChatStartTime.current || 0)) {
         lastPlayedMessageId.current = lastMessage.id;
         handlePlayTTS(lastMessage.content.reply);
       }
