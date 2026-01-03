@@ -9,7 +9,7 @@ import ChatFileUpload from './ChatFileUpload';
 import QuickActionsBar from './QuickActionsBar';
 import '../../styles/mic-animation.css'; // Import the new CSS
 
-const AIChatInput = ({
+const AIChatInput = React.forwardRef(({
   inputText,
   setInputText,
   isTyping,
@@ -24,7 +24,7 @@ const AIChatInput = ({
   isListening,
   isSending,
   isWaitingForAI // Accept new prop
-}) => {
+}, ref) => {
   const [showQuickActions, setShowQuickActions] = useState(true);
   const [isDraggingOverInput, setIsDraggingOverInput] = useState(false);
 
@@ -62,7 +62,7 @@ const AIChatInput = ({
   };
 
   return (
-    <div className="border-t border-gray-200 bg-white relative min-h-[150px]">
+    <div ref={ref} className="border-t border-gray-200 bg-white relative min-h-[150px]">
       {/* Quick Actions Bar */}
       {showQuickActions && (
         <div className="border-b border-gray-100 bg-gray-50">
@@ -187,7 +187,7 @@ const AIChatInput = ({
           </div>
         </div>
       </div>
-      
+
       {isLiveChatActive && ( // Show big mic overlay if live chat is active
         <div className="mic-center-container" onClick={onToggleLiveChat}>
           <div className={micWrapperClasses} style={micWrapperStyle}>
@@ -197,6 +197,6 @@ const AIChatInput = ({
       )}
     </div>
   );
-};
+});
 
 export default AIChatInput;

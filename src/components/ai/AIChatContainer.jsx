@@ -31,6 +31,7 @@ const AIChatContainer = () => {
   const [formMode, setFormMode] = useState('order');
   const [formData, setFormData] = useState(null);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
   const lastPlayedMessageId = useRef(null);
   const liveChatStartTime = useRef(null);
 
@@ -157,7 +158,7 @@ const AIChatContainer = () => {
   }, [historyData]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [messages]);
 
   const handleSendMessage = async (startNew = false) => {
@@ -277,7 +278,6 @@ const AIChatContainer = () => {
       {isLoadingHistory && (
         <div className="flex items-center justify-center h-64 bg-gradient-to-br from-muted to-background">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary mx-auto mb-4"></div>
             <p className="text-secondary font-medium text-lg" dir="rtl">جاري تحميل المحادثة...</p>
           </div>
         </div>
@@ -333,6 +333,7 @@ const AIChatContainer = () => {
       </Dialog>
 
       <AIChatInput
+        ref={inputRef}
         inputText={transcript || inputText}
         setInputText={setInputText}
         isTyping={currentTypingStatus}
