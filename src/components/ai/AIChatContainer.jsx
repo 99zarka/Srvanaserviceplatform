@@ -17,6 +17,7 @@ import {
   setWaitingForAI,
   playTTS,
   stopTTS,
+  resetJustEnded,
 } from '../../redux/liveChatSlice';
 
 const AIChatContainer = () => {
@@ -33,7 +34,7 @@ const AIChatContainer = () => {
   const lastPlayedMessageId = useRef(null);
 
   const token = useSelector((state) => state.auth.token);
-  const { isLiveChatActive, isRecognizing, isWaitingForAI, isPlayingTTS, selectedVoice } = useSelector(state => state.liveChat);
+  const { isLiveChatActive, isRecognizing, isWaitingForAI, isPlayingTTS, selectedVoice, justEnded } = useSelector(state => state.liveChat);
 
   const { data: historyData, isLoading: isLoadingHistory, error: historyError, refetch: refetchHistory } = useGetAiChatHistoryQuery();
   const [sendChatMessage, { isLoading: isSendingMessage }] = useSendAiChatMessageMutation();
@@ -93,17 +94,22 @@ const AIChatContainer = () => {
       }
     }
   }, [messages, isLiveChatActive]);
+
+  useEffect(() => {
+    if (justEnded) {
+      if (isLiveChatActive && !isWaitingForAI) {
+        SpeechRecognition.startListening({ continuous: true, language: 'ar-EG' });
+        dispatch(setRecognizing(true));
+      }
+      dispatch(resetJustEnded());
+    }
+  }, [justEnded, isLiveChatActive, isWaitingForAI, dispatch]);
   
   const handlePlayTTS = async (text) => {
     dispatch(stopTTS()); // Stop any currently playing TTS
     const audioUrl = await ttsService.textToSpeech(text, selectedVoice);
     if (audioUrl) {
-      dispatch(playTTS({ audioUrl, onEnded: () => {
-        if (isLiveChatActive && !isWaitingForAI) {
-            SpeechRecognition.startListening({ continuous: true, language: 'ar-EG' });
-            dispatch(setRecognizing(true));
-        }
-      }}));
+      dispatch(playTTS({ audioUrl }));
     }
   };
   

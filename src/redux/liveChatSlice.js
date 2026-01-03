@@ -9,7 +9,7 @@ const initialState = {
   isWaitingForAI: false,
   isPlayingTTS: false,
   selectedVoice: 'EXAVITQu4vr4xnSDxMaL', // Hoda - Arabic voice
-  
+  justEnded: false,
 };
 
 const liveChatSlice = createSlice({
@@ -22,6 +22,7 @@ const liveChatSlice = createSlice({
         currentAudio.pause();
         currentAudio = null;
         state.isPlayingTTS = false;
+        state.justEnded = false;
       }
     },
     setRecognizing(state, action) {
@@ -36,37 +37,22 @@ const liveChatSlice = createSlice({
     setSelectedVoice(state, action) {
         state.selectedVoice = action.payload;
     },
-    playTTS: (state, action) => {
-        const { audioUrl, onEnded } = action.payload;
-
-        if (currentAudio) {
-            currentAudio.pause();
-            currentAudio.onended = null;
-        }
-
-        currentAudio = new Audio(audioUrl);
-        state.isPlayingTTS = true;
-
-        currentAudio.play().catch(err => {
-            console.error("Audio play failed:", err);
-            state.isPlayingTTS = false;
-        });
-
-        currentAudio.onended = () => {
-            state.isPlayingTTS = false;
-            if (onEnded) {
-                onEnded();
-            }
-            currentAudio = null;
-        };
+    ttsEnded: (state) => {
+        state.isPlayingTTS = false;
+        state.justEnded = true;
+        currentAudio = null;
+    },
+    resetJustEnded: (state) => {
+        state.justEnded = false;
     },
     stopTTS: (state) => {
         if (currentAudio) {
             currentAudio.pause();
-            currentAudio.onended = null; 
+            currentAudio.onended = null;
             currentAudio = null;
         }
         state.isPlayingTTS = false;
+        state.justEnded = false;
     },
   },
 });
@@ -77,8 +63,29 @@ export const {
   setWaitingForAI,
   setPlayingTTS,
   setSelectedVoice,
-  playTTS,
+  ttsEnded,
+  resetJustEnded,
   stopTTS
 } = liveChatSlice.actions;
+
+export const playTTS = ({ audioUrl }) => (dispatch) => {
+    dispatch(stopTTS()); // Stop any currently playing TTS
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.onended = null;
+    }
+
+    currentAudio = new Audio(audioUrl);
+    dispatch(setPlayingTTS(true));
+
+    currentAudio.play().catch(err => {
+        console.error("Audio play failed:", err);
+        dispatch(setPlayingTTS(false));
+    });
+
+    currentAudio.onended = () => {
+        dispatch(ttsEnded());
+    };
+};
 
 export default liveChatSlice.reducer;
