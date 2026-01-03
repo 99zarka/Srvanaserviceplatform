@@ -27,6 +27,15 @@ export const useCustomSpeechRecognition = () => {
       recognition.interimResults = true;
       recognition.lang = 'ar-EG';
       
+      // Audio configuration for better quality and echo cancellation
+      recognition.audio = {
+        echoCancellation: true,        // Prevents feedback from speakers
+        noiseSuppression: true,       // Reduces background noise
+        autoGainControl: true,        // Adjusts microphone volume automatically
+        sampleRate: 44100,            // High quality audio sampling
+        channelCount: 1,              // Mono audio for better processing
+      };
+      
       recognition.onstart = () => {
         setIsListening(true);
         setError(null);
