@@ -295,12 +295,17 @@ const AIChatContainer = () => {
       )}
       
       {!isLoadingHistory && !historyError && messages.length > 0 && (
-        <AIChatMessages 
+        <AIChatMessages
           messages={messages}
           isTyping={isWaitingForAI || isSendingMessage}
           messagesEndRef={messagesEndRef}
           onShowOrderForm={handleShowOrderForm}
           onShowOfferForm={handleShowOfferForm}
+          onTechnicianSelect={(technicianId) => setSelectedTechnicianId(technicianId)}
+          onEditProjectData={() => {}}
+          onPostProject={() => {}}
+          onDirectHire={() => {}}
+          selectedTechnicianId={selectedTechnicianId}
         />
       )}
 
