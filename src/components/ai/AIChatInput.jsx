@@ -51,7 +51,7 @@ const AIChatInput = ({
   };
 
   return (
-    <div className="border-t border-gray-200 bg-white relative">
+    <div className="border-t border-gray-200 bg-white relative min-h-[150px]">
       {isLiveChatActive && isListening ? (
         // Large, pulsing microphone for active live chat
         <div className="mic-center-container">
