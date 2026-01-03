@@ -32,6 +32,7 @@ const AIChatContainer = () => {
   const [formData, setFormData] = useState(null);
   const messagesEndRef = useRef(null);
   const lastPlayedMessageId = useRef(null);
+  const mountTime = useRef(Date.now());
 
   const token = useSelector((state) => state.auth.token);
   const { isLiveChatActive, isRecognizing, isWaitingForAI, isPlayingTTS, selectedVoice, justEnded } = useSelector(state => state.liveChat);
@@ -88,7 +89,7 @@ const AIChatContainer = () => {
   useEffect(() => {
     if (isLiveChatActive && messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-      if (lastMessage.role === 'assistant' && lastMessage.content && lastMessage.id !== lastPlayedMessageId.current) {
+      if (lastMessage.role === 'assistant' && lastMessage.content && lastMessage.id !== lastPlayedMessageId.current && lastMessage.timestamp > mountTime.current) {
         lastPlayedMessageId.current = lastMessage.id;
         handlePlayTTS(lastMessage.content.reply);
       }
@@ -196,12 +197,13 @@ const AIChatContainer = () => {
     resetTranscript();
 
     try {
-      await sendChatMessage({ 
-        prompt: messageToSend.trim(), 
-        image_url: imageUrl, 
-        file_url: fileUrl, 
-        start_new: startNew 
+      await sendChatMessage({
+        prompt: messageToSend.trim(),
+        image_url: imageUrl,
+        file_url: fileUrl,
+        start_new: startNew
       }).unwrap();
+      refetchHistory();
     } catch (error) {
       toast.error('فشل في إرسال الرسالة. يرجى المحاولة مرة أخرى.');
       setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
@@ -217,6 +219,7 @@ const AIChatContainer = () => {
     dispatch(setWaitingForAI(true));
     try {
       await sendChatMessage({ prompt: action, start_new: false }).unwrap();
+      refetchHistory();
     } catch (error) {
       toast.error('فشل في إرسال الإجراء السريع.');
       setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
