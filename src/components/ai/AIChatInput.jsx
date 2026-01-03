@@ -20,7 +20,8 @@ const AIChatInput = ({
   isRecognizing,
   isLiveChatActive,
   onToggleLiveChat,
-  isListening
+  isListening,
+  isSending
 }) => {
   const [showQuickActions, setShowQuickActions] = useState(true);
   const [isDraggingOverInput, setIsDraggingOverInput] = useState(false);
@@ -153,10 +154,10 @@ const AIChatInput = ({
           {/* Send Button */}
           <Button
             onClick={handleSendMessage}
-            disabled={(!inputText.trim() && uploadedFiles.length === 0) || isTyping || isRecognizing}
+            disabled={(!inputText.trim() && uploadedFiles.length === 0) || isSending || isRecognizing}
             className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isTyping ? (
+            {isSending ? (
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span>جاري الإرسال...</span>

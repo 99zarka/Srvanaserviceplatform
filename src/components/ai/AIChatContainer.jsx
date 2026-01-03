@@ -327,6 +327,7 @@ const AIChatContainer = () => {
         isLiveChatActive={isLiveChatActive}
         onToggleLiveChat={() => dispatch(toggleLiveChat())}
         isListening={listening}
+        isSending={isSendingMessage}
       />
     </div>
   );
