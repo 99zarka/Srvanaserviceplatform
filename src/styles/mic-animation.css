@@ -1,0 +1,57 @@
+/* src/styles/mic-animation.css */
+
+@keyframes pulse-pop {
+  0% {
+    transform: scale(0.8);
+    box-shadow: 0 0 0 0 rgba(100, 116, 139, 0.4); /* Tailwind Slate 400 */
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 15px rgba(100, 116, 139, 0);
+  }
+  100% {
+    transform: scale(0.8);
+    box-shadow: 0 0 0 0 rgba(100, 116, 139, 0);
+  }
+}
+
+.mic-pulse-pop {
+  animation: pulse-pop 1.5s infinite cubic-bezier(0.65, 0.05, 0.36, 1);
+  /* Added for initial state and smooth transition */
+  transform: scale(0.8);
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+.mic-center-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  height: 100%; /* Ensure it takes full height of its parent */
+  position: absolute; /* Position absolutely to cover chat input */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent background */
+  z-index: 10; /* Ensure it's above other elements */
+  border-top: 1px solid #e2e8f0; /* Match border-t of chat input */
+}
+
+.mic-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px; /* Large mic size */
+  height: 150px; /* Large mic size */
+  border-radius: 50%;
+  background-color: #ef4444; /* Tailwind Red 500 - for visibility, adjust as needed */
+  color: white;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.mic-icon-wrapper svg {
+  width: 60%; /* Mic icon size relative to wrapper */
+  height: 60%;
+}
