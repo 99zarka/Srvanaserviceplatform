@@ -109,7 +109,7 @@ const AIChatInput = ({
 
       {/* Input Area */}
       <div className="p-3 space-y-3">
-        <div className="flex items-end space-x-3">
+        <div className="flex items-start space-x-3">
           {/* File Upload Button */}
           <ChatFileUpload onFileUpload={handleFileChange}>
             <Button
@@ -121,17 +121,6 @@ const AIChatInput = ({
               <Paperclip className="h-5 w-5" />
             </Button>
           </ChatFileUpload>
-
-          {/* Microphone Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`p-2 ${isLiveChatActive ? 'text-blue-500' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}`}
-            onClick={onToggleLiveChat}
-            disabled={isWaitingForAI} // Disable normal mic button if waiting for AI
-          >
-            <Mic className={`h-5 w-5 ${isLiveChatActive && !isListening && (isRecognizing || isWaitingForAI) ? 'text-gray-400' : ''}`} />
-          </Button>
 
           {/* Text Input */}
           <div className="flex-1 space-y-2">
@@ -164,24 +153,38 @@ const AIChatInput = ({
             </div>
           </div>
 
-          {/* Send Button */}
-          <Button
-            onClick={handleSendMessage}
-            disabled={(!inputText.trim() && uploadedFiles.length === 0) || isSending || isRecognizing || isWaitingForAI} // Disable send if waiting for AI
-            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSending ? (
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>جاري الإرسال...</span>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <Send className="h-4 w-4" />
-                <span>إرسال</span>
-              </div>
-            )}
-          </Button>
+          {/* Buttons Column */}
+          <div className="flex flex-col space-y-2">
+            {/* Microphone Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`p-2 bg-gray-50 hover:bg-gray-100 ${isLiveChatActive ? 'text-blue-500' : 'text-gray-600 hover:text-gray-800'}`}
+              onClick={onToggleLiveChat}
+              disabled={isWaitingForAI} // Disable normal mic button if waiting for AI
+            >
+              <Mic className={`h-5 w-5 ${isLiveChatActive && !isListening && (isRecognizing || isWaitingForAI) ? 'text-gray-400' : ''}`} />
+            </Button>
+
+            {/* Send Button */}
+            <Button
+              onClick={handleSendMessage}
+              disabled={(!inputText.trim() && uploadedFiles.length === 0) || isSending || isRecognizing || isWaitingForAI} // Disable send if waiting for AI
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSending ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>جاري الإرسال...</span>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <Send className="h-4 w-4" />
+                  <span>إرسال</span>
+                </div>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
       
