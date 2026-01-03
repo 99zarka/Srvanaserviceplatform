@@ -34,6 +34,7 @@ const AIChatContainer = () => {
   const inputRef = useRef(null);
   const lastPlayedMessageId = useRef(null);
   const liveChatStartTime = useRef(null);
+  const [micPermissionGranted, setMicPermissionGranted] = useState(null); // null, true, or false
 
   const token = useSelector((state) => state.auth.token);
   const { isLiveChatActive, isRecognizing, isWaitingForAI, isPlayingTTS, selectedVoice, justEnded } = useSelector(state => state.liveChat);
@@ -48,6 +49,41 @@ const AIChatContainer = () => {
     resetTranscript,
     browserSupportsSpeechRecognition
   } = useSpeechRecognition();
+
+  // Function to check and request microphone permission
+  const requestMicrophonePermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // If we get a stream, permission is granted
+      stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately
+      setMicPermissionGranted(true);
+      return true;
+    } catch (err) {
+      // Permission denied or other error
+      console.error("Microphone permission denied or error:", err);
+      setMicPermissionGranted(false);
+      toast.error("للتحدث، يرجى السماح بالوصول إلى الميكروفون في إعدادات المتصفح.");
+      return false;
+    }
+  };
+
+  // New handler for toggling live chat that includes permission check
+  const handleToggleLiveChat = async () => {
+    if (!isLiveChatActive) { // User is trying to activate live chat
+      if (!browserSupportsSpeechRecognition) {
+        toast.error("متصفحك لا يدعم التعرف على الكلام.");
+        return; // Prevent activation
+      }
+
+      // Check permission before activating
+      const granted = await requestMicrophonePermission();
+      if (granted) {
+        dispatch(toggleLiveChat());
+      }
+    } else { // User is trying to deactivate live chat
+      dispatch(toggleLiveChat());
+    }
+  };
 
   // --- Live Chat Effects ---
 
@@ -105,13 +141,13 @@ const AIChatContainer = () => {
 
   useEffect(() => {
     if (justEnded) {
-      if (isLiveChatActive && !isWaitingForAI) {
+      if (isLiveChatActive && !isWaitingForAI && micPermissionGranted) {
         SpeechRecognition.startListening({ continuous: true, language: 'ar-EG' });
         dispatch(setRecognizing(true));
       }
       dispatch(resetJustEnded());
     }
-  }, [justEnded, isLiveChatActive, isWaitingForAI, dispatch]);
+  }, [justEnded, isLiveChatActive, isWaitingForAI, dispatch, micPermissionGranted]);
   
   const handlePlayTTS = async (text) => {
     dispatch(stopTTS()); // Stop any currently playing TTS
@@ -345,7 +381,7 @@ const AIChatContainer = () => {
         onQuickAction={handleQuickAction}
         isRecognizing={isRecognizing}
         isLiveChatActive={isLiveChatActive}
-        onToggleLiveChat={() => dispatch(toggleLiveChat())}
+        onToggleLiveChat={handleToggleLiveChat}
         isListening={listening}
         isSending={isSendingMessage}
         isWaitingForAI={isWaitingForAI} // Pass isWaitingForAI prop
