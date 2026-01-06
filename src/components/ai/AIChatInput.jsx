@@ -16,7 +16,7 @@ const AIChatInput = React.forwardRef(({
   isTyping,
   onSendMessage,
   onFileUpload,
-  uploadedFiles,
+  uploadedFiles = [],
   onRemoveFile,
   onQuickAction,
   isRecognizing,
@@ -66,7 +66,7 @@ const AIChatInput = React.forwardRef(({
   };
 
   return (
-    <div ref={ref} className="border-t border-gray-200 bg-white relative min-h-[150px]">
+    <div ref={ref} className="border-t border-gray-200 bg-white relative min-h-[50px]">
       {/* Quick Actions Bar */}
       {showQuickActions && (
         <div className="border-b border-gray-100 bg-gray-50">
@@ -112,7 +112,44 @@ const AIChatInput = React.forwardRef(({
       )}
 
       {/* Input Area */}
-      <div className="p-3 space-y-3">
+      <div
+        className={`p-3 space-y-3 relative transition-all duration-200 ${
+          isDraggingOverInput ? 'bg-blue-50/50' : ''
+        }`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDraggingOverInput(true);
+        }}
+        onDragLeave={(e) => {
+          // Only set to false if we're actually leaving the input area
+          if (!e.currentTarget.contains(e.relatedTarget)) {
+            setIsDraggingOverInput(false);
+          }
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsDraggingOverInput(false);
+          const files = e.dataTransfer.files;
+          if (files && files.length > 0) {
+            // Only allow one file at a time
+            if (files.length > 1) {
+              alert('يمكن رفع ملف واحد فقط في كل مرة');
+              return;
+            }
+            handleFileChange([files[0]]);
+          }
+        }}
+      >
+        {/* Drag and Drop Overlay */}
+        {isDraggingOverInput && (
+          <div className="absolute inset-0 bg-blue-500/10 border-2 border-dashed border-blue-500 rounded-lg flex items-center justify-center z-10">
+            <div className="text-center text-blue-600">
+              <div className="text-sm font-medium">أفلت الملفات هنا</div>
+              <div className="text-xs text-blue-500">لرفعها إلى المحادثة</div>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-start space-x-3">
           {/* File Upload Button */}
           <ChatFileUpload onFileUpload={handleFileChange}>
@@ -138,19 +175,6 @@ const AIChatInput = React.forwardRef(({
                 isDraggingOverInput ? 'border-blue-500 bg-blue-50' : ''
               }`}
               disabled={isTyping || isRecognizing || isWaitingForAI} // Disable text input if waiting for AI
-              onDragOver={(e) => {
-                e.preventDefault();
-                setIsDraggingOverInput(true);
-              }}
-              onDragLeave={() => setIsDraggingOverInput(false)}
-              onDrop={(e) => {
-                    e.preventDefault();
-                    setIsDraggingOverInput(false);
-                    const files = e.dataTransfer.files;
-                    if (files && files.length > 0) {
-                      handleFileChange(files);
-                    }
-                }}
             />
             <div className="flex items-center justify-between text-xs text-gray-500">
               <span>Shift + Enter للانتقال لسطر جديد</span>
