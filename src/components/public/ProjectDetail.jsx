@@ -324,8 +324,8 @@ const ProjectDetail = () => {
                   </Link>
                 )}
 
-                {/* Edit Button for Project Owner */}
-                {currentUser && currentUser.user_id === selectedOrder.client_user?.user_id && (
+                {/* Edit Button for Project Owner or Admin */}
+                {currentUser && (currentUser.user_id === selectedOrder.client_user?.user_id || (currentUser.user_type === 'admin' || currentUser.user_type?.user_type_name === 'admin')) && (
                   <Link
                     to={`/dashboard/orders-offers/edit/${order_id}`}
                     className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 group w-full sm:w-auto mt-4"
