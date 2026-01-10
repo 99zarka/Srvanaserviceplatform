@@ -342,7 +342,7 @@ const ProjectDetail = () => {
 
       {/* Submit Offer Section for Technicians */}
       {isTechnician && selectedOrder.order_status === 'OPEN' && !hasAlreadyOffered && (
-        <section className="py-8 bg-gradient-to-b from-white to-gray-50">
+        <section className="py-8 bg-gradient-to-b from-white to-gray-50" id="offer">
           <div className="w-full px-4 sm:px-6 lg:px-8">
             <div className="bg-white border-2 border-[#F4C430] rounded-2xl shadow-2xl hover:shadow-[#F4C430]/20 transition-all duration-300 overflow-hidden">
               {/* Card Header */}

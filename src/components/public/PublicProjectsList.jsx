@@ -415,7 +415,7 @@ const PublicProjectsList = () => {
                         {/* Action Buttons */}
                         <div className="flex flex-col gap-4 pt-4 sm:flex-row">
                           <Link
-                            to={`/projects/${order.order_id}/offer`}
+                            to={`/projects/${order.order_id}#offer`}
                             className="flex-1 inline-flex items-center justify-center gap-3 bg-gradient-to-r from-[#F4C430] to-[#FFD700] text-[#1A2B4C] px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 group"
                           >
                             <span>قدم عرضك الآن</span>
