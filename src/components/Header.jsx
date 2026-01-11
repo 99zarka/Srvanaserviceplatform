@@ -355,7 +355,7 @@ function AuthSection({ isMobile = false, closeMenu }) {
         {user.user_type?.user_type_name !== 'technician' && user.user_type?.user_type_name !== 'admin' && (
           <Button
             onClick={handleBecomeTechnician}
-            className="flex items-center gap-1 px-2 lg:px-3 text-white h-9"
+            className="flex items-center gap-2 px-2 lg:px-3 text-white h-9"
             style={{ backgroundColor: '#243a5e' }}
             size="sm"
             title="كن فنياً"
@@ -379,7 +379,7 @@ function AuthSection({ isMobile = false, closeMenu }) {
   }
 
   return (
-    <div className={`${isMobile ? "flex flex-col space-y-3" : "flex"} items-center gap-3`}>
+    <div className={`${isMobile ? "flex flex-col space-y-2" : "flex"} items-center gap-2`}>
       <Button
         asChild
         className="flex items-center h-10 gap-2 px-5 font-semibold text-white transition-all duration-300 shadow-md bg-primary hover:bg-primary-600 hover:shadow-lg"

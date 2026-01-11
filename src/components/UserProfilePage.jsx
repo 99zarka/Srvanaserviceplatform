@@ -814,7 +814,7 @@ export function UserProfilePage() {
           <div className="flex flex-col sm:flex-row gap-4 mt-8">
             {user && !isCurrentUser && (
               <Link to={`/dashboard/messages/${userId}`} className="flex-1">
-                <Button className="w-full px-6 py-3 text-lg bg-blue-500 hover:bg-blue-600 text-white hover-lift">
+                <Button size="lg" className="w-full hover-lift">
                   إرسال رسالة
                 </Button>
               </Link>
@@ -822,7 +822,7 @@ export function UserProfilePage() {
 
             {user && currentUserData?.user_type === 'technician' && !isCurrentUser && (
               <Link to={`/offer/${userId}`} className="flex-1">
-                <Button className="w-full px-6 py-3 text-lg hover-lift">
+                <Button size="lg" variant="outline" className="w-full hover-lift">
                   تقديم عرض مباشر
                 </Button>
               </Link>

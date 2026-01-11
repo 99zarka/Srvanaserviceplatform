@@ -140,7 +140,7 @@ const EditOrderForm = ({ orderId, onClose }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12" dir="rtl">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="w-8 h-8 animate-spin" />
         <p className="ml-2 text-gray-600">جاري تحميل تفاصيل العرض...</p>
       </div>
     );
@@ -150,7 +150,7 @@ const EditOrderForm = ({ orderId, onClose }) => {
     return (
       <div className="flex items-center justify-center py-12" dir="rtl">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin" />
           <p className="text-gray-600">لم يتم العثور على عرض من العميل لتعديله لهذا الطلب.</p>
           <Button onClick={onClose} className="mt-4">
             العودة
@@ -162,10 +162,10 @@ const EditOrderForm = ({ orderId, onClose }) => {
 
   if (offerToEdit.status !== 'pending') {
     return (
-      <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl" dir="rtl">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <h1 className="text-2xl font-bold text-red-800 mb-2">لا يمكن تعديل العرض</h1>
-          <p className="text-red-600 mb-4">لا يمكن تعديل هذا العرض لأنه لم يعد في حالة الانتظار.</p>
+      <div className="container max-w-4xl p-4 mx-auto sm:p-6 lg:p-8" dir="rtl">
+        <div className="p-6 text-center border border-red-200 rounded-lg bg-red-50">
+          <h1 className="mb-2 text-2xl font-bold text-red-800">لا يمكن تعديل العرض</h1>
+          <p className="mb-4 text-red-600">لا يمكن تعديل هذا العرض لأنه لم يعد في حالة الانتظار.</p>
           <Button onClick={onClose}>
             العودة
           </Button>
@@ -177,30 +177,30 @@ const EditOrderForm = ({ orderId, onClose }) => {
   if (!order) {
     return (
       <div className="flex items-center justify-center py-12" dir="rtl">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Loader2 className="w-8 h-8 animate-spin" />
         <p className="ml-2 text-gray-600">جاري تحميل تفاصيل الطلب...</p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl" dir="rtl">
+    <div className="container max-w-4xl p-4 mx-auto sm:p-6 lg:p-8" dir="rtl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">تعديل العرض</h1>
+        <h1 className="mb-2 text-3xl font-bold">تعديل العرض</h1>
         <p className="text-gray-600">تحديث تفاصيل طلب الخدمة الخاص بك.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-lg shadow-xl border border-gray-20 dark:border-gray-700">
-        <div className="mb-8 p-6 bg-linear-to-r from-primary-50 to-blue-100 dark:from-gray-700 dark:to-gray-900 rounded-xl shadow-inner">
-          <h3 className="font-bold text-2xl text-gray-900 dark:text-gray-100 mb-2">
+      <form onSubmit={handleSubmit} className="p-6 space-y-8 bg-white border rounded-lg shadow-xl dark:bg-gray-800 sm:p-8 border-gray-20 dark:border-gray-700">
+        <div className="p-6 mb-8 shadow-inner bg-linear-to-r from-primary-50 to-blue-100 dark:from-gray-700 dark:to-gray-900 rounded-xl">
+          <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
             طلب رقم #{order.order_id}
           </h3>
-          <p className="text-base text-gray-700 dark:text-gray-300 mb-4">
+          <p className="mb-4 text-base text-gray-700 dark:text-gray-300">
             تعديل تفاصيل طلب الخدمة والعرض الخاص بك.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="service_id">نوع الخدمة</Label>
             <Select onValueChange={handleServiceChange} value={order.service?.service_id?.toString()}>
@@ -216,7 +216,7 @@ const EditOrderForm = ({ orderId, onClose }) => {
               </SelectContent>
             </Select>
             {selectedService && (
-              <p className="text-xs text-gray-50 mt-1">رسوم الفحص الأساسية: {selectedService.base_inspection_fee} ج.م.</p>
+              <p className="mt-1 text-xs text-gray-50">رسوم الفحص الأساسية: {selectedService.base_inspection_fee} ج.م.</p>
             )}
           </div>
 
@@ -246,7 +246,7 @@ const EditOrderForm = ({ orderId, onClose }) => {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="governorate">المحافظة <span className="text-red-500">*</span></Label>
             <GovernorateSelect
@@ -268,7 +268,7 @@ const EditOrderForm = ({ orderId, onClose }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div className="space-y-2">
             <Label htmlFor="scheduled_date">التاريخ المحدد <span className="text-red-500">*</span></Label>
             <Popover>
@@ -279,7 +279,7 @@ const EditOrderForm = ({ orderId, onClose }) => {
                     !formData.scheduled_date && "text-muted-foreground"
                   }`}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <CalendarIcon className="w-4 h-4 mr-2" />
                   {formData.scheduled_date ? format(new Date(formData.scheduled_date), "PPP") : <span>اختر تاريخًا</span>}
                 </Button>
               </PopoverTrigger>
@@ -328,15 +328,18 @@ const EditOrderForm = ({ orderId, onClose }) => {
           />
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-2">
           <Button type="submit" className="flex-1" disabled={loading}>
             {loading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                جاري الحفظ...
+              </>
             ) : (
               'تحديث العرض'
             )}
           </Button>
-          <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
+          <Button type="button" variant="outline" className="flex-1" onClick={onClose} disabled={loading}>
             إلغاء
           </Button>
         </div>

@@ -157,7 +157,7 @@ const ServiceButton = memo(({ service, isSelected, onSelect }) => (
     onClick={() => onSelect(service)}
     onMouseEnter={() => onSelect(service)}
     className={cn(
-      "flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-xl transition-all duration-200 ease-in-out transform hover-scale",
+      "flex flex-col items-center justify-center gap-2 p-3 rounded-xl transition-all duration-200 ease-in-out transform hover-scale",
       isSelected ? "text-secondary" : "text-primary hover:text-secondary"
     )}
     aria-label={service.title}
@@ -204,7 +204,7 @@ export function FeaturedQuickServices() {
           ))}
           <Link to="/services">
             <button
-              className="flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-xl transition-all duration-200 ease-in-out transform text-muted-foreground hover:text-secondary hover-scale"
+              className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl transition-all duration-200 ease-in-out transform text-muted-foreground hover:text-secondary hover-scale"
               aria-label="المزيد"
             >
               <Plus className="h-7 w-7 md:h-8 md:w-8" />

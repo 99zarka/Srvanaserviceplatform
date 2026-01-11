@@ -335,7 +335,7 @@ const DirectHireFlow = () => {
                 <Label htmlFor="urgent_service">هذه خدمة طارئة</Label>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-2">
                 <Button type="button" variant="outline" onClick={prevStep}>
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   السابق
@@ -413,7 +413,7 @@ const DirectHireFlow = () => {
                 </div>
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-2">
                 <Button type="button" variant="outline" onClick={prevStep}>
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   السابق
@@ -421,7 +421,7 @@ const DirectHireFlow = () => {
                 <Button onClick={handleSubmit(onSubmit)} disabled={loading}>
                   {loading ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                       إنشاء الحجز...
                     </>
                   ) : (

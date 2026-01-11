@@ -78,7 +78,7 @@ const OfferCard = ({ offer, onAcceptOffer, loading, orderStatus }) => {
             <Button
               onClick={() => onAcceptOffer(offer.offer_id)}
               disabled={loading}
-              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              className="w-full"
             >
               {loading ? (
                 <span className="flex items-center justify-center">

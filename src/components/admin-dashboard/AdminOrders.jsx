@@ -123,7 +123,7 @@ export function AdminOrders() {
                         <TableCell>{getOrderStatusBadge(order.order_status)}</TableCell>
                         <TableCell>{formatDate(order.creation_timestamp)}</TableCell>
                         <TableCell>
-                          <div className="flex justify-center gap-2">
+                          <div className="flex items-center justify-center gap-2">
                             <Button
                               size="sm"
                               variant="outline"
@@ -163,14 +163,14 @@ export function AdminOrders() {
                 <div className="text-sm text-muted-foreground">
                   عرض {adminOrders.length} من {totalOrders} مشروع
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={page === 1}>
                     <ChevronRight className="h-4 w-4 mr-2" />
                     <span>السابق</span>
                   </Button>
 
                   {/* Page Numbers */}
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center gap-1">
                     {Array.from({ length: Math.min(5, adminOrdersPagination.totalPages) }, (_, i) => {
                       const pageNum = Math.max(1, Math.min(adminOrdersPagination.totalPages - 4, adminOrdersPagination.currentPage - 2)) + i;
                       if (pageNum > adminOrdersPagination.totalPages) return null;

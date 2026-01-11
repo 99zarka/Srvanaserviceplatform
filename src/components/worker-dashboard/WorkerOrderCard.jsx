@@ -117,7 +117,7 @@ const WorkerOrderCard = ({
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
           <Button
             variant="outline"
             size="sm"
@@ -131,7 +131,6 @@ const WorkerOrderCard = ({
             <Button
               variant="default"
               size="sm"
-              className="bg-blue-500 hover:bg-blue-600 text-white"
               onClick={() => onStartJob(order.order_id)}
               disabled={loading}
             >
@@ -143,7 +142,6 @@ const WorkerOrderCard = ({
             <Button
               variant="default"
               size="sm"
-              className="bg-green-500 hover:bg-green-600 text-white"
               onClick={() => onMarkCompleted(order.order_id)}
               disabled={loading}
             >

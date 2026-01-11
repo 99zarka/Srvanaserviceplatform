@@ -223,7 +223,7 @@ export function ContactPage() {
                 <Button
                   type="submit"
                   size="lg"
-                  className="flex items-center justify-center w-full gap-3 text-lg font-semibold text-white transition-all duration-300 shadow-lg bg-primary hover:bg-primary-600 h-14 hover:shadow-xl group"
+                  className="flex items-center justify-center w-full gap-2 text-lg font-semibold text-white transition-all duration-300 shadow-lg bg-primary hover:bg-primary-600 h-14 hover:shadow-xl group"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (

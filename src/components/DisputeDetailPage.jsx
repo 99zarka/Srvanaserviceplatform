@@ -381,8 +381,9 @@ export function DisputeDetailPage() {
                 </CardHeader>
                 <CardContent className="p-4 space-y-4">
                   <Button 
+                    variant="destructive"
                     onClick={() => setShowResolutionForm(!showResolutionForm)} 
-                    className="w-full bg-red-600 hover:bg-red-700 text-white"
+                    className="w-full"
                   >
                     {showResolutionForm ? "إلغاء" : "حل النزاع"}
                   </Button>

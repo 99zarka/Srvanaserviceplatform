@@ -5,6 +5,29 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchServices } from '../redux/servicesSlice';
 
+// Import local images
+import acCleaningImg from "./public/FeaturedQuickServices-img/ac-cleaning.webp";
+import plumbingImg from "./public/FeaturedQuickServices-img/plumbing-leaks.webp";
+import electricalImg from "./public/FeaturedQuickServices-img/electrical-fixing.webp";
+import paintingImg from "./public/FeaturedQuickServices-img/painting.webp";
+import carpentryImg from "./public/FeaturedQuickServices-img/carpentry.webp";
+import heaterImg from "./public/FeaturedQuickServices-img/heater-installation.webp";
+import batteryReplacementImg from "./public/FeaturedQuickServices-img/Battery Replacement.png";
+import brakeInspectionImg from "./public/FeaturedQuickServices-img/Brake Inspection & Repair.png";
+import carpetCleaningImg from "./public/FeaturedQuickServices-img/Carpet Cleaning.png";
+import computerRepairImg from "./public/FeaturedQuickServices-img/Computer Repair.png";
+import dataRecoveryImg from "./public/FeaturedQuickServices-img/Data Recovery.png";
+import deepCleaningImg from "./public/FeaturedQuickServices-img/Deep Cleaning.png";
+import diagnosticServicesImg from "./public/FeaturedQuickServices-img/Diagnostic Services.png";
+import gutterCleaningImg from "./public/FeaturedQuickServices-img/Gutter Cleaning.png";
+import lawnMowingImg from "./public/FeaturedQuickServices-img/Lawn Mowing & Maintenance.png";
+import networkSetupImg from "./public/FeaturedQuickServices-img/Network Setup.png";
+import oilChangeImg from "./public/FeaturedQuickServices-img/Oil Change.png";
+import roofingRepairImg from "./public/FeaturedQuickServices-img/Roofing Repair.png";
+import softwareInstallationImg from "./public/FeaturedQuickServices-img/Software Installation & Support.png";
+import tireRotationImg from "./public/FeaturedQuickServices-img/Tire Rotation & Balance.png";
+import treeTrimmingImg from "./public/FeaturedQuickServices-img/Tree Trimming.png";
+
 export function ServicesPage() {
   const dispatch = useDispatch();
   const { services, loading, error } = useSelector((state) => state.services);
@@ -12,33 +35,33 @@ export function ServicesPage() {
   useEffect(() => {
     dispatch(fetchServices({ page_size: 50 }));
   }, [dispatch]);
-
+  
   const serviceImages = {
-    "Plumbing Repair": "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800&h=600&fit=crop",
-    "Electrical Services": "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=800&h=600&fit=crop",
-    "HVAC Maintenance": "https://images.unsplash.com/photo-1581094271901-8022df4466f9?w=800&h=600&fit=crop",
-    "Appliance Repair": "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&h=600&fit=crop",
-    "Painting Services": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&h=600&fit=crop",
-    "Carpentry": "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=800&h=600&fit=crop",
-    "Roofing Repair": "https://images.unsplash.com/photo-1565008576549-57569a49371d?w=800&h=600&fit=crop",
-    "Gutter Cleaning": "https://images.unsplash.com/photo-1604709177225-055f99402ea3?w=800&h=600&fit=crop",
-    "Oil Change": "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=800&h=600&fit=crop",
-    "Brake Inspection & Repair": "https://images.unsplash.com/photo-1625047509248-ec889cbff17f?w=800&h=600&fit=crop",
-    "Tire Rotation & Balance": "https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=800&h=600&fit=crop",
-    "Battery Replacement": "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&h=600&fit=crop",
-    "Diagnostic Services": "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=800&h=600&fit=crop",
-    "Computer Repair": "https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=800&h=600&fit=crop",
-    "Network Setup": "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800&h=600&fit=crop",
-    "Data Recovery": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=600&fit=crop",
-    "Software Installation & Support": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=600&fit=crop",
-    "Deep Cleaning": "https://images.unsplash.com/photo-1628177142898-93e36e4e3a50?w=800&h=600&fit=crop",
-    "Carpet Cleaning": "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=800&h=600&fit=crop",
-    "Lawn Mowing & Maintenance": "https://images.unsplash.com/photo-1558904541-efa843a96f01?w=800&h=600&fit=crop",
-    "Tree Trimming": "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=600&fit=crop",
+    "Plumbing Repair": plumbingImg,
+    "Electrical Services": electricalImg,
+    "HVAC Maintenance": acCleaningImg,
+    "Appliance Repair": heaterImg,
+    "Painting Services": paintingImg,
+    "Carpentry": carpentryImg,
+    "Roofing Repair": roofingRepairImg,
+    "Gutter Cleaning": gutterCleaningImg,
+    "Oil Change": oilChangeImg,
+    "Brake Inspection & Repair": brakeInspectionImg,
+    "Tire Rotation & Balance": tireRotationImg,
+    "Battery Replacement": batteryReplacementImg,
+    "Diagnostic Services": diagnosticServicesImg,
+    "Computer Repair": computerRepairImg,
+    "Network Setup": networkSetupImg,
+    "Data Recovery": dataRecoveryImg,
+    "Software Installation & Support": softwareInstallationImg,
+    "Deep Cleaning": deepCleaningImg,
+    "Carpet Cleaning": carpetCleaningImg,
+    "Lawn Mowing & Maintenance": lawnMowingImg,
+    "Tree Trimming": treeTrimmingImg,
   };
 
   const getServiceImage = (service) => {
-    return serviceImages[service.service_name] || "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop";
+    return serviceImages[service.service_name] || plumbingImg;
   };
 
   if (loading) return (
@@ -95,9 +118,6 @@ export function ServicesPage() {
                         src={getServiceImage(service)}
                         alt={service.arabic_name || service.title}
                         className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
-                        onError={(e) => {
-                          e.target.src = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop";
-                        }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#1A2B4C]/60 to-transparent"></div>
                       

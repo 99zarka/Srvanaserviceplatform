@@ -232,7 +232,7 @@ const OrderCard = ({
           </div>
         </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 items-center">
             {/* Always show View Details button */}
             <Link to={`/dashboard/orders-offers/view/${order.order_id}`}>
               <Button 

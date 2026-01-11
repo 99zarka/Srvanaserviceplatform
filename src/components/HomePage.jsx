@@ -108,13 +108,13 @@ export function HomePage() {
                 سرفانا تجعل من السهل العثور على عمال موثوقين لأعمال النجارة، السباكة،
                 الأعمال الكهربائية، والمزيد. خدمة عالية الجودة، مضمونة.
               </p>
-              <div className="flex flex-col gap-4 sm:flex-row animate-fade-in-up">
+              <div className="flex flex-col gap-2 sm:flex-row animate-fade-in-up">
                 <Button
                   size="lg"
                   asChild
                   className="bg-primary hover:bg-primary/90 text-primary-foreground hover-lift text-lg px-8 py-6"
                 >
-                  <Link to="/services" className="flex items-center space-x-2">
+                  <Link to="/services" className="flex items-center gap-2">
                     <span>ابحث عن خدمة</span>
                     <Search className="w-5 h-5" />
                   </Link>
@@ -122,7 +122,7 @@ export function HomePage() {
                 <Button
                   size="lg"
                   asChild
-                  className="flex items-center space-x-2 bg-[#1e3a5f] hover:bg-[#2c4a6f] text-white hover-lift text-lg px-8 py-6"
+                  className="flex items-center gap-2 bg-[#1e3a5f] hover:bg-[#2c4a6f] text-white hover-lift text-lg px-8 py-6"
                 >
                   <Link to="/signup">
                     <span>انضم كعامل</span>

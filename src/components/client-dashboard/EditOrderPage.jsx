@@ -185,7 +185,7 @@ const EditOrderPage = () => {
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
           <h1 className="text-2xl font-bold text-red-800 mb-2">لا يمكن تعديل الطلب</h1>
           <p className="text-red-600 mb-4">لا يمكن تعديل هذا الطلب لأنه ليس في حالة "مفتوحة" أو "في انتظار رد الفني". حالته الحالية هي: {currentViewingOrder.order_status}.</p>
-          <Button onClick={() => navigate('/dashboard/orders-offers')}>
+          <Button variant="outline" onClick={() => navigate('/dashboard/orders-offers')}>
             العودة إلى الطلبات
           </Button>
         </div>
@@ -213,14 +213,21 @@ const EditOrderPage = () => {
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl" dir="rtl">
-      <div className="mb-6 flex justify-between items-center">
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold mb-2">تعديل الطلب #{orderId}</h1>
           <p className="text-gray-600">تحديث تفاصيل طلب الخدمة الخاص بك.</p>
         </div>
         {(currentViewingOrder.order_status === 'OPEN' || currentViewingOrder.order_status === 'AWAITING_TECHNICIAN_RESPONSE' || currentViewingOrder.order_status === 'PENDING' || currentViewingOrder.order_status === 'ACCEPTED' ) && (
-          <Button onClick={handleCancelOrder} variant="destructive" disabled={loading}>
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'إلغاء الطلب'}
+          <Button onClick={handleCancelOrder} variant="destructive" disabled={loading} className="w-full sm:w-auto">
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                جاري الإلغاء...
+              </>
+            ) : (
+              'إلغاء الطلب'
+            )}
           </Button>
         )}
       </div>

@@ -424,16 +424,16 @@ const OrderForm = ({
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row-reverse gap-4">
+        <div className="flex flex-col sm:flex-row-reverse gap-2">
           <Button 
             type="submit" 
-            className="w-full sm:w-auto flex-1 text-white font-bold py-2 px-4 rounded-md mt-4 transition-all ease-in-out duration-300 hover:scale-105 hover:shadow-xl transform" 
+            className="w-full sm:w-auto flex-1 text-white font-bold transition-all ease-in-out duration-300 hover:scale-105 hover:shadow-xl transform" 
             style={{ background: 'linear-gradient(to right, #1A2B4C, #F4C430)' }}
             disabled={isSubmitting}
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 <span>جاري الإرسال...</span>
               </>
             ) : (

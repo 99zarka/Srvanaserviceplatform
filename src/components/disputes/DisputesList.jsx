@@ -298,18 +298,20 @@ export function DisputesList({
             </select>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage(1)}
               disabled={!hasPrevPage || isLoading}
-              className="px-3 py-1 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               الأول
             </Button>
             <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage(page - 1)}
               disabled={!hasPrevPage || isLoading}
-              className="px-3 py-1 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               السابق
             </Button>
@@ -317,16 +319,18 @@ export function DisputesList({
               الصفحة {page} من {totalPages}
             </span>
             <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage(page + 1)}
               disabled={!hasNextPage || isLoading}
-              className="px-3 py-1 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               التالي
             </Button>
             <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage(totalPages)}
               disabled={!hasNextPage || isLoading}
-              className="px-3 py-1 text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               الأخير
             </Button>
