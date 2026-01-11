@@ -176,7 +176,7 @@ export function ServicesPage() {
 
                     {/* CTA Button */}
                     <Link 
-                      to="/signup"
+                      to="/order/create"
                       className="inline-flex items-center gap-3 bg-gradient-to-r from-[#F4C430] to-[#FFD700] text-[#1A2B4C] px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 group"
                     >
                       <span>اطلب الخدمة الآن</span>

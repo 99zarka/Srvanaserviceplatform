@@ -172,7 +172,7 @@ const OrderForm = ({
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="service_id">نوع الخدمة <span className="text-red-500">*</span></Label>
           <Controller
@@ -194,10 +194,10 @@ const OrderForm = ({
             )}
           />
           {errors.service_id && (
-            <p className="text-red-500 text-sm mt-1">{errors.service_id.message}</p>
+            <p className="mt-1 text-sm text-red-500">{errors.service_id.message}</p>
           )}
           {selectedServiceDetails && (
-            <p className="text-xs text-gray-500 mt-1">رسوم الفحص الأساسية: {selectedServiceDetails.base_inspection_fee} ج.م.</p>
+            <p className="mt-1 text-xs text-gray-500">رسوم الفحص الأساسية: {selectedServiceDetails.base_inspection_fee} ج.م.</p>
           )}
         </div>
 
@@ -221,7 +221,7 @@ const OrderForm = ({
               )}
             />
             {errors.offered_price && (
-              <p className="text-red-500 text-sm mt-1">{errors.offered_price.message}</p>
+              <p className="mt-1 text-sm text-red-500">{errors.offered_price.message}</p>
             )}
           </div>
         )}
@@ -246,7 +246,7 @@ const OrderForm = ({
               )}
             />
             {errors.final_price && (
-              <p className="text-red-500 text-sm mt-1">{errors.final_price.message}</p>
+              <p className="mt-1 text-sm text-red-500">{errors.final_price.message}</p>
             )}
           </div>
         )}
@@ -271,7 +271,7 @@ const OrderForm = ({
               )}
             />
             {errors.expected_price && (
-              <p className="text-red-500 text-sm mt-1">{errors.expected_price.message}</p>
+              <p className="mt-1 text-sm text-red-500">{errors.expected_price.message}</p>
             )}
           </div>
         )}
@@ -293,11 +293,11 @@ const OrderForm = ({
           )}
         />
         {errors.problem_description && (
-          <p className="text-red-500 text-sm mt-1">{errors.problem_description.message}</p>
+          <p className="mt-1 text-sm text-red-500">{errors.problem_description.message}</p>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="governorate">المحافظة <span className="text-red-500">*</span></Label>
                     <Controller
@@ -312,7 +312,7 @@ const OrderForm = ({
                         />
                       )}
                     />
-                    {errors.governorate && <p className="text-red-500 text-sm mt-1">{errors.governorate.message}</p>}
+                    {errors.governorate && <p className="mt-1 text-sm text-red-500">{errors.governorate.message}</p>}
                   </div>        <div className="space-y-2">
           <Label htmlFor="detailed_address">العنوان التفصيلي <span className="text-red-500">*</span></Label>
           <Controller
@@ -327,11 +327,11 @@ const OrderForm = ({
               />
             )}
           />
-          {errors.detailed_address && <p className="text-red-500 text-sm mt-1">{errors.detailed_address.message}</p>}
+          {errors.detailed_address && <p className="mt-1 text-sm text-red-500">{errors.detailed_address.message}</p>}
         </div>
       </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div className="space-y-2">
             <Label htmlFor="scheduled_date">التاريخ المحدد <span className="text-red-500">*</span></Label>
             <Controller
@@ -346,7 +346,7 @@ const OrderForm = ({
                         !field.value && "text-muted-foreground"
                       } ${errors.scheduled_date ? "focus:ring-red-500" : "focus:ring-blue-500"}`}
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      <CalendarIcon className="w-4 h-4 mr-2" />
                       {field.value ? format(new Date(field.value), "PPP") : <span>اختر تاريخًا</span>}
                     </Button>
                   </PopoverTrigger>
@@ -362,7 +362,7 @@ const OrderForm = ({
               )}
             />
             {errors.scheduled_date && (
-              <p className="text-red-500 text-sm mt-1">{errors.scheduled_date.message}</p>
+              <p className="mt-1 text-sm text-red-500">{errors.scheduled_date.message}</p>
             )}
           </div>
 
@@ -381,7 +381,7 @@ const OrderForm = ({
               )}
             />
             {errors.scheduled_time_start && (
-              <p className="text-red-500 text-sm mt-1">{errors.scheduled_time_start.message}</p>
+              <p className="mt-1 text-sm text-red-500">{errors.scheduled_time_start.message}</p>
             )}
           </div>
 
@@ -400,7 +400,7 @@ const OrderForm = ({
               )}
             />
             {errors.scheduled_time_end && (
-              <p className="text-red-500 text-sm mt-1">{errors.scheduled_time_end.message}</p>
+              <p className="mt-1 text-sm text-red-500">{errors.scheduled_time_end.message}</p>
             )}
           </div>
         </div>
@@ -416,7 +416,7 @@ const OrderForm = ({
                   id="offer_description"
                   placeholder="أضف أي ملاحظات أو أسئلة محددة للفني."
                   rows={3}
-                  className="bg-gray-100 text-gray-900 border-0 rounded-md p-2 focus:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 transition ease-in-out duration-150"
+                  className="p-2 text-gray-900 transition duration-150 ease-in-out bg-gray-100 border-0 rounded-md focus:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   {...field}
                 />
               )}
@@ -424,16 +424,16 @@ const OrderForm = ({
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row-reverse gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row-reverse">
           <Button 
             type="submit" 
-            className="w-full sm:w-auto flex-1 text-white font-bold transition-all ease-in-out duration-300 hover:scale-105 hover:shadow-xl transform" 
+            className="flex-1 w-full font-bold text-white transition-all duration-300 ease-in-out transform sm:w-auto hover:scale-105 hover:shadow-xl" 
             style={{ background: 'linear-gradient(to right, #1A2B4C, #F4C430)' }}
             disabled={isSubmitting}
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
                 <span>جاري الإرسال...</span>
               </>
             ) : (
@@ -444,7 +444,7 @@ const OrderForm = ({
             <Button
               type="button"
               variant="outline"
-              className="w-full sm:w-auto flex-1"
+              className="flex-1 w-full sm:w-auto"
               onClick={onCancel}
               disabled={isSubmitting}
             >
