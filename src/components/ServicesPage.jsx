@@ -12,21 +12,21 @@ import electricalImg from "./public/FeaturedQuickServices-img/electrical-fixing.
 import paintingImg from "./public/FeaturedQuickServices-img/painting.webp";
 import carpentryImg from "./public/FeaturedQuickServices-img/carpentry.webp";
 import heaterImg from "./public/FeaturedQuickServices-img/heater-installation.webp";
-import batteryReplacementImg from "./public/FeaturedQuickServices-img/Battery Replacement.png";
-import brakeInspectionImg from "./public/FeaturedQuickServices-img/Brake Inspection & Repair.png";
-import carpetCleaningImg from "./public/FeaturedQuickServices-img/Carpet Cleaning.png";
-import computerRepairImg from "./public/FeaturedQuickServices-img/Computer Repair.png";
-import dataRecoveryImg from "./public/FeaturedQuickServices-img/Data Recovery.png";
-import deepCleaningImg from "./public/FeaturedQuickServices-img/Deep Cleaning.png";
-import diagnosticServicesImg from "./public/FeaturedQuickServices-img/Diagnostic Services.png";
-import gutterCleaningImg from "./public/FeaturedQuickServices-img/Gutter Cleaning.png";
-import lawnMowingImg from "./public/FeaturedQuickServices-img/Lawn Mowing & Maintenance.png";
-import networkSetupImg from "./public/FeaturedQuickServices-img/Network Setup.png";
-import oilChangeImg from "./public/FeaturedQuickServices-img/Oil Change.png";
-import roofingRepairImg from "./public/FeaturedQuickServices-img/Roofing Repair.png";
-import softwareInstallationImg from "./public/FeaturedQuickServices-img/Software Installation & Support.png";
-import tireRotationImg from "./public/FeaturedQuickServices-img/Tire Rotation & Balance.png";
-import treeTrimmingImg from "./public/FeaturedQuickServices-img/Tree Trimming.png";
+import batteryReplacementImg from "./public/FeaturedQuickServices-img/Battery Replacement.jpg";
+import brakeInspectionImg from "./public/FeaturedQuickServices-img/Brake Inspection & Repair.jpg";
+import carpetCleaningImg from "./public/FeaturedQuickServices-img/Carpet Cleaning.jpg";
+import computerRepairImg from "./public/FeaturedQuickServices-img/Computer Repair.jpg";
+import dataRecoveryImg from "./public/FeaturedQuickServices-img/Data Recovery.jpg";
+import deepCleaningImg from "./public/FeaturedQuickServices-img/Deep Cleaning.jpg";
+import diagnosticServicesImg from "./public/FeaturedQuickServices-img/Diagnostic Services.jpg";
+import gutterCleaningImg from "./public/FeaturedQuickServices-img/Gutter Cleaning.jpg";
+import lawnMowingImg from "./public/FeaturedQuickServices-img/Lawn Mowing & Maintenance.jpg";
+import networkSetupImg from "./public/FeaturedQuickServices-img/Network Setup.jpg";
+import oilChangeImg from "./public/FeaturedQuickServices-img/Oil Change.jpg";
+import roofingRepairImg from "./public/FeaturedQuickServices-img/Roofing Repair.jpg";
+import softwareInstallationImg from "./public/FeaturedQuickServices-img/Software Installation & Support.jpg";
+import tireRotationImg from "./public/FeaturedQuickServices-img/Tire Rotation & Balance.jpg";
+import treeTrimmingImg from "./public/FeaturedQuickServices-img/Tree Trimming.jpg";
 
 export function ServicesPage() {
   const dispatch = useDispatch();
