@@ -15,14 +15,6 @@ import {
   Plus,
 } from "lucide-react";
 
-// الصور
-import acCleaningImg from "./public/FeaturedQuickServices-img/ac-cleaning.webp";
-import plumbingImg from "./public/FeaturedQuickServices-img/plumbing-leaks.webp";
-import electricalImg from "./public/FeaturedQuickServices-img/electrical-fixing.webp";
-import paintingImg from "./public/FeaturedQuickServices-img/painting.webp";
-import carpentryImg from "./public/FeaturedQuickServices-img/carpentry.webp";
-import heaterImg from "./public/FeaturedQuickServices-img/heater-installation.webp";
-
 // --- بيانات الخدمات ---
 const quickServicesData = [
   {
@@ -31,7 +23,7 @@ const quickServicesData = [
     description:
       "الأعلى طلبًا يوميًا — حلول سريعة لجميع مشاكل السباكة في منزلك.",
     icon: Droplets,
-    image: plumbingImg,
+    image: "/FeaturedQuickServices-img/plumbing-leaks.webp",
     features: [
       { name: "إصلاح تسريبات المياه", slug: "/services" },
       { name: "كشف وتسليك انسداد", slug: "/services" },
@@ -48,7 +40,7 @@ const quickServicesData = [
     title: "الكهرباء",
     description: "إصلاح وتركيب كهربائي آمن وموثوق لمنزلك ومكتبك.",
     icon: Zap,
-    image: electricalImg,
+    image: "/FeaturedQuickServices-img/electrical-fixing.webp",
     features: [
       { name: "إصلاح أعطال كهرباء", slug: "/services" },
       { name: "تغيير مفاتيح وبرايز", slug: "/services" },
@@ -65,7 +57,7 @@ const quickServicesData = [
     title: "التكييف",
     description: "صيانة وتركيب وإصلاح جميع أنواع أجهزة التكييف.",
     icon: Wrench,
-    image: acCleaningImg,
+    image: "/FeaturedQuickServices-img/ac-cleaning.webp",
     features: [
       { name: "صيانة التكييف", slug: "/services" },
       { name: "تنظيف وغسيل التكييف", slug: "/services" },
@@ -81,7 +73,7 @@ const quickServicesData = [
     title: "صيانة الأجهزة",
     description: "إصلاح وصيانة جميع الأجهزة الكهربائية المنزلية.",
     icon: Wrench,
-    image: heaterImg,
+    image: "/FeaturedQuickServices-img/heater-installation.webp",
     features: [
       { name: "صيانة الثلاجات", slug: "/services" },
       { name: "صيانة الديب فريزر", slug: "/services" },
@@ -100,7 +92,7 @@ const quickServicesData = [
     title: "النجارة والحدادة",
     description: "أعمال نجارة وحدادة خفيفة لمنزلك ومكتبك.",
     icon: Paintbrush,
-    image: carpentryImg,
+    image: "/FeaturedQuickServices-img/carpentry.webp",
     features: [
       { name: "إصلاح أبواب خشب", slug: "/services" },
       { name: "تعديل وضبط مفصلات", slug: "/services" },
@@ -118,7 +110,7 @@ const quickServicesData = [
     title: "خدمات عامة",
     description: "أعمال تركيب وصيانة سريعة لجميع احتياجاتك المنزلية.",
     icon: Wrench,
-    image: paintingImg,
+    image: "/FeaturedQuickServices-img/painting.webp",
     features: [
       { name: "تركيب ستائر", slug: "/services" },
       { name: "تركيب شاشة", slug: "/services" },
@@ -137,7 +129,7 @@ const quickServicesData = [
     title: "الأسقف والعزل",
     description: "حلول متكاملة لعزل وإصلاح الأسطح والأسقف.",
     icon: Droplets,
-    image: acCleaningImg,
+    image: "/FeaturedQuickServices-img/ac-cleaning.webp",
     features: [
       { name: "إصلاح تسريبات السقف", slug: "/services" },
       { name: "عزل الأسطح (مائي/حراري)", slug: "/services" },

@@ -5,29 +5,6 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchServices } from '../redux/servicesSlice';
 
-// Import local images
-import acCleaningImg from "./public/FeaturedQuickServices-img/ac-cleaning.webp";
-import plumbingImg from "./public/FeaturedQuickServices-img/plumbing-leaks.webp";
-import electricalImg from "./public/FeaturedQuickServices-img/electrical-fixing.webp";
-import paintingImg from "./public/FeaturedQuickServices-img/painting.webp";
-import carpentryImg from "./public/FeaturedQuickServices-img/carpentry.webp";
-import heaterImg from "./public/FeaturedQuickServices-img/heater-installation.webp";
-import batteryReplacementImg from "./public/FeaturedQuickServices-img/Battery Replacement.png";
-import brakeInspectionImg from "./public/FeaturedQuickServices-img/Brake Inspection & Repair.png";
-import carpetCleaningImg from "./public/FeaturedQuickServices-img/Carpet Cleaning.png";
-import computerRepairImg from "./public/FeaturedQuickServices-img/Computer Repair.png";
-import dataRecoveryImg from "./public/FeaturedQuickServices-img/Data Recovery.png";
-import deepCleaningImg from "./public/FeaturedQuickServices-img/Deep Cleaning.png";
-import diagnosticServicesImg from "./public/FeaturedQuickServices-img/Diagnostic Services.png";
-import gutterCleaningImg from "./public/FeaturedQuickServices-img/Gutter Cleaning.png";
-import lawnMowingImg from "./public/FeaturedQuickServices-img/Lawn Mowing & Maintenance.png";
-import networkSetupImg from "./public/FeaturedQuickServices-img/Network Setup.png";
-import oilChangeImg from "./public/FeaturedQuickServices-img/Oil Change.png";
-import roofingRepairImg from "./public/FeaturedQuickServices-img/Roofing Repair.png";
-import softwareInstallationImg from "./public/FeaturedQuickServices-img/Software Installation & Support.png";
-import tireRotationImg from "./public/FeaturedQuickServices-img/Tire Rotation & Balance.png";
-import treeTrimmingImg from "./public/FeaturedQuickServices-img/Tree Trimming.png";
-
 export function ServicesPage() {
   const dispatch = useDispatch();
   const { services, loading, error } = useSelector((state) => state.services);
@@ -36,32 +13,33 @@ export function ServicesPage() {
     dispatch(fetchServices({ page_size: 50 }));
   }, [dispatch]);
   
+  // Use public folder paths - these will work in production
   const serviceImages = {
-    "Plumbing Repair": plumbingImg,
-    "Electrical Services": electricalImg,
-    "HVAC Maintenance": acCleaningImg,
-    "Appliance Repair": heaterImg,
-    "Painting Services": paintingImg,
-    "Carpentry": carpentryImg,
-    "Roofing Repair": roofingRepairImg,
-    "Gutter Cleaning": gutterCleaningImg,
-    "Oil Change": oilChangeImg,
-    "Brake Inspection & Repair": brakeInspectionImg,
-    "Tire Rotation & Balance": tireRotationImg,
-    "Battery Replacement": batteryReplacementImg,
-    "Diagnostic Services": diagnosticServicesImg,
-    "Computer Repair": computerRepairImg,
-    "Network Setup": networkSetupImg,
-    "Data Recovery": dataRecoveryImg,
-    "Software Installation & Support": softwareInstallationImg,
-    "Deep Cleaning": deepCleaningImg,
-    "Carpet Cleaning": carpetCleaningImg,
-    "Lawn Mowing & Maintenance": lawnMowingImg,
-    "Tree Trimming": treeTrimmingImg,
+    "Plumbing Repair": "/FeaturedQuickServices-img/plumbing-leaks.webp",
+    "Electrical Services": "/FeaturedQuickServices-img/electrical-fixing.webp",
+    "HVAC Maintenance": "/FeaturedQuickServices-img/ac-cleaning.webp",
+    "Appliance Repair": "/FeaturedQuickServices-img/heater-installation.webp",
+    "Painting Services": "/FeaturedQuickServices-img/painting.webp",
+    "Carpentry": "/FeaturedQuickServices-img/carpentry.webp",
+    "Roofing Repair": "/FeaturedQuickServices-img/Roofing Repair.png",
+    "Gutter Cleaning": "/FeaturedQuickServices-img/Gutter Cleaning.png",
+    "Oil Change": "/FeaturedQuickServices-img/Oil Change.png",
+    "Brake Inspection & Repair": "/FeaturedQuickServices-img/Brake Inspection & Repair.png",
+    "Tire Rotation & Balance": "/FeaturedQuickServices-img/Tire Rotation & Balance.png",
+    "Battery Replacement": "/FeaturedQuickServices-img/Battery Replacement.png",
+    "Diagnostic Services": "/FeaturedQuickServices-img/Diagnostic Services.png",
+    "Computer Repair": "/FeaturedQuickServices-img/Computer Repair.png",
+    "Network Setup": "/FeaturedQuickServices-img/Network Setup.png",
+    "Data Recovery": "/FeaturedQuickServices-img/Data Recovery.png",
+    "Software Installation & Support": "/FeaturedQuickServices-img/Software Installation & Support.png",
+    "Deep Cleaning": "/FeaturedQuickServices-img/Deep Cleaning.png",
+    "Carpet Cleaning": "/FeaturedQuickServices-img/Carpet Cleaning.png",
+    "Lawn Mowing & Maintenance": "/FeaturedQuickServices-img/Lawn Mowing & Maintenance.png",
+    "Tree Trimming": "/FeaturedQuickServices-img/Tree Trimming.png",
   };
 
   const getServiceImage = (service) => {
-    return serviceImages[service.service_name] || plumbingImg;
+    return serviceImages[service.service_name] || "/FeaturedQuickServices-img/plumbing-leaks.webp";
   };
 
   if (loading) return (
