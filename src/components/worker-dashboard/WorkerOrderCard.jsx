@@ -118,14 +118,15 @@ const WorkerOrderCard = ({
         </div>
 
         <div className="flex flex-wrap gap-2 items-center">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onViewDetails(order.order_id)}
-            disabled={loading}
-          >
-            عرض التفاصيل
-          </Button>
+          <Link to={`/dashboard/tasks/${order.order_id}`}>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={loading}
+            >
+              عرض التفاصيل
+            </Button>
+          </Link>
 
           {order.order_status === 'ACCEPTED' && (
             <Button
