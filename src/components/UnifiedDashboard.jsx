@@ -90,7 +90,7 @@ export function UnifiedDashboard() {
     { icon: FileText, label: "المشاريع", path: "/dashboard/orders" },
     { icon: Shield, label: "طلبات التحقق", path: "/dashboard/verifications" },
     { icon: Briefcase, label: "الخدمات", path: "/dashboard/services" },
-    { icon: FileText, label: "التقارير", path: "/dashboard/reports" },
+    //{ icon: FileText, label: "التقارير", path: "/dashboard/reports" },
     { icon: Flag, label: "النزاعات", path: "/dashboard/admin-disputes" },
   ];
 
