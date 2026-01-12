@@ -29,20 +29,49 @@ const PublicProjectsList = () => {
     dispatch(getAvailableOrders({ page: 1, page_size: 10 }));
   }, [dispatch]);
 
-  // Project images mapping
-  const projectImages = [
-    "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=800&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1581094271901-8022df4466f9?w=800&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=800&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&h=600&fit=crop",
-    "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=800&h=600&fit=crop",
-  ];
+  // Service images mapping from FeaturedQuickServices-img
+  const serviceImages = {
+    "Plumbing Repair": "/FeaturedQuickServices-img/plumbing-leaks.webp",
+    "Electrical Services": "/FeaturedQuickServices-img/electrical-fixing.webp",
+    "HVAC Maintenance": "/FeaturedQuickServices-img/ac-cleaning.webp",
+    "Appliance Repair": "/FeaturedQuickServices-img/heater-installation.webp",
+    "Painting Services": "/FeaturedQuickServices-img/painting.webp",
+    "Carpentry": "/FeaturedQuickServices-img/carpentry.webp",
+    "Roofing Repair": "/FeaturedQuickServices-img/Roofing Repair.jpg",
+    "Gutter Cleaning": "/FeaturedQuickServices-img/Gutter Cleaning.jpg",
+    "Oil Change": "/FeaturedQuickServices-img/Oil Change.jpg",
+    "Brake Inspection & Repair": "/FeaturedQuickServices-img/Brake Inspection & Repair.jpg",
+    "Tire Rotation & Balance": "/FeaturedQuickServices-img/Tire Rotation & Balance.jpg",
+    "Battery Replacement": "/FeaturedQuickServices-img/Battery Replacement.jpg",
+    "Diagnostic Services": "/FeaturedQuickServices-img/Diagnostic Services.jpg",
+    "Computer Repair": "/FeaturedQuickServices-img/Computer Repair.jpg",
+    "Network Setup": "/FeaturedQuickServices-img/Network Setup.jpg",
+    "Data Recovery": "/FeaturedQuickServices-img/Data Recovery.jpg",
+    "Software Installation & Support": "/FeaturedQuickServices-img/Software Installation & Support.jpg",
+    "Deep Cleaning": "/FeaturedQuickServices-img/Deep Cleaning.jpg",
+    "Carpet Cleaning": "/FeaturedQuickServices-img/Carpet Cleaning.jpg",
+    "Lawn Mowing & Maintenance": "/FeaturedQuickServices-img/Lawn Mowing & Maintenance.jpg",
+    "Tree Trimming": "/FeaturedQuickServices-img/Tree Trimming.jpg",
+  };
 
-  const getProjectImage = (index) => {
-    return projectImages[index % projectImages.length];
+  const getProjectImage = (order) => {
+    // Try to match by service name (English or Arabic)
+    const serviceName = order.service?.service_name || order.service?.arabic_name;
+    
+    // Direct match
+    if (serviceImages[serviceName]) {
+      return serviceImages[serviceName];
+    }
+    
+    // Try to find a partial match
+    for (const [key, value] of Object.entries(serviceImages)) {
+      if (serviceName && (serviceName.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(serviceName.toLowerCase()))) {
+        return value;
+      }
+    }
+    
+    // Default fallback image
+    return "/FeaturedQuickServices-img/plumbing-leaks.webp";
   };
 
   // Extract unique services and locations from orders
@@ -338,11 +367,11 @@ const PublicProjectsList = () => {
                           }}
                         >
                           <img
-                            src={getProjectImage(index)}
+                            src={getProjectImage(order)}
                             alt={order.service?.arabic_name || 'مشروع'}
                             className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
                             onError={(e) => {
-                              e.target.src = "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop";
+                              e.target.src = "/FeaturedQuickServices-img/plumbing-leaks.webp";
                             }}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-[#1A2B4C]/70 to-transparent"></div>
