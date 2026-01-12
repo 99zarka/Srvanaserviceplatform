@@ -173,7 +173,7 @@ const ClientOrdersAndOffers = () => {
 
     try {
       await dispatch(submitReview({
-        order: selectedOrder.order_id,
+        order_id: selectedOrder.order_id,
         technician: reviewTechnicianId,
         rating: parseFloat(reviewRating),
         comment: reviewComment,
