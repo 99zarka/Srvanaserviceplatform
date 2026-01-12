@@ -136,7 +136,7 @@ const AIChatContainer = () => {
       const lastMessage = messages[messages.length - 1];
       if (lastMessage.role === 'assistant' && lastMessage.content && lastMessage.id !== lastPlayedMessageId.current && lastMessage.timestamp > (liveChatStartTime.current || 0)) {
         lastPlayedMessageId.current = lastMessage.id;
-        handlePlayTTS(lastMessage.content.reply);
+        handlePlayTTS(lastMessage.reply);
       }
     }
   }, [messages, isLiveChatActive, lastPlayedMessageId, liveChatStartTime]);
@@ -190,6 +190,7 @@ const AIChatContainer = () => {
         content: msg.content,
         timestamp: new Date(msg.timestamp),
         image_url: msg.image_url,
+        reply: msg.reply,
         file_url: msg.file_url,
       })));
     }
